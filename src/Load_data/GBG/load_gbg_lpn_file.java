@@ -7,7 +7,6 @@ package Load_data.GBG;
 
 import Load_data.loadFrame;
 import connection.ConnectionDb;
-import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

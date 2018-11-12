@@ -54,7 +54,9 @@ public class Work_status_open extends javax.swing.JInternalFrame {
 
         @Override
         protected Void doInBackground(){
-        load();
+            data_cut();
+            initPlan();
+            load();
             listData();
             return null;
         }
@@ -96,8 +98,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         
         prod=new HashMap<>();
         
-        data_cut();
-        initPlan();
+        
         populate=new PopulateTable();
         populate.execute();
     }
@@ -110,6 +111,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         String requete="select * from work_process where state<>'5'";
         ResultSet rs = conn.select(requete);
         int planqty=0,prodqty=0;
+        
         
         try {
             while(rs.next()){
@@ -223,6 +225,8 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 data[23]=sku;
                 data[24]=status;
                 data[0]=rs.getDate("shipdate");
+                line++;
+                
                 listeData.add(data);
                tot+=rs.getInt("qty");;
             }
@@ -236,6 +240,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
            totpad.setText(String.valueOf(apad));
            totpl.setText(String.valueOf(tplan));
            totfirst.setText(String.valueOf(first_tot));
+           System.out.println("nbr line:"+line);
     }
     private void listData(){
         
@@ -704,7 +709,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         DefaultTableModel tbm = (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
         for(Object[] o:listeData){
-            if(o[2].toString().toLowerCase().contains(potxt.trim().toLowerCase())&& o[3].toString().contains(style.trim().toLowerCase())&&
+            if(o[2].toString().toLowerCase().contains(potxt.trim().toLowerCase())&& o[3].toString().toLowerCase().contains(style.trim().toLowerCase())&&
                     (o[5].toString().toLowerCase().contains(col.trim())||o[4].toString().toLowerCase().contains(col.trim()))&&
                     o[6].toString().toLowerCase().contains(size.trim())&&o[1].toString().toLowerCase().contains(client)&&o[7].toString().toLowerCase().contains(sku)
                ){

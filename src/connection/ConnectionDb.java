@@ -26,7 +26,7 @@ public class ConnectionDb {
     private static ConnectionDb con=null;    
     private String user="iw";
     private String pass="passwordiw";//DESKTOP-V6D55MO
-    private String Url="jdbc:sqlserver://IW2012R2-DC\\SQLEXPRESSIW;databaseName=iwexact";
+    private String Url="jdbc:sqlserver://IW2012R2-DC\\SQLEXPRESSIW;databaseName=wip_archive";
     private Statement state=null;
     private ResultSet resultat;
     private Connection connection=null;

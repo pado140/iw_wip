@@ -49,7 +49,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
 
     private JInternalFrame summary,bundle_t,sewing_prod,cansew,report_r,wip_r,TRAVEL,packing,packed,packed_mix,nStyle
             ,at_pp,dreport,CONSO,at_soabar,lpnHol,lpnEd,lpnChs,ORD_WEST,workStyle,sewing,daily_soa,daily_pad,updatepo,oponly,delDaily,close,user,ord_gbg,
-            update_production,lpn_gb,lpngbg_convert,sewing_ajust,update_workcenter,unscan,update_mod,tag,fab,lpn_update,upc_scan,sum_mod;
+            update_production,lpn_gb,lpngbg_convert,sewing_ajust,update_workcenter,unscan,update_mod,tag,fab,lpn_update,upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack;
     public Connection_user auth;
     private lock_fen lockframe;
     public static int user_id=0;
@@ -122,12 +122,16 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         jMenuBar1 = new javax.swing.JMenuBar();
         WIPMenu = new javax.swing.JMenu();
         wp_only = new javax.swing.JMenuItem();
+        jMenuItem10 = new javax.swing.JMenuItem();
         jSeparator3 = new javax.swing.JPopupMenu.Separator();
         heat = new javax.swing.JMenuItem();
         emb = new javax.swing.JMenuItem();
         sew = new javax.swing.JMenuItem();
         ready = new javax.swing.JMenuItem();
         bundle = new javax.swing.JMenuItem();
+        jMenuItem11 = new javax.swing.JMenuItem();
+        jMenuItem12 = new javax.swing.JMenuItem();
+        jMenuItem13 = new javax.swing.JMenuItem();
         pack1 = new javax.swing.JMenuItem();
         psp = new javax.swing.JMenuItem();
         jMenuItem6 = new javax.swing.JMenuItem();
@@ -142,7 +146,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         wip = new javax.swing.JMenuItem();
         in_proces_sum = new javax.swing.JMenuItem();
         settup = new javax.swing.JMenu();
-        style_manager = new javax.swing.JMenuItem();
+        jMenuItem14 = new javax.swing.JMenuItem();
         Consolidation = new javax.swing.JMenu();
         createbox = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -279,6 +283,15 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             }
         });
         WIPMenu.add(wp_only);
+
+        jMenuItem10.setText("Post Sewing");
+        jMenuItem10.setName("postSewing"); // NOI18N
+        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem10ActionPerformed(evt);
+            }
+        });
+        WIPMenu.add(jMenuItem10);
         WIPMenu.add(jSeparator3);
 
         heat.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F3, 0));
@@ -329,6 +342,33 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             }
         });
         WIPMenu.add(bundle);
+
+        jMenuItem11.setText("transfer_to_wash");
+        jMenuItem11.setName("washing"); // NOI18N
+        jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem11ActionPerformed(evt);
+            }
+        });
+        WIPMenu.add(jMenuItem11);
+
+        jMenuItem12.setText("transfer_to_matchbook");
+        jMenuItem12.setName("matchbook"); // NOI18N
+        jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem12ActionPerformed(evt);
+            }
+        });
+        WIPMenu.add(jMenuItem12);
+
+        jMenuItem13.setText("transfer to press");
+        jMenuItem13.setName("pressroom"); // NOI18N
+        jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem13ActionPerformed(evt);
+            }
+        });
+        WIPMenu.add(jMenuItem13);
 
         pack1.setText("Packed");
         pack1.setName("Packed"); // NOI18N
@@ -429,14 +469,14 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         settup.setText("Setting");
         settup.setName("Setting"); // NOI18N
 
-        style_manager.setText("New Style");
-        style_manager.setName("Style"); // NOI18N
-        style_manager.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem14.setText("New Style");
+        jMenuItem14.setName("initStyle"); // NOI18N
+        jMenuItem14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                style_managerActionPerformed(evt);
+                jMenuItem14ActionPerformed(evt);
             }
         });
-        settup.add(style_manager);
+        settup.add(jMenuItem14);
 
         Consolidation.setText("CONSOLIDATION");
         Consolidation.setName("Consolidation"); // NOI18N
@@ -960,27 +1000,6 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         }
         packed.toFront();
     }//GEN-LAST:event_pack1ActionPerformed
-
-    private void style_managerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_style_managerActionPerformed
-        // TODO add your handling code here:
-        if(nStyle==null|| nStyle.isClosed()){
-            nStyle=new NEW_Style();
-            nStyle.setVisible(true);
-            label_principal.add(nStyle);
-            
-            System.out.println("new");
-        }
-        if(nStyle.isIcon()){
-            try {
-                nStyle.setIcon(false);
-            } catch (PropertyVetoException ex) {
-                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            System.out.println("old");
-        }
-        nStyle.toFront();
-    }//GEN-LAST:event_style_managerActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
@@ -1683,6 +1702,111 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         sum_mod.toFront();
     }//GEN-LAST:event_in_proces_sumActionPerformed
 
+    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
+        // TODO add your handling code here:
+        if(post_sewing==null|| post_sewing.isClosed()){
+            post_sewing=new post_sewing_operation();
+            post_sewing.setVisible(true);
+            label_principal.add(post_sewing);
+            
+            System.out.println("new");
+        }
+        if(post_sewing.isIcon()){
+            try {
+                post_sewing.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        post_sewing.toFront();
+    }//GEN-LAST:event_jMenuItem10ActionPerformed
+
+    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
+        // TODO add your handling code here:
+        if(wash==null|| wash.isClosed()){
+            wash=new Washing();
+            wash.setVisible(true);
+            label_principal.add(wash);
+            
+            System.out.println("new");
+        }
+        if(wash.isIcon()){
+            try {
+                wash.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        wash.toFront();
+    }//GEN-LAST:event_jMenuItem11ActionPerformed
+
+    private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem12ActionPerformed
+        // TODO add your handling code here:
+        if(match_book==null|| match_book.isClosed()){
+            match_book=new matchbook();
+            match_book.setVisible(true);
+            label_principal.add(match_book);
+            
+            System.out.println("new");
+        }
+        if(match_book.isIcon()){
+            try {
+                match_book.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        match_book.toFront();
+    }//GEN-LAST:event_jMenuItem12ActionPerformed
+
+    private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
+        // TODO add your handling code here:
+        if(post_sewing==null|| post_sewing.isClosed()){
+            post_sewing=new post_sewing_operation();
+            post_sewing.setVisible(true);
+            label_principal.add(post_sewing);
+            
+            System.out.println("new");
+        }
+        if(post_sewing.isIcon()){
+            try {
+                post_sewing.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        post_sewing.toFront();
+    }//GEN-LAST:event_jMenuItem13ActionPerformed
+
+    private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
+        // TODO add your handling code here:
+        if(post_sewing==null|| post_sewing.isClosed()){
+            post_sewing=new post_sewing_operation();
+            post_sewing.setVisible(true);
+            label_principal.add(post_sewing);
+            
+            System.out.println("new");
+        }
+        if(post_sewing.isIcon()){
+            try {
+                post_sewing.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        post_sewing.toFront();
+    }//GEN-LAST:event_jMenuItem14ActionPerformed
+
     private void init(){
         connecter=false;
         if(time==null)
@@ -1813,6 +1937,11 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem10;
+    private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem12;
+    private javax.swing.JMenuItem jMenuItem13;
+    private javax.swing.JMenuItem jMenuItem14;
     private javax.swing.JMenuItem jMenuItem19;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem20;
@@ -1848,7 +1977,6 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenu settup;
     private javax.swing.JMenuItem sew;
     private javax.swing.JMenuItem sewing_help;
-    private javax.swing.JMenuItem style_manager;
     private javax.swing.JMenuItem transact;
     private javax.swing.JMenuItem travel;
     private javax.swing.JMenuItem update_asg_order;

@@ -5,19 +5,86 @@
  */
 package view;
 
+import connection.ConnectionDb;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Padovano
  */
 public class post_sewing_operation extends javax.swing.JInternalFrame {
 
+    private ConnectionDb conn = ConnectionDb.instance();
+    private DefaultTableModel tbm;
+    private Set<String> operations,style_op;
+    
     /**
      * Creates new form post_sewing_operation
      */
     public post_sewing_operation() {
         initComponents();
+        tbm=(DefaultTableModel)grid.getModel();
+        loadoperation();
+        init();
     }
 
+    private boolean has_post_sewing_process(String style){
+        return style_op.contains(style);
+    }
+    
+    private void loadoperation(){
+        String requete="select * from style_operations";
+        ResultSet rs=conn.select(requete);
+        style_op=new HashSet<>();
+        operations=new HashSet<>();
+        try {
+            while(rs.next()){
+                style_op.add(rs.getString("style").trim());
+                operations.add(rs.getString("style").trim()+rs.getInt("id_operation"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(post_sewing_operation.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    private void init(){
+        String requete="select * from process_all";
+        ResultSet rs=conn.select(requete);
+        tbm.setRowCount(0);
+        try {
+            while(rs.next()){
+                if(has_post_sewing_process(rs.getString("style").trim())){
+                Object[] data=new Object[16];
+                data[0]=rs.getString("work_order").trim();
+                data[1]=rs.getString("po").trim();
+                data[2]=rs.getString("style").trim();
+                String sku=rs.getString("sku");
+                data[3]=sku.substring(sku.indexOf(".")+1, sku.lastIndexOf("."))+"-"+rs.getString("color").trim();
+                data[4]=rs.getString("size").trim();
+                data[5]=rs.getInt("order_qty");
+                data[6]=rs.getInt("at_mod");
+                data[7]=rs.getInt("second");
+                data[8]=rs.getInt("at_mod")-rs.getInt("sewn");
+                data[10]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash")-rs.getInt("at_press"):"N/A");
+                data[11]=(operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press")-rs.getInt("at_match"):"N/A");
+                data[12]=(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match")-rs.getInt("ready"):"N/A");
+                data[13]=0;
+                data[14]=rs.getInt("ready");
+                data[15]=rs.getInt("packed");
+                data[9]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("sewn")-rs.getInt("at_wash"):
+                        (operations.contains(rs.getString("style").trim()+3)?rs.getInt("sewn")-rs.getInt("at_press"):rs.getInt("sewn")-rs.getInt("at_match")));
+                tbm.addRow(data);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(post_sewing_operation.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -40,27 +107,20 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
         jTextField5 = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        grid = new javax.swing.JTable();
+
+        setClosable(true);
+        setMaximizable(true);
 
         jLabel1.setText("PO:");
 
-        jTextField1.setText("jTextField1");
-
         jLabel2.setText("STYLE:");
-
-        jTextField2.setText("jTextField1");
 
         jLabel3.setText("COLOR:");
 
-        jTextField3.setText("jTextField1");
-
         jLabel4.setText("SIZE:");
 
-        jTextField4.setText("jTextField1");
-
         jLabel5.setText("WORK ORDER:");
-
-        jTextField5.setText("jTextField1");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -117,29 +177,25 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                 .addContainerGap(31, Short.MAX_VALUE))
         );
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        grid.setAutoCreateRowSorter(true);
+        grid.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null}
+
             },
             new String [] {
-                "WORK ORDER", "PO", "STYLE", "COLOR", "SIZE", "ORDER", "SEWN", "WASH", "MATCHBOOK", "PRESS", "PRESS TYPE", "PACKED"
+                "WORK ORDER", "PO", "STYLE", "COLOR", "SIZE", "ORDER", "AT MODULE", "SECOND", "BALANCE IN MODULE", "FIRST QUALITY", "WASHING", "PRESSING", "MATCHBOOOK", "OTFQ POST SEWING", "READY TO PACK", "PACKED"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(9).setResizable(false);
-        }
+        grid.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(grid);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -172,6 +228,7 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable grid;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -180,7 +237,6 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
