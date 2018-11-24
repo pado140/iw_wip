@@ -328,8 +328,6 @@ private JFileChooser file;
     try {
         while(rs.next()){
             Set<String>Op=operations(rs.getString("Style"));
-            if(Op.contains("MATCHBOOK"))
-                return rs.getInt("at_match")-rs.getInt("at_press");
             if(Op.contains("WASHING")){
                 return rs.getInt("at_wash")-rs.getInt("at_press");
             }else{
@@ -423,32 +421,32 @@ private JFileChooser file;
         return result;
     }
     
-    private boolean setqty(int qty,String sew){
-        String requete="update press set QTY=? where stickers=?";
-        return conn.Update(requete, 0, new Object[]{qty,sew});
-    }
-     private boolean setWashing(String sew){
-        String requete="update press set pressed=1 where stickers=?";
-        return conn.Update(requete, 0, sew);
-    }
-    private boolean setInvalid(int id){
-        String requete="update press set pressed=2 where id=?";
-        return conn.Update(requete, 0, id);
-    }
-    
-    private int first(String trave){
-        String requete="select min(id) ID from press where travel_no=? and pressed=0 and QTY<>0";
-        ResultSet rs=conn.select(requete,trave);
-        int id=0;
-        try {
-            while(rs.next()){
-                id=rs.getInt("id");
-                 }   
-        } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return id;
-    }
+//    private boolean setqty(int qty,String sew){
+//        String requete="update press set QTY=? where stickers=?";
+//        return conn.Update(requete, 0, new Object[]{qty,sew});
+//    }
+//     private boolean setWashing(String sew){
+//        String requete="update press set pressed=1 where stickers=?";
+//        return conn.Update(requete, 0, sew);
+//    }
+//    private boolean setInvalid(int id){
+//        String requete="update press set pressed=2 where id=?";
+//        return conn.Update(requete, 0, id);
+//    }
+//    
+//    private int first(String trave){
+//        String requete="select min(id) ID from press where travel_no=? and pressed=0 and QTY<>0";
+//        ResultSet rs=conn.select(requete,trave);
+//        int id=0;
+//        try {
+//            while(rs.next()){
+//                id=rs.getInt("id");
+//                 }   
+//        } catch (SQLException ex) {
+//            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return id;
+//    }
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

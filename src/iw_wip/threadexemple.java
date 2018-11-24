@@ -39,9 +39,11 @@ DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             System.out.println(cal.getTime());
             if(cal.get(Calendar.HOUR_OF_DAY)>=8){
                     //System.exit(0);
-                    alerter("closed");
+                    if((cal.get(Calendar.HOUR_OF_DAY)==8 && cal.get(Calendar.MINUTE)>=30)||cal.get(Calendar.HOUR_OF_DAY)>8)
+                        alerter("closed");
+                    
                 }
-                if(cal.get(Calendar.HOUR_OF_DAY)<8){
+                if(cal.get(Calendar.HOUR_OF_DAY)<9){
                     
                     if(!isok){
                     a=1;

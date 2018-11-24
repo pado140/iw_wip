@@ -387,11 +387,11 @@ private JFileChooser file;
                     System.out.println(option);
                     
                     qty=Integer.parseInt(option);
-                    if(this.setqty(qty, cr))
-                        this.setInvalid(first(sticker));
+                    
                     }
                     if(qty<=ability(worder)){
-                        this.setWashing(cr);
+                        scan(worder, cr, qty, type, sticker);
+                        
                         message="ok";
                         return true;
                     }else{
@@ -412,33 +412,33 @@ private JFileChooser file;
         return false;
     }
     
-    private boolean setqty(int qty,String sew){
-        String requete="insert into washing(ordernum,stickers,=?";
-        return conn.Update(requete, 0, new Object[]{qty,sew});
+    private boolean scan(String ordernum,String stickers,int qty,String type,String sew){
+        String requete="insert into washing(ordernum,stickers,qty,type,travel_no) values(?,?,?,?,?)";
+        return conn.Update(requete, 0, ordernum,stickers,qty,type,sew);
     }
-     private boolean setWashing(String sew){
-        String requete="update washing set isWash=1 where stickers=?";
-        return conn.Update(requete, 0, sew);
-    }
-    private boolean setInvalid(int id){
-        String requete="update washing set isWash=2 where id=?";
-        return conn.Update(requete, 0, id);
-    }
-    
-    private int first(String trave){
-        String requete="select min(id) ID from washing where travel_no=? and isWash=0 and QTY<>0";
-        ResultSet rs=conn.select(requete,trave);
-        int id=0;
-        try {
-            while(rs.next()){
-                id=rs.getInt("id");
-                 }   
-        } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return id;
-    }
-    
+//     private boolean setWashing(String sew){
+//        String requete="update washing set isWash=1 where stickers=?";
+//        return conn.Update(requete, 0, sew);
+//    }
+//    private boolean setInvalid(int id){
+//        String requete="update washing set isWash=2 where id=?";
+//        return conn.Update(requete, 0, id);
+//    }
+//    
+//    private int first(String trave){
+//        String requete="select min(id) ID from washing where travel_no=? and isWash=0 and QTY<>0";
+//        ResultSet rs=conn.select(requete,trave);
+//        int id=0;
+//        try {
+//            while(rs.next()){
+//                id=rs.getInt("id");
+//                 }   
+//        } catch (SQLException ex) {
+//            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return id;
+//    }
+//    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;
