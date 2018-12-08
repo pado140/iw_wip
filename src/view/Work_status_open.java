@@ -784,7 +784,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
     
     private Map<String,Integer> type(){
         Map<String,Integer> typ=new HashMap<>();
-        String requete="select ordnum_10,count(type_id) n from cut1 where type_id NOT IN(4,6,7) group by ordnum_10";
+        String requete="select ordnum_10,count(type_id) n from data_cut2 where type_id NOT IN(4,6,7) group by ordnum_10";
         ResultSet rs=conn.select(requete);
         try {
             while(rs.next()){

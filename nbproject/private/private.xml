@@ -3,39 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/At_soabar.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/Load_data/loadFrame.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/iw_wip/threadexemple.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/post_sewing_operation.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/FXMLController.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Fabrics.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Sewing_prod_before_eight.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Sewing_prod.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Work_status_open.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/press.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/lot.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/report/data_layout.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/at_matchbook.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Principal.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/report/sewing_old.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Heat_pad_old.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/lot_old.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/WIPDAILLY.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/travel_cardM.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Module_summary.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/report/sewing_1.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/Load_data/GBG/load_gbg_lpn_file.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Bundle_old.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/matchbook.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/delivered_report.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/initStyle.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Work_status.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/iw_wip/Iw_wip.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/report/Data.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/SOABAR_report.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Washing.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Ready_to_sew.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/ready_to_pack.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/Load_data/GBG/updateOrderFishman.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/Load_data/GBG/loadOrderFishman.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/Load_data/loadlpn.java</file>
         </group>
     </open-files>
 </project-private>
