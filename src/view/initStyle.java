@@ -351,6 +351,9 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
         tbm.setRowCount(0);
         CUST.setSelectedIndex(0);
         proto_id=0;
+         press_step.setSelected(false);
+               match_book_step.setSelected(false);
+               wash_step.setSelected(false);
         //jButton1.setEnabled(false);
     }//GEN-LAST:event_txt_styleFocusGained
 
@@ -419,6 +422,9 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
         tbm.setRowCount(0);
         CUST.setSelectedIndex(0);
         proto_id=0;
+         press_step.setSelected(false);
+               match_book_step.setSelected(false);
+               wash_step.setSelected(false);
             }
             
         }else
@@ -448,7 +454,7 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
                 if(conn.Update(requete, 0, 3))
                     log+=conn.getErreur()+"\n";
             }
-                        
+              System.out.println("log:"+log);          
            if(log.isEmpty()){
                log="success";
                press_step.setSelected(false);
@@ -494,6 +500,24 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
             
         return data;
     }
+    
+    private void savewash(Object... ob){
+        String requete="INSERT INTO washing (stickers,QTY,type,ordernum,travel_no) VALUES(?,?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
+    
+    private void savepress(Object... ob){
+        String requete="INSERT INTO press (stickers,QTY,type,ordnum,travel_no) VALUES(?,?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
+    
+    private void savematchbook(Object... ob){
+        String requete="INSERT INTO matchbook (stickers,QTY,ordernum,travel_no) VALUES(?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox CUST;
@@ -534,9 +558,29 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
             while(rs.next()){
                 tbm.addRow(new Object[]{rs.getInt("FAB_ID"),rs.getString("FABNM"),rs.getInt("TYPE_ID"),rs.getString("TYPE"),"old"});
             }
+            rs.close();
         } catch (SQLException ex) {
             Logger.getLogger(NEW_Style.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        requete="select * from operations_styles where id_style=?";
+        rs=conn.select(requete, proto);
+        try {
+            while(rs.next()){
+                int op=rs.getInt("id_operation");
+                if(op==1)
+                   wash_step.setSelected(true);
+                if(op==2)
+                    match_book_step.setSelected(true);
+                if(op==3)
+                    press_step.setSelected(true);
+                
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(NEW_Style.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
     }
 
     @Override
