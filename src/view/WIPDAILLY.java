@@ -6,6 +6,11 @@
 package view;
 
 import connection.ConnectionDb;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,6 +31,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
@@ -47,23 +53,91 @@ private Map<String, Integer> list_pack;
 private Set<Object[]> lisData;
 private Object[][] data;
 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+private Task task;
+    
+    private class Task extends SwingWorker<Void,Object>{
+
+        int total;
+        String commande;
+
+        public Task(String commande) {
+            System.out.println("new task");
+            this.commande=commande;
+        }
+        
+        @Override
+        protected Void doInBackground() {
+            int i=0;
+            loadData();
+            second();
+            progress.setIndeterminate(false);
+            progress.setString("0%");
+            total=lisData.size();
+            data=new Object[total][13];
+            
+        
+            for(Object[] ob:lisData){
+                
+                   data[i]=ob;
+                  
+                   //data[i][12]=list_pack.get(ob[12].toString());                  
+                   System.out.println("Val:"+((data[i][10].toString()+data[i][0].toString())));
+                   int val=0;
+                   try{
+                       val=list_second.get(data[i][10].toString().trim()+data[i][0].toString());
+                   }catch(NullPointerException e){
+                       val=0;
+                   }
+                   data[i][9]=Integer.parseInt(data[i][9].toString())-val;
+                   data[i][10]=val;
+                  setProgress((int)Math.ceil(100*i/total));
+                  i++;
+            }       
+            return null;
+        }
+        
+        @Override
+        protected void done() {
+            super.done(); 
+            System.err.println("isCanceled"+this.isCancelled());
+            System.err.println("state:"+this.getState().toString());
+            state.setText("ready");
+            progress.setValue(100);
+            progress.setForeground(Color.GREEN);
+            progress.setString("Done");
+            alerter("reload",data);
+        }
+        
+        
+    }
     /**
      * Creates new form WIPCONTROL
      */
     public WIPDAILLY() {
         initComponents();
         this.ajouterObservateur(this);
-        loadData();
-            second();
-            packed();
-        mostrar();
-        alerter("reload",data);
+        init();
     }
 
+    private void init(){
+        progress.setIndeterminate(true);
+            progress.setString("initiating");
+            progress.setStringPainted(true);
+        task=new Task("load");
+        task.addPropertyChangeListener((PropertyChangeEvent evt) -> {
+            if(evt.getPropertyName().equals("progress")){
+                System.err.println(evt.getPropertyName());
+                System.err.println(evt.getNewValue());
+                progress.setValue((Integer)evt.getNewValue());
+                progress.setString(progress.getValue()+"%");
+            }
+        });
+        task.execute();
+    }
     private void refresh(){
         loadData();
             second();
-            packed();
+            //packed();
         mostrar();
         alerter("reload",data);
     }
@@ -85,19 +159,19 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                Code=sku.substring(sku.indexOf(".")+1,sku.lastIndexOf("."));
              
                    Object[] data=new Object[16];
-                   data[0]=rs.getString("Brand");
-                   data[1]=rs.getString("po");
-                   data[2]=rs.getString("style");
-                   data[10]=rs.getInt("PIECES_SEWN");
-                   data[3]=Code;
-                   data[4]=color;
-                   data[5]=size;
-                   data[7]=rs.getInt("qty_in_module");
-                   data[11]="BLD "+rs.getInt("workcenter")+"- "+rs.getString("mod");
-                   data[12]=rs.getDate("date_made");
-                   data[6]=rs.getInt("pieces");
-                   data[8]=rs.getInt("PIECES_SEWN");
-                   data[9]=rs.getString("stickers");
+                   data[2]=rs.getString("Brand");
+                   data[3]=rs.getString("po");
+                   data[4]=rs.getString("style");
+                   data[11]=rs.getInt("PIECES_SEWN");
+                   data[5]=Code;
+                   data[6]=color;
+                   data[7]=rs.getString("description");
+                   data[8]=size;
+                   data[1]="BLD "+rs.getInt("workcenter")+"- "+rs.getString("mod");
+                   data[0]=rs.getDate("date_made");
+                   data[9]=rs.getInt("PIECES_SEWN");
+                   data[10]=rs.getString("stickers");
+                   data[12]=rs.getString("order_num");
                    lisData.add(data);
             }   } catch (SQLException ex) {
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
@@ -108,7 +182,6 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         while(true){
             loadData();
             second();
-            packed();
         //mostrar();
         alerter("reload",data);
             try {
@@ -130,15 +203,15 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                    data[i]=ob;
                   
                    //data[i][12]=list_pack.get(ob[12].toString());                  
-                   System.out.println("Val:"+((data[i][9].toString()+data[i][12].toString())));
+                   System.out.println("Val:"+((data[i][10].toString()+data[i][0].toString())));
                    int val=0;
                    try{
-                       val=list_second.get(data[i][9].toString().trim()+data[i][12].toString());
+                       val=list_second.get(data[i][10].toString().trim()+data[i][0].toString());
                    }catch(NullPointerException e){
                        val=0;
                    }
-                   data[i][8]=Integer.parseInt(data[i][8].toString())-val;
-                   data[i][9]=val;
+                   data[i][9]=Integer.parseInt(data[i][9].toString())-val;
+                   data[i][10]=val;
                   i++;
             }
             System.out.println("load successfull");
@@ -167,10 +240,19 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         datesearch = new com.toedter.calendar.JDateChooser();
         to = new com.toedter.calendar.JDateChooser();
         jLabel4 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        custSearch = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        locateSearch = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         GRID_DATA = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
+        status = new javax.swing.JPanel();
+        jLabel9 = new javax.swing.JLabel();
+        state = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        progress = new javax.swing.JProgressBar();
 
         setClosable(true);
         setIconifiable(true);
@@ -249,12 +331,28 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
         jLabel4.setText("TO");
 
+        jLabel7.setText("CUSTOMER:");
+
+        custSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                custSearchKeyReleased(evt);
+            }
+        });
+
+        jLabel8.setText("LOCATION:");
+
+        locateSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                locateSearchKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(102, 102, 102)
+                .addGap(29, 29, 29)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(posearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -279,6 +377,14 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                         .addGap(22, 22, 22)
                         .addComponent(to, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(custSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(locateSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton2)
                 .addContainerGap())
@@ -312,7 +418,15 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(posearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel4)))))
+                                    .addComponent(jLabel4))))
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(custSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                            .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(locateSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jButton2))
                 .addGap(0, 22, Short.MAX_VALUE))
         );
@@ -320,17 +434,17 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         GRID_DATA.setAutoCreateRowSorter(true);
         GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "CUSTOMER", "PO", "STYLE", "COLOR_CODE", "COLOR", "SIZE", "ORDER", "QTY ISSUED", "FIRST", "SEGOND", "TOTAL PRODUCED", "LOCATION", "Date"
+                "CUSTOMER", "PO", "STYLE", "COLOR_CODE", "COLOR", "SIZE", "ORDER", "QTY ISSUED", "FIRST", "SEGOND", "TOTAL PRODUCED", "LOCATION", "Date", "WORK ORDER"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -350,7 +464,7 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addGap(0, 0, 0))
         );
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/export.png"))); // NOI18N
@@ -359,6 +473,38 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 jButton1ActionPerformed(evt);
             }
         });
+
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel9.setText("Status:");
+
+        state.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        state.setText("Status:");
+
+        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        javax.swing.GroupLayout statusLayout = new javax.swing.GroupLayout(status);
+        status.setLayout(statusLayout);
+        statusLayout.setHorizontalGroup(
+            statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(statusLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29)
+                .addComponent(jLabel9)
+                .addGap(29, 29, 29)
+                .addComponent(state, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        statusLayout.setVerticalGroup(
+            statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(state, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jSeparator1)
+            .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -369,6 +515,7 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(status, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -377,7 +524,9 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
@@ -398,21 +547,25 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             setCellData(sheet,GRID_DATA);
 
             FileOutputStream fileOut;
-            try {
+            
                 String name=file.getSelectedFile().getAbsolutePath();
                 if(!name.endsWith(".xlsx"))
                 name=file.getSelectedFile().getAbsolutePath()+".xlsx";
+            try {
                 System.out.println(name);
                 fileOut = new FileOutputStream(name);
                 wb.write(fileOut);
                 fileOut.close();
                 wb.close();
+                JOptionPane.showMessageDialog(null, "File saved with success");
+            Desktop dsk=Desktop.getDesktop();
+            dsk.open(new File(name));
             }catch (FileNotFoundException ex) {
                 Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
             }catch (IOException ex) {
                 Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
             }
-            JOptionPane.showMessageDialog(null, "File saved with success");
+            
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -457,6 +610,16 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         buscados();
     }//GEN-LAST:event_toPropertyChange
 
+    private void custSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_custSearchKeyReleased
+        // TODO add your handling code here:
+        buscados();
+    }//GEN-LAST:event_custSearchKeyReleased
+
+    private void locateSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_locateSearchKeyReleased
+        // TODO add your handling code here:
+        buscados();
+    }//GEN-LAST:event_locateSearchKeyReleased
+
     public void setCellData(XSSFSheet sheet,JTable table){
         Row row10=sheet.createRow(0);
         for(int j=0;j<table.getColumnCount();j++){
@@ -470,14 +633,14 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 Cell cells=rows.createCell(j);
                 try{
                 cells.setCellValue(table.getValueAt(i, j).toString());
-                if(j>5){
+                //if(j>5){
                     if(table.getValueAt(i, j) instanceof Double)
                 cells.setCellValue(Double.parseDouble(table.getValueAt(i, j).toString()));
                     if(table.getValueAt(i, j) instanceof Integer)
                 cells.setCellValue(Integer.parseInt(table.getValueAt(i, j).toString()));
                     if(table.getValueAt(i, j) instanceof Date)
                 cells.setCellValue((Date)table.getValueAt(i, j));
-                }
+                //}
                 }catch(NullPointerException e){
                     
                 }
@@ -493,23 +656,28 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         String style=stylesearch.getText().trim().toLowerCase();
         String color=colorsearch.getText().trim().toLowerCase();
         String size=sizesearch.getText().trim().toLowerCase();
+        String cust=custSearch.getText().trim().toLowerCase();
+        String lo=locateSearch.getText().trim().toLowerCase();
         System.out.println("date:"+datesearch.getDate());
         for(Object[] ob:lisData){
             if(datesearch.getDate()!=null){
-                if(ob[12]!=null){
+                if(ob[0]!=null){
                     if(to.getDate()!=null){
                         Date d=new Date();
                         Calendar cal=Calendar.getInstance(TimeZone.getDefault(), Locale.CANADA);
                         cal.setTime(datesearch.getDate());
                         cal.add(Calendar.DAY_OF_MONTH, -1);
                         d=cal.getTime();
-            if(ob[1].toString().trim().toLowerCase().contains(po)&&
-                    ob[2].toString().trim().toLowerCase().contains(style)&&
-                    (ob[3].toString().trim().toLowerCase().contains(color)||
-                    ob[4].toString().trim().toLowerCase().contains(color))&&
-                    ob[5].toString().trim().toLowerCase().contains(size)){
+            if(ob[3].toString().trim().toLowerCase().contains(po)&&
+                    ob[4].toString().trim().toLowerCase().contains(style)&&
+                    (ob[5].toString().trim().toLowerCase().contains(color)||
+                    ob[6].toString().trim().toLowerCase().contains(color))&&
+                    ob[7].toString().trim().toLowerCase().contains(size)&&
+                    ob[2].toString().trim().toLowerCase().contains(cust)&&
+                    ob[1].toString().trim().toLowerCase().contains(lo)
+                    ){
                 try {
-                    Date dd=formatter.parse(ob[12].toString());
+                    Date dd=formatter.parse(ob[0].toString());
                     if(dd.after(d)&&dd.before(to.getDate()))
                         tbm.addRow(ob);
                 } catch (ParseException ex) {
@@ -519,22 +687,26 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 
             }
                     }else{
-                        if(ob[1].toString().trim().toLowerCase().contains(po)&&
-                    ob[2].toString().trim().toLowerCase().contains(style)&&
-                    (ob[3].toString().trim().toLowerCase().contains(color)||
-                    ob[4].toString().trim().toLowerCase().contains(color))&&
-                    ob[5].toString().trim().toLowerCase().contains(size)&&
-                    ob[12].toString().equals(formatter.format(datesearch.getDate())))
+                        if(ob[3].toString().trim().toLowerCase().contains(po)&&
+                    ob[4].toString().trim().toLowerCase().contains(style)&&
+                    (ob[5].toString().trim().toLowerCase().contains(color)||
+                    ob[6].toString().trim().toLowerCase().contains(color))&&
+                    ob[7].toString().trim().toLowerCase().contains(size)&&
+                    ob[2].toString().trim().toLowerCase().contains(cust)&&
+                    ob[1].toString().trim().toLowerCase().contains(lo)&&
+                    ob[0].toString().equals(formatter.format(datesearch.getDate())))
                     
                 tbm.addRow(ob);
                     }
                 }
             }else{
-                if(ob[1].toString().trim().toLowerCase().contains(po)&&
-                    ob[2].toString().trim().toLowerCase().contains(style)&&
-                    (ob[3].toString().trim().toLowerCase().contains(color)||
-                    ob[4].toString().trim().toLowerCase().contains(color))&&
-                    ob[5].toString().trim().toLowerCase().contains(size))
+                if(ob[3].toString().trim().toLowerCase().contains(po)&&
+                    ob[4].toString().trim().toLowerCase().contains(style)&&
+                    (ob[5].toString().trim().toLowerCase().contains(color)||
+                    ob[6].toString().trim().toLowerCase().contains(color))&&
+                    ob[7].toString().trim().toLowerCase().contains(size)&&
+                    ob[2].toString().trim().toLowerCase().contains(cust)&&
+                    ob[1].toString().trim().toLowerCase().contains(lo))
                     
                 tbm.addRow(ob);
             }
@@ -576,6 +748,7 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;
     private javax.swing.JTextField colorsearch;
+    private javax.swing.JTextField custSearch;
     private com.toedter.calendar.JDateChooser datesearch;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -585,11 +758,19 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JTextField locateSearch;
     private javax.swing.JTextField posearch;
+    private javax.swing.JProgressBar progress;
     private javax.swing.JTextField sizesearch;
+    private javax.swing.JLabel state;
+    private javax.swing.JPanel status;
     private javax.swing.JTextField stylesearch;
     private com.toedter.calendar.JDateChooser to;
     // End of variables declaration//GEN-END:variables
@@ -617,17 +798,23 @@ SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             (Object[][])obs[1],
             new String [] {
-                "CUSTOMER", "PO", "STYLE", "COLOR_CODE", "COLOR", "SIZE", "ORDER", "QTY ISSUED", "FIRST", "SEGOND", "TOTAL PRODUCED", "LOCATION", "Date"
+                "Date","MODULE","CUSTOMER", "PO", "STYLE", "COLOR_CODE", "COLOR","DESCRIPTION", "SIZE", "ORDER", "QTY ISSUED", "FIRST", "SEGOND", "TOTAL PRODUCED",  "WORK ORDER"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false,false,false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+            GRID_DATA.getColumn("ORDER").setWidth(0);
+            GRID_DATA.getColumn("QTY ISSUED").setWidth(0);
+            GRID_DATA.getColumn("ORDER").setMinWidth(0);
+            GRID_DATA.getColumn("QTY ISSUED").setMinWidth(0);
+            GRID_DATA.getColumn("ORDER").setMaxWidth(0);
+            GRID_DATA.getColumn("QTY ISSUED").setMaxWidth(0);
         jScrollPane1.setViewportView(GRID_DATA);
         }
     }

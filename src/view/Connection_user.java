@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.BorderFactory;
+import javax.swing.JDialog;
 import javax.swing.JPasswordField;
 import observateurs.Observateurs;
 import observateurs.Observe;
@@ -31,6 +32,7 @@ private ConnectionDb conn = ConnectionDb.instance();
         
         initComponents();
         //this.getContentPane().setBackground(Color.WHITE);
+        JDialog.setDefaultLookAndFeelDecorated(true);
         this.setLocationRelativeTo(parent);
     }
 

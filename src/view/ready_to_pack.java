@@ -78,7 +78,7 @@ private JFileChooser file;
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
-        setTitle("Ready to Pack");
+        setTitle("At Packing");
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -91,7 +91,7 @@ private JFileChooser file;
             }
         });
 
-        jLabel1.setText("Scan stickers");
+        jLabel1.setText("Scan BOXES");
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/export.png"))); // NOI18N
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -286,7 +286,7 @@ private JFileChooser file;
     private void mostrar(){
     tbm.setRowCount(0);
     tbm1.setRowCount(0);
-    String requete="select * from at_wash";
+    String requete="select * from ";
     System.out.println(requete);
     ResultSet rs=conn.select(requete);
         try {

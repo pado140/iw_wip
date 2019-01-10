@@ -99,7 +99,7 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
 ",filler_01 as size\n" +
 ",CUSORD_147 po\n" +
 ",tomod \n" +
-"FROM [IWEXACT].[dbo].[SEWING_MIRROR] sm\n" +
+"FROM [SEWING_MIRROR] sm\n" +
 "inner join \n" +
 "ShopOrder on(sm.ORDER_NUM=ORDNUM_147)\n" +
 "inner join Part_Master on(PRTNUM_01=PRTNUM_147)\n" +

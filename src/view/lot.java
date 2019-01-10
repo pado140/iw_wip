@@ -53,6 +53,38 @@ public class lot extends javax.swing.JDialog implements Observateurs{
         if(!conn.Update(requete, 0, ob))
             System.err.println(conn.getErreur());
     }
+    
+    private void savewash(Object... ob){
+        String requete="INSERT INTO washing (stickers,QTY,type,ordernum,travel_no) VALUES(?,?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
+    
+    private void savepress(Object... ob){
+        String requete="INSERT INTO press (stickers,QTY,type,ordnum,travel_no) VALUES(?,?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
+    
+    private void savematchbook(Object... ob){
+        String requete="INSERT INTO matchbook (stickers,QTY,ordernum,travel_no) VALUES(?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
+    
+    private boolean step(String style,String step){
+        String requete="select * from style_operations where style=? and name=?";
+        ResultSet rs=conn.select(requete, style,step);
+        try {
+            while(rs.next()){
+                return true;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(lot.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+        
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -230,11 +262,17 @@ public class lot extends javax.swing.JDialog implements Observateurs{
     @Override
     public void executer(Object... obs) {
         if(obs[0].toString().equals("generate lot")){
+            boolean match=false,wash=false,press=false;
+            
             grid_bundle_t.getTableHeader().setFont( new Font( "Arial" , Font.BOLD, 13 ));
                DefaultTableModel tbm = (DefaultTableModel) grid_bundle_t.getModel();
                tbm.setRowCount(0);
             Object[][] data=(Object[][])obs[1];
+            
             for(int y=0;y<data.length;y++){
+                match=step(data[y][1].toString(),"MATCHBOOK");
+                wash=step(data[y][1].toString(),"WASHING");
+                press=step(data[y][1].toString(),"PRESS");
             System.out.println(data[y][5].toString());
             //setVisible(true);
             int line=(int)Math.ceil(Integer.parseInt(data[y][5].toString())/25);
@@ -293,8 +331,16 @@ public class lot extends javax.swing.JDialog implements Observateurs{
                             type="second";
                     }
                       System.out.println(type);  
-                    if(!exists(code))
-                    save(new Object[]{sewtravel,code,qty,type,data[y][6],data[y][8]});
+                    if(!exists(code)){
+                        if(match)
+                            savematchbook(code,qty,data[y][6],data[y][8]);
+                        if(wash)
+                            savewash(code,qty,type,data[y][6],data[y][8]);
+                        if(press)
+                            savepress(code,qty,type,data[y][6],data[y][8]);
+                        save(new Object[]{sewtravel,code,qty,type,data[y][6],data[y][8]});
+                        }
+                    
                 
                         }
             

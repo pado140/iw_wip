@@ -226,41 +226,9 @@ private DefaultTableModel tbm;
         tbm = (DefaultTableModel) GRID_DATA.getModel();
        mostrarData();
     }
-    private boolean exist(){
-        return false;
-    }
     
-    private String state(String sewing){
-        String query = "SELECT * from shoporder where ordnum_147=?";
-        ResultSet rs = conn.select(query,sewing);
-        try {
-        while (rs.next()){
-            return rs.getString("status_147");
-        }
-    } catch (SQLException ex) {
-        Logger.getLogger(At_soabar.class.getName()).log(Level.SEVERE, null, ex);
-    }
-        return "";
-    }
-    private Map<String ,Integer> at_sewing(){
-        String requete="Select po,sku, qty from At_sewing1";
-        Map<String,Integer> sew=new HashMap<>();
-        ResultSet rs=conn.select(requete);
-        try {
-            while(rs.next()){
-                String order=rs.getString("po").trim();
-                order+="."+rs.getString("sku").trim();
-                sew.put(order, rs.getInt("qty"));
-                       
-            }
-        } catch (SQLException ex) {
-               //Logger.getLogger(Cansew.class.getName()).log(Level.SEVERE, null, ex);
-           }
-        return sew;
-    }
     private void mostrarData(){
         tbm.setRowCount(0);
-        Map<String ,Integer> atSew=at_sewing();
         String query = "SELECT * from vpadprint where date_out is null and status_147<>'5'";
             ResultSet rs = conn.select(query);
                

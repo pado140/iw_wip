@@ -159,7 +159,7 @@ public class Sewing_prod extends javax.swing.JInternalFrame {
             }
                 get(jTextField1.getText().trim());
                 //mostrar();
-                load();
+                //load();
                 jTextField1.setText("");
         }
         
@@ -184,7 +184,7 @@ private void get(String sew){
     
     //tbm.setRowCount(0);
     //Pattern p=Pattern.compile("[");
-    String requete="select * from sewing_production where Slot=?";
+    String requete="select * from production_scan where Slot=?";
     System.out.println(requete);
     ResultSet rs=conn.select(requete, sew);
     boolean exist=false,used=false, valid=true;
@@ -208,6 +208,7 @@ private void get(String sew){
                 sewing_t=rs.getString("S_TRAVELLER").trim();
                 item=rs.getString("slot");
                 lot=rs.getString("lot_stickers");
+                QTY_CUT=rs.getInt("qty");
                 //dat=rs.getDate("modified");
             }   } catch (SQLException ex) {
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
@@ -216,11 +217,11 @@ private void get(String sew){
             if(!used){
                 if(valid){
                 if(qty==0){
-                    bar=balance(lot,item);
+                    bar=balance(lot,QTY_CUT);
+                    
                     if(type.equals("first")){
-                        
-                    if(lastInsertBlank(lot)!=null){
                         Date mod=lastInsertBlank(lot);
+                    if(mod!=null){
                         String date_mod=1900+mod.getYear()+"-";
                         date_mod+=mod.getMonth()+"-";
                         date_mod+=mod.getDate();
@@ -235,10 +236,12 @@ private void get(String sew){
                         }
                     }
                     
-                        System.out.println("balance:"+bar);
+                    System.out.println("balance:"+bar);
                         if(bar>30)
                             bar=25;
-                        }
+                        //}
+                    }    
+                    
                         
                     String option="";
                     do{
@@ -246,20 +249,14 @@ private void get(String sew){
                             + "\n Quantity must inferior or equals to:"+bar, "Confirmation", JOptionPane.WARNING_MESSAGE);
                     }while(option.trim().isEmpty() || Pattern.matches("\\d+",option)==false||Integer.parseInt(option)>bar);
                     System.out.println(option);
-                    
                     qty=Integer.parseInt(option);
-                    if(type.equals("first")){
-                        if(sumBlank(lot)+qty>sumInvalid(lot))
                         setInvalid(first(lot));
-                    }
+                    
                     setqty(Integer.parseInt(option),sew);
                     
                     
-                    }else if(id==last(lot)){
-                    System.out.println("okkkk");
-                    //setInvalidBlank(sewing_t);
-                }
-                    System.out.println("last:"+last(lot));
+                    }
+                
                 setSewn(sew);
                 
                 
@@ -276,16 +273,10 @@ private void get(String sew){
                    data[4]=posku[3];
                    data[5]=qty;
                    datalist.add(data);
+                   tbm.addRow(data);
                 
                 
-                String req="select qty_cut from sew_start where stickers=?";
-                ResultSet r=conn.select(req, lot);
-                    try {
-                        while(r.next()){
-                            QTY_CUT=r.getInt("qty_cut");
-                        }   } catch (SQLException ex) {
-                        Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                
                 String requete1="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('sewing',?,?,3,?,?,?,?)";
                     conn.Update(requete1, 0, new Object[]{sewing_t,QTY_CUT,"sewing",item,qty,Principal.user_id});
                 }else{
@@ -334,7 +325,7 @@ private void get(String sew){
 }
     private void load(){
         tbm.setRowCount(0);
-        datalist.stream().forEach((data) -> {
+        datalist.parallelStream().forEach((data) -> {
             tbm.addRow(data);
         });
     }
@@ -344,30 +335,6 @@ private void get(String sew){
         return conn.Update(requete, 0, new Object[]{qty,sew});
     }
     
-    private void setInvalidBlank(String travel){
-        String requete="select sew_id from sewing_production where lot_stickers=? and QTY_PER_LOT=0 and type_sew='first'";
-        ResultSet rs=conn.select(requete,travel);
-        try {
-            while(rs.next())
-            setInvalid(rs.getInt("sew_id"));
-        } catch(SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private int last(String trave){
-        String requete="select max(sew_id) SEW_ID from sewing_production where lot_stickers=? and STATUS=0 and QTY_PER_LOT<>0";
-        ResultSet rs=conn.select(requete,trave);
-        int id=0;
-        try {
-            while(rs.next()){
-                id=rs.getInt("sew_id");
-                 }   
-        } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return id;
-    }
     private int first(String trave){
         String requete="select min(sew_id) SEW_ID from sewing_production where lot_stickers=? and STATUS=0 and QTY_PER_LOT<>0";
         ResultSet rs=conn.select(requete,trave);
@@ -402,19 +369,6 @@ private void get(String sew){
         }
         return dat;
     }
-    private int lastVal(String trave){
-        String requete="select qty from production_scan where slot=?";
-        ResultSet rs=conn.select(requete,trave);
-        int id=0;
-        try {
-            while(rs.next()){
-                id=rs.getInt("qty");
-                 }   
-        } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return id;
-    }
     
     private int entry(String travel){
         String requete="select sum(QTY_PER_LOT) qty from sewing_production where lot_stickers=? and status=1 ";
@@ -430,37 +384,10 @@ private void get(String sew){
         return id;
     }
     
-    private int balance(String trave,String slot){
-        return lastVal(slot)-entry(trave);
+    private int balance(String trave,int val){
+        return val-entry(trave);
     }
     
-    private int sumInvalid(String sew){
-        String requete="select sum(QTY_PER_LOT) invalid from sewing_production where lot_stickers=? and STATUS=2";
-        ResultSet rs=conn.select(requete,sew);
-        int nb=0;
-        try {
-            while(rs.next()){
-                nb=rs.getInt("invalid");
-                 }   
-        } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return nb;
-    }
     
-    private int sumBlank(String sew){
-        String requete="select sum(QTY_PER_LOT) blank from sewing_production where lot_stickers=? and STATUS=1 and sew_id >? and"
-                + " type_sew='first'";
-        ResultSet rs=conn.select(requete,sew,last(sew));
-        int nb=0;
-        try {
-            while(rs.next()){
-                nb=rs.getInt("blank");
-                 }   
-        } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return nb;
-    }
     
 }

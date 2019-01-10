@@ -8,9 +8,7 @@ package view;
 import connection.ConnectionDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -23,11 +21,14 @@ import javax.swing.table.DefaultTableModel;
 public class packing extends javax.swing.JInternalFrame {
 private ConnectionDb conn = ConnectionDb.instance();
 private Map<String,Integer>list_second;
+private int toPack;
+private String code="",style="";
     /**
      * Creates new form packing
      */
     public packing() {
         initComponents();
+        toPack=0;
         mostrar();
     }
 
@@ -186,14 +187,30 @@ private Map<String,Integer>list_second;
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
         }
 }
-    
+    private boolean step(String style,String step){
+        String requete="select * from style_operations where style=? and name=?";
+        ResultSet rs=conn.select(requete, style,step);
+        try {
+            while(rs.next()){
+                return true;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(lot.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+        
+    }
     private void act(){
         String text=jTextField1.getText().trim();
+        toPack=0;
+        code="";
+        
+        get(text);
         if(!alreadyPacked(text)){
-            if(getVal(text)>0){
-                if(atpacking(text)>=getVal(text)){
+            if(toPack>0){
+                if(atpacking(text)>=toPack){
                     String requete="insert into packing (box_stickers,qty) values(?,?)";
-                    if(conn.Update(requete, 0, getCode(text),getVal(text))){
+                    if(conn.Update(requete, 0, code,toPack)){
                         //mostrar();
                     }
                 }else{
@@ -205,6 +222,7 @@ private Map<String,Integer>list_second;
         }else{
             JOptionPane.showMessageDialog(this, "this stickers is already scanned", "error", JOptionPane.ERROR_MESSAGE);
         }
+        
     }
     private boolean alreadyPacked(String cr){
         String requete="select * from lpn_packed where box_stickers=? or lpn=?";
@@ -222,27 +240,21 @@ private Map<String,Integer>list_second;
     }
     
     private int atpacking(String cr){
-        String requete1="select ORDNUM_147,ponum,sku from lpn where BOX_STICKERS=? or lpn=?";
-        String requete ="select * from PACKED1 where ordnum=?";
-        String requete2="select qty,alias1 po,sku from sewn_last where ALIas1=? and sku=? and type_sew='first'";
+        String requete1="select * from process_all where work_order=(select ORDNUM_147 from lpn where BOX_STICKERS=? or lpn=?)";
         ResultSet rs=conn.select(requete1, cr,cr);
         int qtypack=0;
         int packed=0;
-        String po="",sku="";
     try {
         while(rs.next()){
-            ResultSet rs1=conn.select(requete, rs.getString(1));
-            po=rs.getString("ponum");
-            sku=rs.getString("sku");
-            while(rs1.next()){
-                    packed=rs1.getInt("packed");
-                    
-            }
-            ResultSet rs2=conn.select(requete2, po,sku);
-                while(rs2.next()){
-                    qtypack=rs2.getInt("qty")-packed;
-                    System.out.println(qtypack);
-                }
+            style=rs.getString("style").trim();
+            boolean match=step(style,"MATCHBOOK");
+        boolean wash=step(style,"WASHING");
+        boolean press=step(style,"PRESS");
+        if(!match&&!wash&&!press )       
+            qtypack=rs.getInt("sewn")-rs.getInt("packed");
+        else{
+            qtypack=rs.getInt("sewn")-(match?rs.getInt("at_match"):(press?rs.getInt("at_press"):rs.getInt("at_wash")));
+        }
         }
     } catch (SQLException ex) {
         Logger.getLogger(packing.class.getName()).log(Level.SEVERE, null, ex);
@@ -251,35 +263,22 @@ private Map<String,Integer>list_second;
     }
     
     
-    private int getVal(String cr){
-        String requete="select qty from lpn where box_stickers=? or lpn=?";
+    private void get(String cr){
+        String requete="select box_stickers,qty,style from lpn where box_stickers=? or lpn=?";
         ResultSet rs=conn.select(requete,cr,cr);
         
         try {
             while(rs.next()){
-                return rs.getInt("qty");
+                toPack= rs.getInt("qty");
+                code=rs.getString("box_stickers");
+                
             }
         } catch (SQLException ex) {
             Logger.getLogger(packing.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return 0;
     }
     
    
-    
-    private String getCode(String cr){
-        String requete="select box_stickers from lpn where box_stickers=? or lpn=?";
-        ResultSet rs=conn.select(requete,cr,cr);
-        
-        try {
-            while(rs.next()){
-                return rs.getString("box_stickers");
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(packing.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;

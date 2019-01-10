@@ -49,7 +49,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
 
     private JInternalFrame summary,bundle_t,sewing_prod,cansew,report_r,wip_r,TRAVEL,packing,packed,packed_mix,nStyle
             ,at_pp,dreport,CONSO,at_soabar,lpnHol,lpnEd,lpnChs,ORD_WEST,workStyle,sewing,daily_soa,daily_pad,updatepo,oponly,delDaily,close,user,ord_gbg,
-            update_production,lpn_gb,lpngbg_convert,sewing_ajust,update_workcenter,unscan,update_mod,tag,fab,lpn_update,upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack;
+            update_production,lpn_gb,lpngbg_convert,sewing_ajust,update_workcenter,unscan,update_mod,tag,fab,lpn_update,upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack,stylenew;
     public Connection_user auth;
     private lock_fen lockframe;
     public static int user_id=0;
@@ -75,7 +75,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         t.setDaemon(true);
         menulist=new HashMap<>();
         initComponents();
-        img=new javax.swing.ImageIcon(getClass().getResource("/view/icon/logowip1.png")).getImage();
+        img=new javax.swing.ImageIcon(getClass().getResource("/view/icon/wiplogo1.png")).getImage();
         this.setIconImage(img);
         System.out.println(getMenuBar());
         auth=new Connection_user(this, true);
@@ -1767,44 +1767,44 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
 
     private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem13ActionPerformed
         // TODO add your handling code here:
-        if(post_sewing==null|| post_sewing.isClosed()){
-            post_sewing=new post_sewing_operation();
-            post_sewing.setVisible(true);
-            label_principal.add(post_sewing);
+        if(press==null|| press.isClosed()){
+            press=new press();
+            press.setVisible(true);
+            label_principal.add(press);
             
             System.out.println("new");
         }
-        if(post_sewing.isIcon()){
+        if(press.isIcon()){
             try {
-                post_sewing.setIcon(false);
+                press.setIcon(false);
             } catch (PropertyVetoException ex) {
                 Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
             }
             
             System.out.println("old");
         }
-        post_sewing.toFront();
+        press.toFront();
     }//GEN-LAST:event_jMenuItem13ActionPerformed
 
     private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
         // TODO add your handling code here:
-        if(post_sewing==null|| post_sewing.isClosed()){
-            post_sewing=new post_sewing_operation();
-            post_sewing.setVisible(true);
-            label_principal.add(post_sewing);
+        if(stylenew==null|| stylenew.isClosed()){
+            stylenew=new initStyle();
+            stylenew.setVisible(true);
+            label_principal.add(stylenew);
             
             System.out.println("new");
         }
-        if(post_sewing.isIcon()){
+        if(stylenew.isIcon()){
             try {
-                post_sewing.setIcon(false);
+                stylenew.setIcon(false);
             } catch (PropertyVetoException ex) {
                 Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
             }
             
             System.out.println("old");
         }
-        post_sewing.toFront();
+        stylenew.toFront();
     }//GEN-LAST:event_jMenuItem14ActionPerformed
 
     private void init(){

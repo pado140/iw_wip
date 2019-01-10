@@ -159,7 +159,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 first-=pack;
                 pack-=shipped;
                 
-                Object[] data=new Object[25];
+                Object[] data=new Object[26];
                 data[1]=rs.getString("brand");
                 data[2]=po;
                 data[3]=rs.getString("style").trim();
@@ -180,9 +180,10 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 data[17]=mod;
                 data[18]=first;
                 data[19]=second;
-                data[20]=pack;
-                data[21]=shipped;
-                data[22]=bal;
+                data[20]=0;
+                data[21]=pack;
+                data[22]=shipped;
+                data[23]=bal;
                          
                         
                         
@@ -222,8 +223,8 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                             
                         
                data[9]=status;
-                data[23]=sku;
-                data[24]=status;
+                data[24]=sku;
+                data[25]=status;
                 data[0]=rs.getDate("shipdate");
                 line++;
                 
@@ -525,17 +526,17 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "STATUS", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "PACKING", "SHIPPED", "BALANCE"
+                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "STATUS", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "EXCEPTION", "PACKING", "SHIPPED", "BALANCE"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {

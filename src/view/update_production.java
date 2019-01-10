@@ -23,6 +23,8 @@ public class update_production extends javax.swing.JInternalFrame {
 private final ConnectionDb conn = ConnectionDb.instance();
 private DefaultTableModel tbm;
 private Object [][] data=null;
+private String order,travel,stravel;
+private int lot=0;
     /**
      * Creates new form update_production
      */
@@ -45,6 +47,7 @@ private Object [][] data=null;
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         scrollpane = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
@@ -68,6 +71,14 @@ private Object [][] data=null;
             }
         });
 
+        jButton2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton2.setText("Generate blank sticker");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -77,7 +88,9 @@ private Object [][] data=null;
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(454, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 238, Short.MAX_VALUE)
+                .addComponent(jButton2)
+                .addGap(31, 31, 31))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -85,7 +98,8 @@ private Object [][] data=null;
                 .addGap(37, 37, 37)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
@@ -237,6 +251,72 @@ private Object [][] data=null;
            }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void savewash(Object... ob){
+        String requete="INSERT INTO washing (stickers,QTY,type,ordernum,travel_no) VALUES(?,?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
+    
+    private void savepress(Object... ob){
+        String requete="INSERT INTO press (stickers,QTY,type,ordnum,travel_no) VALUES(?,?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
+    
+    private void savematchbook(Object... ob){
+        String requete="INSERT INTO matchbook (stickers,QTY,ordernum,travel_no) VALUES(?,?,?,?)";
+        if(!conn.Update(requete, 0, ob))
+            System.err.println(conn.getErreur());
+    }
+    
+    private boolean step(String style,String step){
+        String requete="select * from style_operations where style=? and name=?";
+        ResultSet rs=conn.select(requete, style,step);
+        try {
+            while(rs.next()){
+                return true;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(lot.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+        
+    }
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(0,?,?,0,'first',?,?)";
+         boolean match=false,wash=false,press=false;
+         String style=stravel.replace(".", "-").split("-")[1];
+                match=step(style,"MATCHBOOK");
+                wash=step(style,"WASHING");
+                press=step(style,"PRESS");
+            
+                //int A=alpha.
+                String code=travel;
+                if(lot<10)
+                    code+="000"+(lot);
+                else
+                    code+="00"+(lot);
+                
+                    
+                        if(match)
+                            savematchbook(code,0,"first",order,travel);
+                        if(wash)
+                            savewash(code,0,"first",order,travel);
+                        if(press)
+                            savepress(code,0,"first",order,travel);
+                        conn.Update(requete, 0, stravel,code,order,travel);
+                        
+                    
+                
+                        
+            
+            //System.out.println(data[5].toString());
+            //
+            //int line=Integer.parseInt(obs[1][5].toString());
+        get(travel);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     private Object[] value(JTable a,int ligne){
         Object[] ob=new Object[a.getColumnCount()];
         for(int i=0;i<a.getColumnCount();i++){
@@ -246,11 +326,15 @@ private Object [][] data=null;
     }
     
     private void get(String code){
-        code=code.substring(0,8);
+        //code=code.substring(0,8);
         //tbm.setRowCount(0);
         System.out.println(code);
         data=null;
-        String requete="select * from sewing_production where order_num=?";
+        order=null;
+        travel=null;
+        lot=1;
+        stravel=null;
+        String requete="select * from sewing_production where lot_stickers=?";
         ResultSet rs=conn.select(requete, code);
         try {
             rs.last();
@@ -266,8 +350,13 @@ private Object [][] data=null;
                 data[i][5]=rs.getString("type_sew");
                data[i][6]=rs.getInt("STATUS")==1?"Scanned":rs.getInt("STATUS")==2?"Invalid":"empty";
                data[i][7]=rs.getInt("qty_per_lot");
+               order=rs.getString("order_num");
+               travel=rs.getString("lot_stickers");
+               stravel=rs.getString("s_traveller");
                i++;
+               lot++;
                 }
+            //lot=i;
                 //((DefaultTableModel)grid_data.getModel())
         } catch (SQLException ex) {
             Logger.getLogger(Heat_pad.class.getName()).log(Level.SEVERE, null, ex);
@@ -313,6 +402,7 @@ private Object [][] data=null;
     private javax.swing.JLabel empty_label;
     private javax.swing.JTable grid_data;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

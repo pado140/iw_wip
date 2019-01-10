@@ -15,27 +15,23 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.util.JRLoader;
-import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import view.report.Data;
 import view.report.cutpart;
 import view.report.sewing;
@@ -54,6 +50,7 @@ private Map<String , Integer> padprint;
      */
     public At_soabar() {
         initComponents();
+        listedata=new LinkedHashSet<>();
         init();
     }
 
@@ -91,6 +88,23 @@ private Map<String , Integer> padprint;
 
         setClosable(true);
         setTitle("At soa bar");
+        addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
+            public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
+                formInternalFrameActivated(evt);
+            }
+            public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameClosing(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeiconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameIconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt) {
+            }
+        });
 
         GRID_DATA.setAutoCreateRowSorter(true);
         GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
@@ -299,7 +313,7 @@ private Map<String , Integer> padprint;
                 
             print(color.split("-")[1],color.split("-")[0],data[4].toString().trim(),
                          Integer.parseInt(data[5].toString()),stickers,data[1].toString().trim(),data[2].toString().trim(),GRID_DATA.getValueAt(ligne, 7).toString()
-                         ,Integer.parseInt(GRID_DATA.getValueAt(ligne, 8).toString()),GRID_DATA.getValueAt(ligne, 9).toString(),Integer.parseInt(GRID_DATA.getValueAt(ligne, 10).toString()),
+                         ,Integer.parseInt(GRID_DATA.getValueAt(ligne, 8).toString())+Integer.parseInt(data[5].toString()),GRID_DATA.getValueAt(ligne, 9).toString(),Integer.parseInt(GRID_DATA.getValueAt(ligne, 10).toString()),
                          Integer.parseInt(GRID_DATA.getValueAt(ligne, 11).toString()),Integer.parseInt(GRID_DATA.getValueAt(ligne, 12).toString()),sewing,s_travel);
                 /*if(!conn.Update(requete, 0, sewing,s_travel,stickers,qty,Principal.user_id))
                 JOptionPane.showMessageDialog(this, conn.getErreur(), "Fatal Error", JOptionPane.ERROR_MESSAGE);
@@ -336,6 +350,12 @@ private Map<String , Integer> padprint;
         // TODO add your handling code here:
         recherche();
     }//GEN-LAST:event_size_filterKeyReleased
+
+    private void formInternalFrameActivated(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameActivated
+        // TODO add your handling code here:
+        mostrarData();
+        recherche();
+    }//GEN-LAST:event_formInternalFrameActivated
 
     private void get(String sew){
     Object[] state=state(sew);
@@ -401,7 +421,7 @@ private Map<String , Integer> padprint;
         return new Object[]{val,sewg};
     }
     private Map<String ,Integer> padprint(){
-        String requete="Select po,sku, sum(qty) qty from At_padprint group by po,sku";
+        String requete="Select order_num, sum(qty) qty from At_padprint group by po,sku";
         padprint=new HashMap<>();
         ResultSet rs=conn.select(requete);
         try {
@@ -431,16 +451,15 @@ private Map<String , Integer> padprint;
         }
     }
     
-    private Map<String ,Integer[]> at_pad(){
-        String requete="Select po,sku, qty,nb  from pad_printed";
-        Map<String,Integer[]> sew=new HashMap<>();
+    private Map<String ,Integer> at_pad(){
+        String requete="Select [order],nb  from pad_printed";
+        Map<String,Integer> sew=new HashMap<>();
         ResultSet rs=conn.select(requete);
         System.out.println("ok");
         try {
             while(rs.next()){
-                String order=rs.getString("po").trim();
-                order+="."+rs.getString("sku").trim();
-                sew.put(order, new Integer[]{rs.getInt("qty"),rs.getInt("nb")});
+                String order=rs.getString("order").trim();
+                sew.put(order,rs.getInt("nb"));
                        
             }
         } catch (SQLException ex) {
@@ -450,30 +469,27 @@ private Map<String , Integer> padprint;
     }
     
     private void mostrarData(){
-        //padprint();
-        tbm.setRowCount(0);
-        listedata=new HashSet<>();
-        Map<String ,Integer[]> padprinted=at_pad();
-         String query = "SELECT * from at_soabar ";
+        listedata.clear();
+        tbm.setNumRows(0);
+        Map<String,Integer> padprinted=at_pad();
+         String query = "SELECT * from [work_in_process] ";
             ResultSet rs = conn.select(query);
                
     try {
         while (rs.next()){
-            if(!rs.getString("status").equals("5")){
             String color,Code;
             
-               Code=rs.getString("color_code").trim();
+               Code=rs.getString("sku").trim().substring(rs.getString("sku").indexOf(".")+1,rs.getString("sku").lastIndexOf("."));
                color=Code+"-"+rs.getString("color").trim();
-               int pad=0,acc=0,nb=0;
+               int topad=0,atpadprint=0,nb=0;
+               topad=rs.getInt("at_sb");
+               atpadprint=rs.getInt("at_pp");
                try{
-                   String order=rs.getString("po").trim();
-                order+="."+rs.getString("sku").trim();
-                   nb=padprinted.get(order)[1];
-                   acc=padprinted.get(order)[0];
+                   String order=rs.getString("work_order").trim();
+                   nb=padprinted.get(order);
                    
                }catch(NullPointerException e){
                    nb=0;
-                   acc=0;
                }
                //System.out.println("nb="+nb+", acc="+acc);
                /*try{
@@ -484,26 +500,26 @@ private Map<String , Integer> padprint;
                pad=0;
                }*/
                
-               if(rs.getInt("qty")-acc>0){
-                   System.out.println("nb="+nb+", acc="+acc);
+               if(topad-atpadprint>0){
+                   System.out.println("nb="+nb+", acc="+atpadprint);
                    Object[] data=new Object[13];
-                   data[0]=rs.getString("sewing_traveller").trim();
+                   data[0]=rs.getString("po").trim()+"."+rs.getString("sku").trim();
                    data[1]=rs.getString("po").trim();
                    data[2]=rs.getString("style").trim();
                    data[3]=color;
                    data[4]=rs.getString("size").trim();
-                   data[5]=rs.getInt("qty")-acc;
-                   data[6]=rs.getString("order_num").trim();
+                   data[5]=topad-atpadprint;
+                   data[6]=rs.getString("work_order").trim();
                    data[7]=nb+1;
-                   data[8]=rs.getInt("qty");
+                   data[8]=atpadprint;
                    data[9]=rs.getString("brand");
-                   data[10]=rs.getInt("pieces");
+                   data[10]=rs.getInt("qty");
                    data[11]=rs.getInt("planned");
                    data[12]=rs.getInt("proto_id");
                    listedata.add(data);
                    tbm.addRow(data);
                }
-               }
+               
         }
     } catch (SQLException ex) {
         Logger.getLogger(At_soabar.class.getName()).log(Level.SEVERE, null, ex);

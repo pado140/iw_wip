@@ -69,7 +69,7 @@
                       <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jTextField5" alignment="0" min="-2" pref="111" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="61" max="32767" attributes="0"/>
+                  <EmptySpace pref="540" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -116,6 +116,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextField1">
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField1KeyReleased"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
@@ -123,6 +126,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextField2">
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField2KeyReleased"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel3">
           <Properties>
@@ -130,6 +136,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextField3">
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField3KeyReleased"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
@@ -137,6 +146,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextField4">
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField4KeyReleased"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel5">
           <Properties>
@@ -144,6 +156,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="jTextField5">
+          <Events>
+            <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField5KeyReleased"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -173,27 +188,45 @@
               <Properties>
                 <Property name="autoCreateRowSorter" type="boolean" value="true"/>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                  <Table columnCount="16" rowCount="0">
+                  <Table columnCount="19" rowCount="0">
                     <Column editable="false" title="WORK ORDER" type="java.lang.Object"/>
                     <Column editable="false" title="PO" type="java.lang.Object"/>
                     <Column editable="false" title="STYLE" type="java.lang.Object"/>
                     <Column editable="false" title="COLOR" type="java.lang.Object"/>
                     <Column editable="false" title="SIZE" type="java.lang.Object"/>
                     <Column editable="false" title="ORDER" type="java.lang.Object"/>
+                    <Column editable="false" title="PLANNED" type="java.lang.Object"/>
                     <Column editable="false" title="AT MODULE" type="java.lang.Object"/>
-                    <Column editable="false" title="SECOND" type="java.lang.Object"/>
+                    <Column editable="false" title="OTFQ" type="java.lang.Object"/>
                     <Column editable="false" title="BALANCE IN MODULE" type="java.lang.Object"/>
                     <Column editable="false" title="FIRST QUALITY" type="java.lang.Object"/>
                     <Column editable="false" title="WASHING" type="java.lang.Object"/>
                     <Column editable="false" title="PRESSING" type="java.lang.Object"/>
+                    <Column editable="false" title="OTFQPS" type="java.lang.Object"/>
                     <Column editable="false" title="MATCHBOOOK" type="java.lang.Object"/>
-                    <Column editable="false" title="OTFQ POST SEWING" type="java.lang.Object"/>
                     <Column editable="false" title="READY TO PACK" type="java.lang.Object"/>
+                    <Column editable="false" title="AT PACKING" type="java.lang.Object"/>
+                    <Column editable="false" title="AT AUDIT" type="java.lang.Object"/>
                     <Column editable="false" title="PACKED" type="java.lang.Object"/>
                   </Table>
                 </Property>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                   <TableColumnModel selectionModel="0">
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
+                    <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                      <Title/>
+                      <Editor/>
+                      <Renderer/>
+                    </Column>
                     <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
                       <Title/>
                       <Editor/>

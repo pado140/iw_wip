@@ -9,6 +9,7 @@ import connection.ConnectionDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +24,7 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
     private ConnectionDb conn = ConnectionDb.instance();
     private DefaultTableModel tbm;
     private Set<String> operations,style_op;
+    private Set<Object[]> datas;
     
     /**
      * Creates new form post_sewing_operation
@@ -56,10 +58,11 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
         String requete="select * from process_all";
         ResultSet rs=conn.select(requete);
         tbm.setRowCount(0);
+        datas=new LinkedHashSet<>();
         try {
             while(rs.next()){
                 if(has_post_sewing_process(rs.getString("style").trim())){
-                Object[] data=new Object[16];
+                Object[] data=new Object[19];
                 data[0]=rs.getString("work_order").trim();
                 data[1]=rs.getString("po").trim();
                 data[2]=rs.getString("style").trim();
@@ -67,17 +70,25 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                 data[3]=sku.substring(sku.indexOf(".")+1, sku.lastIndexOf("."))+"-"+rs.getString("color").trim();
                 data[4]=rs.getString("size").trim();
                 data[5]=rs.getInt("order_qty");
-                data[6]=rs.getInt("at_mod");
-                data[7]=rs.getInt("second");
-                data[8]=rs.getInt("at_mod")-rs.getInt("sewn");
-                data[10]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash")-rs.getInt("at_press"):"N/A");
-                data[11]=(operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press")-rs.getInt("at_match"):"N/A");
-                data[12]=(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match")-rs.getInt("ready"):"N/A");
+                data[6]=rs.getInt("planned");
+                data[7]=rs.getInt("at_mod");
+                data[8]=rs.getInt("second");
+                data[9]=rs.getInt("at_mod")-rs.getInt("sewn")-rs.getInt("second");
+                
+                data[11]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash")-rs.getInt("at_press"):"N/A");
+                data[12]=(operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press")-rs.getInt("at_match"):"N/A");
+                data[14]=(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match")-rs.getInt("ready"):"N/A");
                 data[13]=0;
-                data[14]=rs.getInt("ready");
-                data[15]=rs.getInt("packed");
-                data[9]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("sewn")-rs.getInt("at_wash"):
+                data[15]=((operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):
+                        operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press"):
+                        operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash"):0)-rs.getInt("packed")>0?(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):
+                        operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press"):
+                        operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash"):0)-rs.getInt("packed"):0);
+                data[16]=rs.getInt("packed");
+                data[18]=rs.getInt("packed");
+                data[10]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("sewn")-rs.getInt("at_wash"):
                         (operations.contains(rs.getString("style").trim()+3)?rs.getInt("sewn")-rs.getInt("at_press"):rs.getInt("sewn")-rs.getInt("at_match")));
+                datas.add(data);
                 tbm.addRow(data);
                 }
             }
@@ -114,13 +125,43 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
 
         jLabel1.setText("PO:");
 
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
+
         jLabel2.setText("STYLE:");
+
+        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField2KeyReleased(evt);
+            }
+        });
 
         jLabel3.setText("COLOR:");
 
+        jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField3KeyReleased(evt);
+            }
+        });
+
         jLabel4.setText("SIZE:");
 
+        jTextField4.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField4KeyReleased(evt);
+            }
+        });
+
         jLabel5.setText("WORK ORDER:");
+
+        jTextField5.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField5KeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -147,7 +188,7 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
                     .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(61, Short.MAX_VALUE))
+                .addContainerGap(540, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -183,11 +224,11 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "WORK ORDER", "PO", "STYLE", "COLOR", "SIZE", "ORDER", "AT MODULE", "SECOND", "BALANCE IN MODULE", "FIRST QUALITY", "WASHING", "PRESSING", "MATCHBOOOK", "OTFQ POST SEWING", "READY TO PACK", "PACKED"
+                "WORK ORDER", "PO", "STYLE", "COLOR", "SIZE", "ORDER", "PLANNED", "AT MODULE", "OTFQ", "BALANCE IN MODULE", "FIRST QUALITY", "WASHING", "PRESSING", "OTFQPS", "MATCHBOOOK", "READY TO PACK", "AT PACKING", "AT AUDIT", "PACKED"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -226,6 +267,51 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+        // TODO add your handling code here:
+        search();
+    }//GEN-LAST:event_jTextField1KeyReleased
+
+    private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
+        // TODO add your handling code here:
+        search();
+    }//GEN-LAST:event_jTextField2KeyReleased
+
+    private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
+        // TODO add your handling code here:
+        search();
+    }//GEN-LAST:event_jTextField3KeyReleased
+
+    private void jTextField4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyReleased
+        // TODO add your handling code here:
+        search();
+    }//GEN-LAST:event_jTextField4KeyReleased
+
+    private void jTextField5KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField5KeyReleased
+        // TODO add your handling code here:
+        search();
+    }//GEN-LAST:event_jTextField5KeyReleased
+
+    private void search(){
+        String potxt=jTextField1.getText().trim().toLowerCase();
+        String style=jTextField2.getText().trim().toLowerCase();
+        String col=jTextField3.getText().trim().toLowerCase();
+        String size=jTextField4.getText().trim().toLowerCase();
+        String order=jTextField5.getText().trim().toLowerCase();
+         
+        
+        String data="";
+        tbm.setRowCount(0);
+        for(Object[] o:datas){
+            if(o[1].toString().toLowerCase().contains(potxt.trim().toLowerCase())&& o[2].toString().toLowerCase().contains(style.trim().toLowerCase())&&
+                    (o[3].toString().toLowerCase().contains(col.trim()))&&
+                    o[4].toString().toLowerCase().contains(size.trim())&&o[0].toString().toLowerCase().contains(order)
+               ){
+                tbm.addRow(o);
+            }
+        }
+        
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable grid;

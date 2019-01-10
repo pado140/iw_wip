@@ -6,14 +6,12 @@
 
 package connection;
 
-import groovy.sql.Sql;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLType;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,8 +22,11 @@ import java.util.logging.Logger;
  */
 public class ConnectionDb {
     private static ConnectionDb con=null;    
+    //private String user="sa";
+    //private String pass="that'sme";//IW2012R2-DC\\SQLEXPRESSIW
+    //private String Url="jdbc:sqlserver://localhost;databaseName=wip_archive";
     private String user="iw";
-    private String pass="passwordiw";//DESKTOP-V6D55MO
+    private String pass="passwordiw";//IW2012R2-DC\\SQLEXPRESSIW
     private String Url="jdbc:sqlserver://IW2012R2-DC\\SQLEXPRESSIW;databaseName=wip_archive";
     private Statement state=null;
     private ResultSet resultat;
@@ -63,18 +64,23 @@ public class ConnectionDb {
         if(con==null)
             con=new ConnectionDb();
         else{
-            try {
-                if(con.connection.isClosed()){
+                if(con.closed()){
                     con=new ConnectionDb();
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
-           }
+            
         }
         
         return con;
     }
     
+    public boolean closed(){
+        try {
+            return connection.isClosed();
+        } catch (SQLException ex) {
+            Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
     public synchronized ResultSet select(String query,Object... critere){
         try {
             PreparedStatement prepare=connection.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);

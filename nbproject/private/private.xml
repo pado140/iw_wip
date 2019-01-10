@@ -3,10 +3,30 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/packing.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/At_soabar.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/FXMLController.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/matchbook.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/post_sewing_operation.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/connection/ConnectionDb.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Bundle.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Sewing_prod.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Work_status_open.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/update_production.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/packing_mix.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/press.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/lot.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/initStyle.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Work_status.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Principal.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Heat_pad.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Connection_user.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Fabrics.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Sewing_prod_before_eight.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Sewing_prod.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Ready_to_sew.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/ready_to_pack.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/TO_WIP.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/Load_data/loadlpn.java</file>
         </group>
     </open-files>
 </project-private>
