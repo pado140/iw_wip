@@ -7,9 +7,9 @@ package view;
 
 import connection.ConnectionDb;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -63,6 +63,15 @@ private Task task;
         public Task(String commande) {
             System.out.println("new task");
             this.commande=commande;
+            header.setEnabled(false);
+            for(Component c:header.getComponents())
+                c.setEnabled(false);
+            for(Component c:content.getComponents())
+                c.setEnabled(false);
+            content.setEnabled(false);
+            progress.setVisible(true);
+            export.setEnabled(false);
+            state.setText("initiating");
         }
         
         @Override
@@ -74,12 +83,12 @@ private Task task;
             progress.setString("0%");
             total=lisData.size();
             data=new Object[total][13];
-            
+            state.setText("loading...");
         
             for(Object[] ob:lisData){
                 
                    data[i]=ob;
-                  
+                  //Arrays.
                    //data[i][12]=list_pack.get(ob[12].toString());                  
                    System.out.println("Val:"+((data[i][10].toString()+data[i][0].toString())));
                    int val=0;
@@ -106,6 +115,12 @@ private Task task;
             progress.setForeground(Color.GREEN);
             progress.setString("Done");
             alerter("reload",data);
+            for(Component c:header.getComponents())
+                c.setEnabled(true);
+            for(Component c:content.getComponents())
+                c.setEnabled(true);
+            export.setEnabled(true);
+            progress.setVisible(false);
         }
         
         
@@ -120,6 +135,7 @@ private Task task;
     }
 
     private void init(){
+        state.setText("initiating");
         progress.setIndeterminate(true);
             progress.setString("initiating");
             progress.setStringPainted(true);
@@ -128,6 +144,8 @@ private Task task;
             if(evt.getPropertyName().equals("progress")){
                 System.err.println(evt.getPropertyName());
                 System.err.println(evt.getNewValue());
+                if((Integer)evt.getNewValue()%20==0)
+                    alerter("reload",data);
                 progress.setValue((Integer)evt.getNewValue());
                 progress.setString(progress.getValue()+"%");
             }
@@ -135,11 +153,21 @@ private Task task;
         task.execute();
     }
     private void refresh(){
-        loadData();
-            second();
-            //packed();
-        mostrar();
-        alerter("reload",data);
+        progress.setIndeterminate(true);
+            progress.setString("initiating");
+            task=new Task("load");
+        task.addPropertyChangeListener((PropertyChangeEvent evt) -> {
+            if(evt.getPropertyName().equals("progress")){
+                System.err.println(evt.getPropertyName());
+                System.err.println(evt.getNewValue());
+                if((Integer)evt.getNewValue()%02==0)
+                    alerter("reload",data);
+                progress.setValue((Integer)evt.getNewValue());
+                progress.setString(progress.getValue()+"%");
+            }
+        });
+        task.execute();
+            task.execute();
     }
     private void loadData(){
         lisData=new HashSet<>();
@@ -162,7 +190,7 @@ private Task task;
                    data[2]=rs.getString("Brand");
                    data[3]=rs.getString("po");
                    data[4]=rs.getString("style");
-                   data[11]=rs.getInt("PIECES_SEWN");
+                   data[12]=rs.getInt("PIECES_SEWN");
                    data[5]=Code;
                    data[6]=color;
                    data[7]=rs.getString("description");
@@ -171,7 +199,8 @@ private Task task;
                    data[0]=rs.getDate("date_made");
                    data[9]=rs.getInt("PIECES_SEWN");
                    data[10]=rs.getString("stickers");
-                   data[12]=rs.getString("order_num");
+                   data[11]=0 ;
+                   data[13]=rs.getString("order_num");
                    lisData.add(data);
             }   } catch (SQLException ex) {
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
@@ -196,7 +225,7 @@ private Task task;
     private void mostrar(){
     //DefaultTableModel tbm = (DefaultTableModel) GRID_DATA.getModel();
     //tbm.setRowCount(0);
-        data=new Object[lisData.size()][13];
+        data=new Object[lisData.size()][14];
         int i=0;
             for(Object[] ob:lisData){
                 
@@ -226,8 +255,8 @@ private Task task;
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jButton2 = new javax.swing.JButton();
+        header = new javax.swing.JPanel();
+        refresh = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         colorsearch = new javax.swing.JTextField();
@@ -244,10 +273,10 @@ private Task task;
         custSearch = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
         locateSearch = new javax.swing.JTextField();
-        jPanel2 = new javax.swing.JPanel();
+        content = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         GRID_DATA = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
+        export = new javax.swing.JButton();
         status = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         state = new javax.swing.JLabel();
@@ -276,10 +305,10 @@ private Task task;
             }
         });
 
-        jButton2.setText("REFRESH");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        refresh.setText("REFRESH");
+        refresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                refreshActionPerformed(evt);
             }
         });
 
@@ -347,30 +376,30 @@ private Task task;
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout headerLayout = new javax.swing.GroupLayout(header);
+        header.setLayout(headerLayout);
+        headerLayout.setHorizontalGroup(
+            headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(headerLayout.createSequentialGroup()
                 .addGap(29, 29, 29)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(posearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(stylesearch, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(20, 20, 20)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(colorsearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(sizesearch, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(headerLayout.createSequentialGroup()
                         .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel4)
@@ -378,56 +407,56 @@ private Task task;
                         .addComponent(to, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(custSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(locateSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addComponent(refresh)
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        headerLayout.setVerticalGroup(
+            headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(headerLayout.createSequentialGroup()
                 .addGap(31, 31, 31)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(to, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(headerLayout.createSequentialGroup()
                             .addComponent(jLabel2)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                             .addComponent(stylesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(headerLayout.createSequentialGroup()
                                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                     .addComponent(colorsearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(headerLayout.createSequentialGroup()
                                     .addComponent(jLabel5)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                     .addComponent(sizesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addGroup(headerLayout.createSequentialGroup()
+                                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(posearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jLabel4))))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(headerLayout.createSequentialGroup()
                             .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(custSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(headerLayout.createSequentialGroup()
                             .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(locateSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jButton2))
+                    .addComponent(refresh))
                 .addGap(0, 22, Short.MAX_VALUE))
         );
 
@@ -453,24 +482,24 @@ private Task task;
         });
         jScrollPane1.setViewportView(GRID_DATA);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout contentLayout = new javax.swing.GroupLayout(content);
+        content.setLayout(contentLayout);
+        contentLayout.setHorizontalGroup(
+            contentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1294, Short.MAX_VALUE)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        contentLayout.setVerticalGroup(
+            contentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(contentLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1)
                 .addGap(0, 0, 0))
         );
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/export.png"))); // NOI18N
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        export.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/export.png"))); // NOI18N
+        export.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                exportActionPerformed(evt);
             }
         });
 
@@ -511,20 +540,20 @@ private Task task;
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(export, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(content, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(status, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addComponent(header, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(export))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(content, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -532,7 +561,7 @@ private Task task;
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void exportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportActionPerformed
         // TODO add your handling code here:
         JFileChooser file=new JFileChooser("C:/",FileSystemView.getFileSystemView());
         file.setDialogTitle("enregistre le fichier");
@@ -541,7 +570,7 @@ private Task task;
         int returnAct=file.showSaveDialog(this);
         if(returnAct==JFileChooser.APPROVE_OPTION){
             XSSFWorkbook wb = new XSSFWorkbook();
-            XSSFSheet sheet = wb.createSheet("cutting card");
+            XSSFSheet sheet = wb.createSheet("Daily production report");
 
             //Create some data to build the pivot table on
             setCellData(sheet,GRID_DATA);
@@ -568,17 +597,17 @@ private Task task;
             
         }
 
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_exportActionPerformed
 
     private void formInternalFrameDeiconified(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameDeiconified
         // TODO add your handling code here:
         loadDyn();
     }//GEN-LAST:event_formInternalFrameDeiconified
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshActionPerformed
         // TODO add your handling code here:
         refresh();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_refreshActionPerformed
 
     private void colorsearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_colorsearchKeyReleased
         // TODO add your handling code here:
@@ -602,12 +631,18 @@ private Task task;
 
     private void datesearchPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_datesearchPropertyChange
         // TODO add your handling code here:
+        try{
         buscados();
+        }catch(NullPointerException e){
+        }
     }//GEN-LAST:event_datesearchPropertyChange
 
     private void toPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_toPropertyChange
         // TODO add your handling code here:
+        try{
         buscados();
+        }catch(NullPointerException e){
+        }
     }//GEN-LAST:event_toPropertyChange
 
     private void custSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_custSearchKeyReleased
@@ -621,6 +656,7 @@ private Task task;
     }//GEN-LAST:event_locateSearchKeyReleased
 
     public void setCellData(XSSFSheet sheet,JTable table){
+        
         Row row10=sheet.createRow(0);
         for(int j=0;j<table.getColumnCount();j++){
                 Cell cells=row10.createCell(j);
@@ -748,10 +784,11 @@ private Task task;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;
     private javax.swing.JTextField colorsearch;
+    private javax.swing.JPanel content;
     private javax.swing.JTextField custSearch;
     private com.toedter.calendar.JDateChooser datesearch;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton export;
+    private javax.swing.JPanel header;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -761,13 +798,12 @@ private Task task;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField locateSearch;
     private javax.swing.JTextField posearch;
     private javax.swing.JProgressBar progress;
+    private javax.swing.JButton refresh;
     private javax.swing.JTextField sizesearch;
     private javax.swing.JLabel state;
     private javax.swing.JPanel status;
@@ -798,23 +834,17 @@ private Task task;
             GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             (Object[][])obs[1],
             new String [] {
-                "Date","MODULE","CUSTOMER", "PO", "STYLE", "COLOR_CODE", "COLOR","DESCRIPTION", "SIZE", "ORDER", "QTY ISSUED", "FIRST", "SEGOND", "TOTAL PRODUCED",  "WORK ORDER"
+                "Date","MODULE","CUSTOMER", "PO", "STYLE", "COLOR_CODE", "COLOR","DESCRIPTION", "SIZE", "FIRST", "SEGOND", "EXECEPTION","TOTAL PRODUCED",  "WORK ORDER"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false,false,false
+                false, false, false, false, false, false, false, false, false, false, false, false, false,false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-            GRID_DATA.getColumn("ORDER").setWidth(0);
-            GRID_DATA.getColumn("QTY ISSUED").setWidth(0);
-            GRID_DATA.getColumn("ORDER").setMinWidth(0);
-            GRID_DATA.getColumn("QTY ISSUED").setMinWidth(0);
-            GRID_DATA.getColumn("ORDER").setMaxWidth(0);
-            GRID_DATA.getColumn("QTY ISSUED").setMaxWidth(0);
         jScrollPane1.setViewportView(GRID_DATA);
         }
     }
