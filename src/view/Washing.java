@@ -37,6 +37,7 @@ private Map<String,Integer>list_second;
 private DefaultTableModel tbm,tbm1;
 private String Erreur="";
 private JFileChooser file;
+Object[] ob;
     /**
      * Creates new form packing
      */
@@ -126,17 +127,17 @@ private JFileChooser file;
 
         GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Customer", "WORK ORDER", "PO", "SKU", "QTY", "STICKERS", "DATE"
+                "WORK ORDER", "PO", "SKU", "QTY", "STICKERS", "DATE"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
+                false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -289,14 +290,14 @@ private JFileChooser file;
         try {
             while(rs.next()){
              
-                   Object[] data=new Object[7];
-                   data[0]=rs.getString("brand");
-                   data[1]=rs.getString("ordernum");
-                   data[2]=rs.getString("po");
-                   data[3]=rs.getString("sku");
-                   data[4]=rs.getInt("qty");
-                   data[5]=rs.getString("stickers");
-                   data[6]=rs.getDate("created");
+                   Object[] data=new Object[6];
+                   //data[0]=rs.getString("brand");
+                   data[0]=rs.getString("ordernum");
+                   data[1]=rs.getString("po");
+                   data[2]=rs.getString("sku");
+                   data[3]=rs.getInt("qty");
+                   data[4]=rs.getString("stickers");
+                   data[5]=rs.getDate("created");
                   
                    tbm.addRow(data);
             }   } catch (SQLException ex) {
@@ -326,7 +327,7 @@ private JFileChooser file;
                 t.start();
     }
     private boolean canwash(String style){
-        String requete="select * from style_operation where style  =? and id_operation=1";
+        String requete="select * from style_operations where style  =? and id_operation=1";
         ResultSet rs=conn.select(requete, style);
     try {
         while(rs.next()){
@@ -339,7 +340,7 @@ private JFileChooser file;
     }
     
     private boolean exists(String stickers){
-        String requete="select * from [washing] where stickers  =?";
+        String requete="select * from [washing] where stickers  =? and iswash=1";
         ResultSet rs=conn.select(requete, stickers);
     try {
         while(rs.next()){
@@ -352,7 +353,8 @@ private JFileChooser file;
     }
     
     private boolean get(String cr,String message){
-        String requete="select * from sewing_production where slot  =?";
+        
+        String requete="select * from washed where slot  =?";
         
         ResultSet rs=conn.select(requete,cr);
         boolean exist=false,used=false, valid=true;
@@ -365,19 +367,29 @@ private JFileChooser file;
         try {
             while(rs.next()){
                 exist=true;
+                used=rs.getInt("iswash")==1?true:false;
+                valid=rs.getInt("iswash")!=2?true:false;
                 sku=rs.getString("S_TRAVELLER");
                 style=sku.substring(sku.indexOf(".")+1, sku.indexOf(".", sku.indexOf(".")+1));
-                type=rs.getString("type");
-                qty=rs.getInt("[QTY_PER_LOT]");
+                type=rs.getString("type_sew");
+                qty=rs.getInt("QTY_PER_LOT");
                 sticker=rs.getString("lot_stickers");
-                worder=rs.getString("ordernum");
+                worder=rs.getString("order_num");
+                ob=new Object[6];
+                   ob[0]=worder;
+                   ob[1]=sku.replace(".", "-").split("-")[0];
+                   ob[2]=sku;
+                   ob[3]=qty;
+                   ob[4]=cr;
+                   ob[5]=new Date();
             }
         } catch (SQLException ex) {
             Logger.getLogger(packing.class.getName()).log(Level.SEVERE, null, ex);
         }
         if(exist){
             if(canwash(style)){
-            if(!exists(cr)){
+                if(valid){
+            if(!used){
                     if(qty==0){
                         String option="";
                     do{
@@ -387,10 +399,13 @@ private JFileChooser file;
                     System.out.println(option);
                     
                     qty=Integer.parseInt(option);
-                    
+//                    if(qty>0){
+//                        setInvalid(first(sticker));
+//                    }
                     }
                     if(qty<=ability(worder)){
-                        scan(worder, cr, qty, type, sticker);
+                        //scan(worder, cr, qty, type, sticker);
+                        setWashing(cr, qty);
                         
                         message="ok";
                         return true;
@@ -402,6 +417,10 @@ private JFileChooser file;
                 JOptionPane.showInternalMessageDialog(this, "Sticker already scan");
             }
         }else{
+               message="Sticker is invalid";
+                JOptionPane.showInternalMessageDialog(this, "Sticker is invalid");     
+                }}
+            else{
                 message="this lot is not abilty to process into Wash";
            JOptionPane.showInternalMessageDialog(this, "this lot is not abilty to process into Wash");
             }
@@ -412,33 +431,12 @@ private JFileChooser file;
         return false;
     }
     
-    private boolean scan(String ordernum,String stickers,int qty,String type,String sew){
-        String requete="insert into washing(ordernum,stickers,qty,type,travel_no) values(?,?,?,?,?)";
-        return conn.Update(requete, 0, ordernum,stickers,qty,type,sew);
+    
+     private boolean setWashing(String sew,int qty){
+        String requete="update washing set isWash=1,qty=?,modified=getDate(),user_id=? where stickers=?";
+        return conn.Update(requete, 0, qty,Principal.user_id,sew);
     }
-//     private boolean setWashing(String sew){
-//        String requete="update washing set isWash=1 where stickers=?";
-//        return conn.Update(requete, 0, sew);
-//    }
-//    private boolean setInvalid(int id){
-//        String requete="update washing set isWash=2 where id=?";
-//        return conn.Update(requete, 0, id);
-//    }
-//    
-//    private int first(String trave){
-//        String requete="select min(id) ID from washing where travel_no=? and isWash=0 and QTY<>0";
-//        ResultSet rs=conn.select(requete,trave);
-//        int id=0;
-//        try {
-//            while(rs.next()){
-//                id=rs.getInt("id");
-//                 }   
-//        } catch (SQLException ex) {
-//            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        return id;
-//    }
-//    
+    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;
@@ -470,6 +468,7 @@ class T implements Runnable{
            
                 tbm1.setValueAt("Success", lineSelected, 2);
                 tbm1.setValueAt(message, lineSelected, 1);
+                tbm.addRow(ob);
             }else{
                 tbm1.setValueAt("Fail", lineSelected, 2);
                tbm1.setValueAt(message, lineSelected, 1);

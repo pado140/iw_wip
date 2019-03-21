@@ -218,9 +218,15 @@ private void get(String sew){
                 if(valid){
                 if(qty==0){
                     bar=balance(lot,QTY_CUT);
-                    
+                    System.out.println("balance:"+bar);
+                        if(bar>30)
+                            bar=25;
+                        Date mod=null;
                     if(type.equals("first")){
-                        Date mod=lastInsertBlank(lot);
+                        mod=lastInsertBlank(lot);
+                        
+                    }else
+                        mod=lastInsertSecond(lot);
                     if(mod!=null){
                         String date_mod=1900+mod.getYear()+"-";
                         date_mod+=mod.getMonth()+"-";
@@ -236,11 +242,9 @@ private void get(String sew){
                         }
                     }
                     
-                    System.out.println("balance:"+bar);
-                        if(bar>30)
-                            bar=25;
+                    
                         //}
-                    }    
+                       
                     
                         
                     String option="";
@@ -250,7 +254,8 @@ private void get(String sew){
                     }while(option.trim().isEmpty() || Pattern.matches("\\d+",option)==false||Integer.parseInt(option)>bar);
                     System.out.println(option);
                     qty=Integer.parseInt(option);
-                        setInvalid(first(lot));
+                        if(type.equalsIgnoreCase("first"))
+                            setInvalid(first(lot));
                     
                     setqty(Integer.parseInt(option),sew);
                     
@@ -357,7 +362,21 @@ private void get(String sew){
         return conn.Update(requete, 0, id);
     }
     private Date lastInsertBlank(String s_traveller){
-        String requete="select max(modified) modified from sewing_production where lot_stickers=? and STATUS=2";
+        String requete="select max(modified) modified from sewing_production where lot_stickers=? and STATUS=2 and type='first'";
+        ResultSet rs=conn.select(requete,s_traveller);
+        Date dat=null;
+        try {
+            while(rs.next()){
+                dat=rs.getDate("modified");
+                 }   
+        } catch (SQLException ex) {
+            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return dat;
+    }
+    
+    private Date lastInsertSecond(String s_traveller){
+        String requete="select max(modified) modified from sewing_production where lot_stickers=? and STATUS=1 and type='second'";
         ResultSet rs=conn.select(requete,s_traveller);
         Date dat=null;
         try {

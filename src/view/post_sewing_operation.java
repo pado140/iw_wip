@@ -6,14 +6,27 @@
 package view;
 
 import connection.ConnectionDb;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  *
@@ -76,18 +89,33 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                 data[9]=rs.getInt("at_mod")-rs.getInt("sewn")-rs.getInt("second");
                 
                 data[11]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash")-rs.getInt("at_press"):"N/A");
-                data[12]=(operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press")-rs.getInt("at_match"):"N/A");
+                data[12]=(operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press")-
+                        (operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):rs.getInt("PACKED")):"N/A");
                 data[14]=(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match")-rs.getInt("ready"):"N/A");
                 data[13]=0;
+                
                 data[15]=((operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):
                         operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press"):
                         operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash"):0)-rs.getInt("packed")>0?(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):
                         operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press"):
                         operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash"):0)-rs.getInt("packed"):0);
-                data[16]=rs.getInt("packed");
-                data[18]=rs.getInt("packed");
-                data[10]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("sewn")-rs.getInt("at_wash"):
-                        (operations.contains(rs.getString("style").trim()+3)?rs.getInt("sewn")-rs.getInt("at_press"):rs.getInt("sewn")-rs.getInt("at_match")));
+                data[16]=rs.getInt("packed")-rs.getInt("at_audit");
+                if(rs.getInt("packed")!=0){
+                    if(operations.contains(rs.getString("style").trim()+2))
+                        data[14]=0;
+                    else{
+                        if(operations.contains(rs.getString("style").trim()+3))
+                            data[12]=0;
+                        else{
+                            if(operations.contains(rs.getString("style").trim()+1))
+                                data[11]=0;
+                        }
+                    }
+                }
+                data[17]=rs.getInt("at_audit")-rs.getInt("ready_to_ship");
+                data[18]=rs.getInt("ready_to_ship");
+                data[10]=rs.getInt("sewn")-(operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash"):
+                        (operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press"):rs.getInt("at_match")));
                 datas.add(data);
                 tbm.addRow(data);
                 }
@@ -116,6 +144,8 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
         jTextField4 = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jTextField5 = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         grid = new javax.swing.JTable();
@@ -163,6 +193,20 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
             }
         });
 
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/export.png"))); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton1.setText("refresh");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -187,8 +231,13 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(540, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 331, Short.MAX_VALUE)
+                        .addComponent(jButton1)))
+                .addGap(18, 18, 18)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -198,7 +247,9 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -215,7 +266,10 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jButton2))
         );
 
         grid.setAutoCreateRowSorter(true);
@@ -246,7 +300,7 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -292,6 +346,72 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
         search();
     }//GEN-LAST:event_jTextField5KeyReleased
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        JFileChooser file=new JFileChooser("C:/",FileSystemView.getFileSystemView());
+        file.setDialogTitle("enregistre le fichier");
+
+        file.setFileFilter(new FileNameExtensionFilter("Workbook excel","xlsx","xls"));
+        int returnAct=file.showSaveDialog(this);
+        if(returnAct==JFileChooser.APPROVE_OPTION){
+            XSSFWorkbook wb = new XSSFWorkbook();
+            XSSFSheet sheet = wb.createSheet("Work Status");
+
+            //Create some data to build the pivot table on
+            setCellData(sheet,grid);
+
+            FileOutputStream fileOut;
+            try {
+                String name=file.getSelectedFile().getAbsolutePath();
+                if(!name.endsWith(".xlsx"))
+                name=file.getSelectedFile().getAbsolutePath()+".xlsx";
+                System.out.println(name);
+                fileOut = new FileOutputStream(name);
+                wb.write(fileOut);
+                fileOut.close();
+                wb.close();
+            }catch (FileNotFoundException ex) {
+                Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
+            }catch (IOException ex) {
+                Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            JOptionPane.showMessageDialog(null, "File saved with success");
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        init();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    public void setCellData(XSSFSheet sheet,JTable table){
+        Row row10=sheet.createRow(0);
+        for(int j=0;j<table.getColumnCount();j++){
+                Cell cells=row10.createCell(j);
+                cells.setCellValue(table.getColumnName(j));
+            }
+        for(int i=0;i<table.getRowCount();i++){
+            Row rows=sheet.createRow(1+i);
+            Cell cellMar=rows.createCell(0);
+            for(int j=0;j<table.getColumnCount();j++){
+                Cell cells=rows.createCell(j);
+                cells.setCellValue(table.getValueAt(i, j).toString());
+                try{
+                    if(table.getValueAt(i, j) instanceof Double)
+                cells.setCellValue(Double.parseDouble(table.getValueAt(i, j).toString()));
+                    if(table.getValueAt(i, j) instanceof Integer)
+                cells.setCellValue(Integer.parseInt(table.getValueAt(i, j).toString()));
+                    if(table.getValueAt(i, j) instanceof Date)
+                cells.setCellValue((Date)table.getValueAt(i, j));
+                
+                }catch(NullPointerException e){
+                    
+                }
+            }
+                
+        }
+    }
+    
     private void search(){
         String potxt=jTextField1.getText().trim().toLowerCase();
         String style=jTextField2.getText().trim().toLowerCase();
@@ -315,6 +435,8 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable grid;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

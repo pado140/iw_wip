@@ -5,7 +5,6 @@
  */
 package view;
 
-import com.toedter.calendar.JDateChooser;
 import connection.ConnectionDb;
 import java.awt.Color;
 import java.awt.Component;
@@ -23,7 +22,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -48,13 +46,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Padovano
  */
-public class WIPDAILLY extends javax.swing.JInternalFrame implements Observe,Observateurs{
+public class matchbookreport extends javax.swing.JInternalFrame implements Observe,Observateurs{
 private ConnectionDb conn = ConnectionDb.instance();
+private Map<String, Integer> list_second;
+private Map<String, Integer> list_pack;
 private Set<Object[]> lisData;
 private Object[][] data;
-private boolean initiated;
 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 private Task task;
+private DefaultTableModel tbm;
     
     private class Task extends SwingWorker<Void,Object>{
 
@@ -64,32 +64,26 @@ private Task task;
         public Task(String commande) {
             System.out.println("new task");
             this.commande=commande;
-            initiated=false;
             header.setEnabled(false);
-            for(Component c:header.getComponents()){
-                //System.out.println(c);
+            for(Component c:header.getComponents())
                 c.setEnabled(false);
-            }
-//            for(Component c:content.getComponents())
-//                c.setEnabled(false);
-            //content.setEnabled(false);
+            content.setEnabled(false);
             progress.setVisible(true);
             export.setEnabled(false);
             state.setText("initiating");
+            lisData=new HashSet<>();
         }
         
         @Override
         protected Void doInBackground() {
             int i=0;
-            lisData=new HashSet<>();
+            
             progress.setIndeterminate(false);
             progress.setString("0%");
             count.setText("Waiting...");
             first.setText("Waiting...");
-            second.setText("Waiting...");
-            except.setText("Waiting...");
             state.setText("loading...");
-        String requete="select * from daily_prod";
+        String requete="select * from matchbook_daily";
     System.out.println(requete);
     ResultSet rs=conn.select(requete);
         try {
@@ -99,39 +93,31 @@ private Task task;
             qty_f=0;
             qty_e=0;
             qty_s=0;
-            data=new Object[total][15];
+            data=new Object[total][9];
             System.out.println(total);
             rs.beforeFirst();
             while(rs.next()){
                 String sku=rs.getString("sku");
-                   String size=rs.getString("size");
+                   String size="";
                    
-                String color,Code="";
-               color=rs.getString("color").trim();
+                String Code;
                Code=sku.substring(sku.indexOf(".")+1,sku.lastIndexOf("."));
+               size=sku.substring(sku.lastIndexOf(".")+1);
                System.out.println(Code);
-                   Object[] datas=new Object[15];
-                   datas[2]=rs.getString("Brand");
-                   datas[3]=rs.getString("po");
-                   datas[4]=rs.getString("style");
-                   datas[12]=rs.getInt("first")+rs.getInt("second")+rs.getInt("exception");
-                   datas[5]=Code;
-                   datas[6]=color;
-                   datas[7]=rs.getString("description");
-                   datas[8]=size;
-                   datas[1]="BLD "+rs.getInt("workcenter")+"- "+rs.getString("mod");
-                   datas[0]=rs.getDate("date");
-                   datas[9]=rs.getInt("first");
-                   datas[10]=rs.getInt("second");
-                   datas[11]=rs.getInt("exception") ;
-                   datas[13]=rs.getString("order_num");
-                   datas[14]=rs.getString("stickers");
-                   data[i]=datas;
+                   Object[] datas=new Object[8];
+                   datas[2]=sku;
+                   datas[1]=rs.getString("po");
+                   datas[3]=size;
+                   datas[5]=rs.getInt("qty");
+                   datas[0]=rs.getDate("modified");
+                   datas[4]=rs.getInt("qty");
+                   datas[6]=rs.getString("ordernum");
+                   datas[7]=rs.getString("travel_no");
+                   //data[i]=datas;
+                   tbm.addRow(datas);
                    lisData.add(datas);
                     setProgress((int)Math.ceil(100*i/total));
-                  qty_f+=rs.getInt("first");
-                  qty_e+=rs.getInt("exception") ;
-                  qty_s+=rs.getInt("second");
+                  qty_f+=rs.getInt("qty");
                    i++;
             }   } catch (SQLException ex) {
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
@@ -140,13 +126,6 @@ private Task task;
                      
             return null;
         }
-
-        @Override
-        protected void process(List<Object> chunks) {
-            //super.process(chunks); //To change body of generated methods, choose Tools | Templates.
-            System.out.println(chunks.size());
-        }
-        
         
         @Override
         protected void done() {
@@ -157,17 +136,13 @@ private Task task;
             progress.setValue(100);
             progress.setForeground(Color.GREEN);
             progress.setString("Done");
-            alerter("reload",data);
+            //alerter("reload",data);
             for(Component c:header.getComponents())
                 c.setEnabled(true);
-            
             export.setEnabled(true);
             progress.setVisible(false);
             count.setText(String.valueOf(total));
             first.setText(qty_f+ " Pieces");
-            second.setText(qty_s+ " Pieces");
-            except.setText(qty_e+ " Pieces");
-            initiated=true;
         }
         
         
@@ -175,9 +150,9 @@ private Task task;
     /**
      * Creates new form WIPCONTROL
      */
-    public WIPDAILLY() {
+    public matchbookreport() {
         initComponents();
-        
+        tbm=(DefaultTableModel)GRID_DATA.getModel();
         inits();
     }
 
@@ -192,8 +167,7 @@ private Task task;
             if(evt.getPropertyName().equals("progress")){
                 System.err.println(evt.getPropertyName());
                 System.err.println(evt.getNewValue());
-                if((Integer)evt.getNewValue()%20==0)
-                    alerter("reload",data);
+                
                 progress.setValue((Integer)evt.getNewValue());
                 progress.setString(progress.getValue()+"%");
             }
@@ -208,8 +182,8 @@ private Task task;
             if(evt.getPropertyName().equals("progress")){
                 System.err.println(evt.getPropertyName());
                 System.err.println(evt.getNewValue());
-                if((Integer)evt.getNewValue()%02==0)
-                    alerter("reload",data);
+                //if((Integer)evt.getNewValue()%02==0)
+                    //alerter("reload",data);
                 progress.setValue((Integer)evt.getNewValue());
                 progress.setString(progress.getValue()+"%");
             }
@@ -217,7 +191,6 @@ private Task task;
         task.execute();
             task.execute();
     }
-    
     
   
     /**
@@ -233,11 +206,7 @@ private Task task;
         release = new javax.swing.JMenuItem();
         header = new javax.swing.JPanel();
         refresh = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        colorsearch = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
-        sizesearch = new javax.swing.JTextField();
         posearch = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         stylesearch = new javax.swing.JTextField();
@@ -245,10 +214,6 @@ private Task task;
         datesearch = new com.toedter.calendar.JDateChooser();
         to = new com.toedter.calendar.JDateChooser();
         jLabel4 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        custSearch = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
-        locateSearch = new javax.swing.JTextField();
         content = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         GRID_DATA = new javax.swing.JTable();
@@ -262,10 +227,6 @@ private Task task;
         count = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         first = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        second = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        except = new javax.swing.JLabel();
 
         release.setText("Release");
         release.addActionListener(new java.awt.event.ActionListener() {
@@ -304,23 +265,7 @@ private Task task;
             }
         });
 
-        jLabel5.setText("SIZE");
-
-        jLabel6.setText("COLOR:");
-
-        colorsearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                colorsearchKeyReleased(evt);
-            }
-        });
-
         jLabel1.setText("PO FILTER:");
-
-        sizesearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                sizesearchKeyReleased(evt);
-            }
-        });
 
         posearch.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -328,7 +273,7 @@ private Task task;
             }
         });
 
-        jLabel2.setText("STYLE FILTER:");
+        jLabel2.setText("SKU FILTER:");
 
         stylesearch.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -352,22 +297,6 @@ private Task task;
 
         jLabel4.setText("TO");
 
-        jLabel7.setText("CUSTOMER:");
-
-        custSearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                custSearchKeyReleased(evt);
-            }
-        });
-
-        jLabel8.setText("LOCATION:");
-
-        locateSearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                locateSearchKeyReleased(evt);
-            }
-        });
-
         javax.swing.GroupLayout headerLayout = new javax.swing.GroupLayout(header);
         header.setLayout(headerLayout);
         headerLayout.setHorizontalGroup(
@@ -380,16 +309,8 @@ private Task task;
                 .addGap(18, 18, 18)
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(stylesearch, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(20, 20, 20)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(colorsearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sizesearch, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(stylesearch, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(156, 156, 156)
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(headerLayout.createSequentialGroup()
                         .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -398,15 +319,7 @@ private Task task;
                         .addGap(22, 22, 22)
                         .addComponent(to, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(custSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(locateSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 166, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 386, Short.MAX_VALUE)
                 .addComponent(refresh)
                 .addContainerGap())
         );
@@ -421,33 +334,15 @@ private Task task;
                             .addComponent(jLabel2)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                             .addComponent(stylesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(headerLayout.createSequentialGroup()
+                            .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(headerLayout.createSequentialGroup()
-                                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(colorsearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(headerLayout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(sizesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(headerLayout.createSequentialGroup()
-                                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(posearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel4))))
-                        .addGroup(headerLayout.createSequentialGroup()
-                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(custSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(headerLayout.createSequentialGroup()
-                            .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(locateSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(posearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel4))))
                     .addComponent(refresh))
                 .addGap(0, 22, Short.MAX_VALUE))
         );
@@ -455,17 +350,17 @@ private Task task;
         GRID_DATA.setAutoCreateRowSorter(true);
         GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "Date", "MODULE", "CUSTOMER", "PO", "STYLE", "COLOR_CODE", "COLOR", "DESCRIPTION", "SIZE", "FIRST", "SEGOND", "EXCEPTION", "TOTAL PRODUCED", "WORK ORDER", "sticker"
+                "Date", "PO", "SKU", "SIZE", "FIRST", "TOTAL PRODUCED", "WORK ORDER", "sticker"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -479,9 +374,9 @@ private Task task;
         });
         jScrollPane1.setViewportView(GRID_DATA);
         if (GRID_DATA.getColumnModel().getColumnCount() > 0) {
-            GRID_DATA.getColumnModel().getColumn(14).setMinWidth(0);
-            GRID_DATA.getColumnModel().getColumn(14).setPreferredWidth(0);
-            GRID_DATA.getColumnModel().getColumn(14).setMaxWidth(0);
+            GRID_DATA.getColumnModel().getColumn(7).setMinWidth(0);
+            GRID_DATA.getColumnModel().getColumn(7).setPreferredWidth(0);
+            GRID_DATA.getColumnModel().getColumn(7).setMaxWidth(0);
         }
 
         javax.swing.GroupLayout contentLayout = new javax.swing.GroupLayout(content);
@@ -521,14 +416,6 @@ private Task task;
 
         first.setText("0 Pieces");
 
-        jLabel12.setText("Sum Second:");
-
-        second.setText("0 Pieces");
-
-        jLabel13.setText("Sum Exception:");
-
-        except.setText("0 Pieces");
-
         javax.swing.GroupLayout statusLayout = new javax.swing.GroupLayout(status);
         status.setLayout(statusLayout);
         statusLayout.setHorizontalGroup(
@@ -542,14 +429,6 @@ private Task task;
                 .addComponent(jLabel11)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(first)
-                .addGap(46, 46, 46)
-                .addComponent(jLabel12)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(second)
-                .addGap(40, 40, 40)
-                .addComponent(jLabel13)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(except)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -568,17 +447,11 @@ private Task task;
             .addComponent(jSeparator1)
             .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(statusLayout.createSequentialGroup()
-                .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel13)
-                        .addComponent(except))
-                    .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel10)
-                        .addComponent(count)
-                        .addComponent(jLabel11)
-                        .addComponent(first)
-                        .addComponent(jLabel12)
-                        .addComponent(second)))
+                .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(count)
+                    .addComponent(jLabel11)
+                    .addComponent(first))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -660,16 +533,6 @@ private Task task;
         refresh();
     }//GEN-LAST:event_refreshActionPerformed
 
-    private void colorsearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_colorsearchKeyReleased
-        // TODO add your handling code here:
-        buscados();
-    }//GEN-LAST:event_colorsearchKeyReleased
-
-    private void sizesearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_sizesearchKeyReleased
-        // TODO add your handling code here:
-        buscados();
-    }//GEN-LAST:event_sizesearchKeyReleased
-
     private void posearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_posearchKeyReleased
         // TODO add your handling code here:
         buscados();
@@ -680,15 +543,32 @@ private Task task;
         buscados();
     }//GEN-LAST:event_stylesearchKeyReleased
 
-    private void custSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_custSearchKeyReleased
+    private void datesearchPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_datesearchPropertyChange
         // TODO add your handling code here:
+        try{
         buscados();
-    }//GEN-LAST:event_custSearchKeyReleased
+        }catch(NullPointerException e){
+        }
+    }//GEN-LAST:event_datesearchPropertyChange
 
-    private void locateSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_locateSearchKeyReleased
+    private void toPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_toPropertyChange
         // TODO add your handling code here:
+        try{
         buscados();
-    }//GEN-LAST:event_locateSearchKeyReleased
+        }catch(NullPointerException e){
+        }
+    }//GEN-LAST:event_toPropertyChange
+
+    private void GRID_DATAMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GRID_DATAMouseReleased
+        // TODO add your handling code here:
+        if(evt.getButton()==3){
+            if(!GRID_DATA.getSelectionModel().isSelectionEmpty()){
+                if(Integer.parseInt(GRID_DATA.getValueAt(GRID_DATA.getSelectedRow(), 11).toString())>0){
+                    pop.show(GRID_DATA, evt.getX(), evt.getY());
+                }
+            }
+        }
+    }//GEN-LAST:event_GRID_DATAMouseReleased
 
     private void releaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_releaseActionPerformed
         // TODO add your handling code here:
@@ -705,36 +585,6 @@ private Task task;
         }
         }
     }//GEN-LAST:event_releaseActionPerformed
-
-    private void GRID_DATAMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GRID_DATAMouseReleased
-        // TODO add your handling code here:
-        if(evt.getButton()==3){
-            if(!GRID_DATA.getSelectionModel().isSelectionEmpty()){
-                if(Integer.parseInt(GRID_DATA.getValueAt(GRID_DATA.getSelectedRow(), 11).toString())>0){
-                    pop.show(GRID_DATA, evt.getX(), evt.getY());
-                }
-            }
-        }
-    }//GEN-LAST:event_GRID_DATAMouseReleased
-
-    private void toPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_toPropertyChange
-        // TODO add your handling code here:
-        if(initiated)
-        try{
-            buscados();
-        }catch(NullPointerException e){
-        }
-    }//GEN-LAST:event_toPropertyChange
-
-    private void datesearchPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_datesearchPropertyChange
-        // TODO add your handling code here:
-        if(initiated){
-        try{
-            buscados();
-        }catch(NullPointerException e){
-        }
-        }
-    }//GEN-LAST:event_datesearchPropertyChange
 
     public void setCellData(XSSFSheet sheet,JTable table){
         int colexcept=table.getColumnModel().getColumnIndex("sticker");
@@ -774,19 +624,11 @@ private Task task;
                int total,qty_f,qty_s,qty_e;
         String po=posearch.getText().trim().toLowerCase();
         String style=stylesearch.getText().trim().toLowerCase();
-        String color=colorsearch.getText().trim().toLowerCase();
-        String size=sizesearch.getText().trim().toLowerCase();
-        String cust=custSearch.getText().trim().toLowerCase();
-        String lo=locateSearch.getText().trim().toLowerCase();
         System.out.println("date:"+datesearch.getDate());
         total=0;
         qty_f=0;
-        qty_e=0;
-        qty_s=0;
         for(Object[] ob:lisData){
-            int f=(Integer)ob[9];
-            int s=(Integer)ob[10];
-            int e=(Integer)ob[11];
+            int f=(Integer)ob[4];
             if(datesearch.getDate()!=null){
                 if(ob[0]!=null){
                     if(to.getDate()!=null){
@@ -795,21 +637,14 @@ private Task task;
                         cal.setTime(datesearch.getDate());
                         cal.add(Calendar.DAY_OF_MONTH, -1);
                         d=cal.getTime();
-            if(ob[3].toString().trim().toLowerCase().contains(po)&&
-                    ob[4].toString().trim().toLowerCase().contains(style)&&
-                    (ob[5].toString().trim().toLowerCase().contains(color)||
-                    ob[6].toString().trim().toLowerCase().contains(color))&&
-                    ob[8].toString().trim().toLowerCase().contains(size)&&
-                    ob[2].toString().trim().toLowerCase().contains(cust)&&
-                    ob[1].toString().trim().toLowerCase().contains(lo)
+            if(ob[1].toString().trim().toLowerCase().contains(po)&&
+                    ob[2].toString().trim().toLowerCase().contains(style)
                     ){
                 try {
                     Date dd=formatter.parse(ob[0].toString());
                     if(dd.after(d)&&dd.before(to.getDate())){
                         total+=1;
                         qty_f+=f;
-                        qty_e+=e;
-                        qty_s+=s;
                         tbm.addRow(ob);
                     }
                 } catch (ParseException ex) {
@@ -819,81 +654,53 @@ private Task task;
                 
             }
                     }else{
-                        if(ob[3].toString().trim().toLowerCase().contains(po)&&
-                    ob[4].toString().trim().toLowerCase().contains(style)&&
-                    (ob[5].toString().trim().toLowerCase().contains(color)||
-                    ob[6].toString().trim().toLowerCase().contains(color))&&
-                    ob[8].toString().trim().toLowerCase().contains(size)&&
-                    ob[2].toString().trim().toLowerCase().contains(cust)&&
-                    ob[1].toString().trim().toLowerCase().contains(lo)&&
+                        if(ob[1].toString().trim().toLowerCase().contains(po)&&
+                    ob[2].toString().trim().toLowerCase().contains(style)&&
                     ob[0].toString().equals(formatter.format(datesearch.getDate())))
                     
                 tbm.addRow(ob);
                         total+=1;
                         qty_f+=f;
-                        qty_e+=e;
-                        qty_s+=s;
                     }
                 }
             }else{
-                if(ob[3].toString().trim().toLowerCase().contains(po)&&
-                    ob[4].toString().trim().toLowerCase().contains(style)&&
-                    (ob[5].toString().trim().toLowerCase().contains(color)||
-                    ob[6].toString().trim().toLowerCase().contains(color))&&
-                    ob[8].toString().trim().toLowerCase().contains(size)&&
-                    ob[2].toString().trim().toLowerCase().contains(cust)&&
-                    ob[1].toString().trim().toLowerCase().contains(lo)){
+                if(ob[1].toString().trim().toLowerCase().contains(po)&&
+                    ob[2].toString().trim().toLowerCase().contains(style)){
                     
                 tbm.addRow(ob);
                 total+=1;
                         qty_f+=f;
-                        qty_e+=e;
-                        qty_s+=s;
                 }
             }
         }
         count.setText(String.valueOf(total));
             first.setText(qty_f+ " Pieces");
-            second.setText(qty_s+ " Pieces");
-            except.setText(qty_e+ " Pieces");
         
     }
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;
-    private javax.swing.JTextField colorsearch;
     private javax.swing.JPanel content;
     private javax.swing.JLabel count;
-    private javax.swing.JTextField custSearch;
     private com.toedter.calendar.JDateChooser datesearch;
-    private javax.swing.JLabel except;
     private javax.swing.JButton export;
     private javax.swing.JLabel first;
     private javax.swing.JPanel header;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextField locateSearch;
     private javax.swing.JPopupMenu pop;
     private javax.swing.JTextField posearch;
     private javax.swing.JProgressBar progress;
     private javax.swing.JButton refresh;
     private javax.swing.JMenuItem release;
-    private javax.swing.JLabel second;
-    private javax.swing.JTextField sizesearch;
     private javax.swing.JLabel state;
     private javax.swing.JPanel status;
     private javax.swing.JTextField stylesearch;
@@ -923,19 +730,19 @@ private Task task;
             GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             (Object[][])obs[1],
             new String [] {
-                "Date","MODULE","CUSTOMER", "PO", "STYLE", "COLOR_CODE", "COLOR","DESCRIPTION", "SIZE", "FIRST", "SEGOND", "EXECEPTION","TOTAL PRODUCED",  "WORK ORDER","sticker"
+                "Date","PO", "SKU",  "SIZE", "FIRST", "SEGOND", "TOTAL PRODUCED",  "WORK ORDER","sticker"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false,false,false
+                false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-            GRID_DATA.getColumnModel().getColumn(14).setMinWidth(0);
-            GRID_DATA.getColumnModel().getColumn(14).setMaxWidth(0);
+            GRID_DATA.getColumnModel().getColumn(8).setMinWidth(0);
+            GRID_DATA.getColumnModel().getColumn(8).setMaxWidth(0);
         jScrollPane1.setViewportView(GRID_DATA);
         }
     }

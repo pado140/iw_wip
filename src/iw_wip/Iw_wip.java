@@ -25,6 +25,7 @@ public class Iw_wip {
         System.out.println("Number of cores present: " + cores);
         System.out.println("Using number of threads: " + cores/2);
         Executors.newFixedThreadPool(cores);
+        Executors.newWorkStealingPool();
         Principal.main(args);
     }
     

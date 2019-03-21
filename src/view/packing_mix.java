@@ -230,6 +230,19 @@ private JFileChooser file;
         
     }//GEN-LAST:event_jTextField1KeyReleased
 
+    private boolean step(String style,String step){
+        String requete="select * from style_operations where style=? and name=?";
+        ResultSet rs=conn.select(requete, style,step);
+        try {
+            while(rs.next()){
+                return true;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(lot.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+        
+    }
     public void setCellData(XSSFSheet sheet,JTable table){
         Row row10=sheet.createRow(0);
         for(int j=0;j<table.getColumnCount();j++){
@@ -331,32 +344,42 @@ private JFileChooser file;
     
     
     private Set<Object[]> atpacking(String cr){
-        String requete1="select l.ORDNUM ord,po,l.sku,sum(detail_qty) qty,brand,packed,sewn,lpn from box_view  as l\n" +
-"left outer join pack p on(p.ORDNUM=l.ORDNUM)\n" +
-"left outer join sewn s on(ORDER_NUM=l.ORDNUM)\n" +
-"where (lpn= ? or stickers=?) group by l.ORDNUM,po,l.sku,brand,packed,sewn,lpn";
+        String requete1="select work_order,p.sku,state,p.po,p.style,packed,sewn,at_match,at_press,at_wash,lpnScan,box_stickers,qty from process_all p inner join lpn_scan l on(work_order=ORDNUM_147)"
+                + " where  BOX_STICKERS=? or lpnscan=?";
         ResultSet rs=conn.select(requete1, cr,cr);
         Set<Object[]> val=new HashSet<>();
         int qtypack=0;
         int packed=0,qty=0;
         String po="",sku="";
+    
     try {
         while(rs.next()){
             Object[] ob=new Object[4];
-            String order=rs.getString("ord");
+            String order=rs.getString("work_order");
             sku=rs.getString("sku");
             po=rs.getString("po");
             qty=rs.getInt("qty");
             packed=rs.getInt("packed");
             qtypack=rs.getInt("sewn")-packed;
-            
-                //ob[0]=sticker;
-                ob[0]=qty;
-                ob[1]=qtypack;
-                ob[2]=po;
-                ob[3]=sku;
-                val.add(ob);
-        }
+            String style=rs.getString("style").trim();
+            boolean match=step(style,"MATCHBOOK");
+            boolean wash=step(style,"WASHING");
+            boolean press=step(style,"PRESS");
+            if(!(match||wash||press) )       
+                qtypack=rs.getInt("sewn")-rs.getInt("packed");
+            else{
+                if(match){
+                   //qtypack= 
+                }
+                qtypack=(match?rs.getInt("at_match"):(press?rs.getInt("at_press"):rs.getInt("at_wash")))-rs.getInt("packed");
+            }
+                    //ob[0]=sticker;
+                    ob[0]=qty;
+                    ob[1]=qtypack;
+                    ob[2]=po;
+                    ob[3]=sku;
+                    val.add(ob);
+            }
     } catch (SQLException ex) {
         Logger.getLogger(packing.class.getName()).log(Level.SEVERE, null, ex);
     }

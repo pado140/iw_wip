@@ -11,7 +11,7 @@
         <MenuItem class="javax.swing.JMenuItem" name="DETAILS">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="&quot;Close SKU&quot;" type="code"/>
+              <Connection code="&quot;Open SKU&quot;" type="code"/>
             </Property>
           </Properties>
           <Events>

@@ -271,9 +271,9 @@ fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
                 if(ispo){
                     if(j==2){
                         String color=val.split("-")[0];
-                        if(color.split(" ").length>=2){
+                        if(color.split("\t").length>=2){
                             tbm.setValueAt(tbm.getValueAt(k-linetoignore, j-1).toString()+color.split(" ")[0].trim(), k-linetoignore, j-1);
-                            val=color.split(" ")[color.split(" ").length-1].trim()+"-"+val.split("-")[1];
+                            val=color.split("\t")[color.split("\t").length-1].trim()+"-"+val.split("-")[1];
                         }
                     }
                     
@@ -454,7 +454,7 @@ public boolean saveCom(Object[] o){
 
         jLabel6.setText("Last Date:");
 
-        comb_cust.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select Customer", "HWY", "AUG" }));
+        comb_cust.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select Customer", "HWY", "AUG", "CLV", " " }));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);

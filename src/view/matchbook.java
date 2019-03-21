@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +50,7 @@ private JFileChooser file;
         file.setFileFilter(new FileNameExtensionFilter("Workbook excel","xlsx","xls"));
         tbm = (DefaultTableModel) GRID_DATA.getModel();
         tbm1 = (DefaultTableModel) Log.getModel();
+        tbm1.setRowCount(0);
         mostrar();
     }
 
@@ -285,7 +285,7 @@ private JFileChooser file;
 
     private void mostrar(){
     tbm.setRowCount(0);
-    tbm1.setRowCount(0);
+    //tbm1.setRowCount(0);
     String requete="select * from matchbooking";
     System.out.println(requete);
     ResultSet rs=conn.select(requete);
@@ -326,9 +326,12 @@ private JFileChooser file;
     try {
         while(rs.next()){
             Set<String>Op=operations(rs.getString("Style"));
-            if(Op.contains("WASHING")){
-                return rs.getInt("at_wash")-rs.getInt("at_match");
+            if(Op.contains("PRESS")){
+                return rs.getInt("at_press")-rs.getInt("at_match");
             }else{
+                if(Op.contains("WASHING"))
+                    return rs.getInt("at_wash")-rs.getInt("at_match");
+                
                 return rs.getInt("sewn")-rs.getInt("at_match");
             }
         }
@@ -383,11 +386,11 @@ private JFileChooser file;
                     System.out.println(option);
                     
                     qty=Integer.parseInt(option);
-                    if(this.setqty(qty, cr))
-                        this.setInvalid(first(sticker));
+                    
+                        //this.setInvalid(first(sticker));
                     }
                     if(qty<=ability(worder)){
-                        this.setWashing(cr);
+                        this.setWashing(qty,cr);
                         message="ok";
                         return true;
                     }else{
@@ -414,27 +417,9 @@ private JFileChooser file;
         String requete="update matchbook set QTY=? where stickers=?";
         return conn.Update(requete, 0, new Object[]{qty,sew});
     }
-     private boolean setWashing(String sew){
-        String requete="update matchbook set booked=1 where stickers=?";
-        return conn.Update(requete, 0, sew);
-    }
-    private boolean setInvalid(int id){
-        String requete="update washing set booked=2 where id=?";
-        return conn.Update(requete, 0, id);
-    }
-    
-    private int first(String trave){
-        String requete="select min(id) ID from washing where travel_no=? and booked=0 and QTY<>0";
-        ResultSet rs=conn.select(requete,trave);
-        int id=0;
-        try {
-            while(rs.next()){
-                id=rs.getInt("id");
-                 }   
-        } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return id;
+     private boolean setWashing(int qty,String sew){
+        String requete="update matchbook set booked=1,QTY=?,modified=getDate(),user_id=? where stickers=?";
+        return conn.Update(requete, 0,qty,Principal.user_id, sew);
     }
     
     

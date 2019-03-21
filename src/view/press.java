@@ -353,9 +353,9 @@ private JFileChooser file;
         boolean exist=false,used=false, valid=true;
         String sku="",worder="",type="",sticker="";
         int qty=0;
-    Date dat=new Date();
-    int bar=99;
-    int id=0;
+        Date dat=new Date();
+        int bar=99;
+        int id=0;
         boolean check=false;
         try {
             while(rs.next()){
@@ -394,10 +394,11 @@ private JFileChooser file;
                     System.out.println(option);
                     
                     qty=Integer.parseInt(option);
-                    if(this.setqty(qty, cr))
-                        this.setInvalid(first(sticker));
+                    
+                        //this.setInvalid(first(sticker));
                     }
                     if(qty<=ability(worder)){
+                        this.setqty(qty, cr);
                         this.setWashing(cr);
                         message="ok";
                     }else{
@@ -426,26 +427,8 @@ private JFileChooser file;
         return conn.Update(requete, 0, new Object[]{qty,sew});
     }
      private boolean setWashing(String sew){
-        String requete="update press set pressed=1 where stickers=?";
-        return conn.Update(requete, 0, sew);
-    }
-    private boolean setInvalid(int id){
-        String requete="update press set pressed=2 where id=?";
-        return conn.Update(requete, 0, id);
-    }
-    
-    private int first(String trave){
-        String requete="select min(id) ID from press where travel_no=? and pressed=0 and QTY<>0";
-        ResultSet rs=conn.select(requete,trave);
-        int id=0;
-        try {
-            while(rs.next()){
-                id=rs.getInt("id");
-                 }   
-        } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return id;
+        String requete="update press set pressed=1,modified=getdate(), user_id=? where stickers=?";
+        return conn.Update(requete, 0,Principal.user_id, sew);
     }
     
     

@@ -59,7 +59,7 @@
     <Component class="javax.swing.JComboBox" name="mod">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="26">
+          <StringArray count="27">
             <StringItem index="0" value="Please choose module"/>
             <StringItem index="1" value="MOD 1"/>
             <StringItem index="2" value="MOD 1A"/>
@@ -86,6 +86,7 @@
             <StringItem index="23" value="MOD 19"/>
             <StringItem index="24" value="MOD 20"/>
             <StringItem index="25" value="MOD 21"/>
+            <StringItem index="26" value="SAMPLE ROOM"/>
           </StringArray>
         </Property>
       </Properties>

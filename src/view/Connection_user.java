@@ -36,6 +36,11 @@ private ConnectionDb conn = ConnectionDb.instance();
         this.setLocationRelativeTo(parent);
     }
 
+    public void setConn(ConnectionDb conn) {
+        this.conn = conn;
+    }
+
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -437,6 +442,22 @@ private ConnectionDb conn = ConnectionDb.instance();
             label_error.setText("");
             username.setText("");
             password.setText("");
+        }
+        
+        if(obs[0].equals("connection network")){
+            //System.out.println("close");
+            Boolean con=(Boolean)obs[1];
+            
+            if(con==true){
+                conn=ConnectionDb.instance();
+                jButton1.setEnabled(true);
+                this.revalidate();
+            }else{
+                jButton1.setEnabled(false);
+                this.revalidate();
+            }
+            
+            
         }
     }
 }

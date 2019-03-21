@@ -53,7 +53,7 @@ public class TO_WIP extends javax.swing.JDialog implements Observateurs,Observe{
             }
         });
 
-        mod.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Please choose module", "MOD 1", "MOD 1A", "MOD 1B", "MOD 2", "MOD 2A", "MOD 2B", "MOD 3", "MOD 4", "MOD 5", "MOD 6", "MOD 7", "MOD 8", "MOD 9", "MOD 10", "MOD 11", "MOD 12", "MOD 13", "MOD 14", "MOD 15", "MOD 16", "MOD 17", "MOD 18", "MOD 19", "MOD 20", "MOD 21" }));
+        mod.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Please choose module", "MOD 1", "MOD 1A", "MOD 1B", "MOD 2", "MOD 2A", "MOD 2B", "MOD 3", "MOD 4", "MOD 5", "MOD 6", "MOD 7", "MOD 8", "MOD 9", "MOD 10", "MOD 11", "MOD 12", "MOD 13", "MOD 14", "MOD 15", "MOD 16", "MOD 17", "MOD 18", "MOD 19", "MOD 20", "MOD 21", "SAMPLE ROOM" }));
 
         jButton1.setText("SEND");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -152,7 +152,7 @@ public class TO_WIP extends javax.swing.JDialog implements Observateurs,Observe{
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
         // TODO add your handling code here:
-        mod.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Please choose module", "MOD 1", "MOD 1A", "MOD 1B", "MOD 2", "MOD 2A", "MOD 2B", "MOD 3", "MOD 4", "MOD 5", "MOD 6", "MOD 7", "MOD 8", "MOD 9", "MOD 10", "MOD 11", "MOD 12", "MOD 13", "MOD 14", "MOD 15", "MOD 16", "MOD 17", "MOD 18", "MOD 19", "MOD 20", "MOD 21" }));
+        mod.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Please choose module", "MOD 1", "MOD 1A", "MOD 1B", "MOD 2", "MOD 2A", "MOD 2B", "MOD 3", "MOD 4", "MOD 5", "MOD 6", "MOD 7", "MOD 8", "MOD 9", "MOD 10", "MOD 11", "MOD 12", "MOD 13", "MOD 14", "MOD 15", "MOD 16", "MOD 17", "MOD 18", "MOD 19", "MOD 20", "MOD 21","SAMPLE ROOM" }));
     }//GEN-LAST:event_formWindowActivated
 
     /**

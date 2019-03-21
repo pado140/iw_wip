@@ -116,7 +116,7 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
 
         jLabel19.setText("Customer");
 
-        CUST.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Selected--", "HWY", "AUG", "CHS", "FSM", "EDG", "GBG" }));
+        CUST.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Selected--", "HWY", "AUG", "CHS", "FSM", "EDG", "GBG", "CLV" }));
 
         jLabel6.setText("Fabric Type:");
 
@@ -455,7 +455,7 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
                     log+=conn.getErreur()+"\n";
             }
               System.out.println("log:"+log);          
-           if(log.isEmpty()){
+           if(log.isEmpty()||log==null){
                log="success";
                press_step.setSelected(false);
                match_book_step.setSelected(false);

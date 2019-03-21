@@ -22,8 +22,8 @@ import java.util.logging.Logger;
  */
 public class ConnectionDb {
     private static ConnectionDb con=null;    
-    //private String user="sa";
-    //private String pass="that'sme";//IW2012R2-DC\\SQLEXPRESSIW
+//    private String user="sa";
+//    private String pass="that'sme";//IW2012R2-DC\\SQLEXPRESSIW
     //private String Url="jdbc:sqlserver://localhost;databaseName=wip_archive";
     private String user="iw";
     private String pass="passwordiw";//IW2012R2-DC\\SQLEXPRESSIW
@@ -61,24 +61,28 @@ public class ConnectionDb {
     *
     */
     public static synchronized ConnectionDb instance(){
-        if(con==null)
+        if(con==null||con.closed())
             con=new ConnectionDb();
-        else{
-                if(con.closed()){
-                    con=new ConnectionDb();
-                }
-            
-        }
         
         return con;
     }
     
     public boolean closed(){
         try {
+            
             return connection.isClosed();
         } catch (SQLException ex) {
             Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
             return false;
+        }
+    }
+    
+    public void close(){
+        try {
+            
+            connection.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     public synchronized ResultSet select(String query,Object... critere){
@@ -93,7 +97,7 @@ public class ConnectionDb {
             prepare.closeOnCompletion();
         } catch (SQLException ex) {
             Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
-            
+            System.err.println(ex.getErrorCode()+ex.getSQLState());
             this.setErreur(ex.getMessage());
             instance();
         }

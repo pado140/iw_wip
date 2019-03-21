@@ -9,9 +9,6 @@ package view;
 import connection.ConnectionDb;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.FileNotFoundException;
@@ -19,21 +16,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
@@ -46,7 +45,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Duvers
  */
-public class Work_status_open extends javax.swing.JInternalFrame {
+public class pressReport extends javax.swing.JInternalFrame {
 
     private ConnectionDb conn = ConnectionDb.instance();
     private Map<String , Integer> prod;
@@ -56,6 +55,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
     private Map<String,Map<String,Map<String,Map<String,Integer>>>> cut_pro=new HashMap<>();
     private PopulateTable populate;
     private DefaultTableModel tbm;
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     /**
      * Creates new form Work_status_
      */
@@ -86,16 +86,11 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             count.setText("Waiting...");
             first.setText("Waiting...");
             secondlabel.setText("Waiting...");
-            except.setText("Waiting...");
-            
-            data_cut();
-            initPlan();
-            
             //load();
             progress.setIndeterminate(false);
         state.setText("loading...");    
         listeData=new HashSet<>();
-        String requete="select * from work_process where state<>'5'";
+        String requete="select * from press_daily";
         ResultSet rs = conn.select(requete);
         int planqty=0,prodqty=0;
         
@@ -106,92 +101,16 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             rs.beforeFirst();
             while(rs.next()){
                 String sku=rs.getString("sku").trim();
-               String status="cut not start yet";
-                String size=rs.getString("size");
-                String desc=rs.getString("description").trim(),
-                        po=rs.getString("po").trim(),
-                        order=rs.getString("work_order").trim();
+                String po=rs.getString("po").trim(),
+                        order=rs.getString("ORDNUM").trim();
                 
-                if(!rs.getString("brand").equals("CHS")){
-                if(desc.toLowerCase().contains("yth")||desc.toLowerCase().contains("youth")||
-                        desc.toLowerCase().contains("girls")||desc.toLowerCase().contains("boys"))
-                size="Y"+size;
-                }
-                int sobar=rs.getInt("at_sb");
-                int pp=rs.getInt("at_pp");
-                int se=rs.getInt("at_sew");
-                int mod=rs.getInt("at_mod");
-                int first=rs.getInt("sewn");
-                int second=rs.getInt("second");
-                int pack=rs.getInt("packed");
-                int shipped=rs.getInt("shipped");
-                int cutting=0;
-                int bal=rs.getInt("qty")-shipped;
-                exception=rs.getInt("exception");
-                try{
-                    planqty=plan.get(order);
-                }catch(NullPointerException ex){
-                    planqty=0;
-                }
-                try{
-                    prodqty=prod.get(order);
-                }catch(NullPointerException ex1){
-                    prodqty=0;
-                }
-                if(prodqty>0){
-                cutting=planqty-prodqty;
-                planqty-=(prodqty+cutting);
-                }
-                prodqty-=sobar;
-                sobar-=pp;
-                pp-=se;
-                se-=mod;
-                mod-=(first+second+exception);
-                first-=pack;
-                pack-=shipped;
-                
-                Object[] data=new Object[26];
-                data[1]=rs.getString("brand");
-                data[2]=po;
-                data[3]=rs.getString("style").trim();
-                data[4]=sku.substring(sku.indexOf(".")+1, sku.lastIndexOf("."));
-                data[5]=rs.getString("color").trim();
-                data[6]=size.trim();
-                data[8]=rs.getInt("qty");
-                
-                data[7]=po+"-"+sku;
-                data[10]=order;
-                
-                data[11]=planqty;
-                data[12]=cutting;
-                data[13]=prodqty;
-                data[14]=sobar;
-                data[15]=pp;
-                data[16]=se;
-                data[17]=mod;
-                data[18]=first;
-                data[19]=second;
-                data[20]=exception;
-                data[21]=pack;
-                data[22]=shipped;
-                data[23]=bal;
-                         
-                        
-                        
-                            cut+=prodqty;
-                            aso+=sobar;
-                            apad+=pp;
-                            first_tot+=first;
-                            tplan+=planqty;
-                            qty_f+=first;
-                            qty_e+=exception;
-                            qty_s+=second;
-                            
-                        
-               data[9]=rs.getDate("last_production");
-                data[24]=sku;
-                data[25]=status;
-                data[0]=rs.getDate("shipdate");
+                Object[] data=new Object[6];
+                data[1]=po;
+                data[3]=rs.getInt("qty");
+                data[4]=order;
+                data[0]=rs.getDate("MODIFIED")==null?rs.getDate("MODIFIED"):rs.getDate("created");
+                data[2]=sku;
+                data[5]=rs.getString("travel_no");
                 ij++;
                 setProgress((int)Math.ceil(ij*100/line));
                 listeData.add(data);
@@ -222,10 +141,8 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             export.setEnabled(true);
             progress.setVisible(false);
             count.setText(line+" rows");
-            first.setText(qty_f+" pieces");
+            first.setText(tot+" pieces");
             secondlabel.setText(qty_s+" pieces");
-            orderlabel.setText(tot+" pieces");
-            except.setText(qty_e+" pieces");
             state.setText("Ready");
             if(this.isCancelled()){
             progress.setVisible(true);
@@ -233,7 +150,6 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             count.setText("Cancelled");
             first.setText("Cancelled");
             secondlabel.setText("Cancelled");
-            except.setText("Cancelled");
             state.setText("Cancelled");
            System.out.println("nbr line:"+line);
             }
@@ -246,7 +162,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
     /**
      * Creates new form Work_status
      */
-    public Work_status_open() {
+    public pressReport() {
         initComponents();
         
         init();
@@ -254,19 +170,6 @@ public class Work_status_open extends javax.swing.JInternalFrame {
     }
 
    
-    private void initPlan(){
-        String requete="select * from [plan1]";
-        plan =new HashMap<>();
-        ResultSet rs=conn.select(requete);
-        try {
-            while(rs.next()){
-                //System.out.println("sku plan:"+rs.getString("po").trim().concat(".").concat(rs.getString("sku")).trim());
-              plan.put(rs.getString("order").trim(),rs.getInt("pieces"));
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(Work_status.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
     
     private void init(){
         
@@ -280,7 +183,6 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 System.out.println(evt.getNewValue());
             }
         });
-        initpopcolumn();
         populate=new PopulateTable();
         progress.setIndeterminate(true);
             progress.setString("initiating");
@@ -307,24 +209,16 @@ public class Work_status_open extends javax.swing.JInternalFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        POPUP = new javax.swing.JPopupMenu();
-        DETAILS = new javax.swing.JMenuItem();
-        column_menu = new javax.swing.JPopupMenu();
         header = new javax.swing.JPanel();
         jTextField1 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
-        jTextField6 = new javax.swing.JTextField();
-        jLabel13 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        datesearch = new com.toedter.calendar.JDateChooser();
+        jLabel4 = new javax.swing.JLabel();
+        to = new com.toedter.calendar.JDateChooser();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
@@ -339,19 +233,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         first = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
         secondlabel = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
-        except = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
-        orderlabel = new javax.swing.JLabel();
         export = new javax.swing.JButton();
-
-        DETAILS.setText("Close SKU");
-        DETAILS.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                DETAILSActionPerformed(evt);
-            }
-        });
-        POPUP.add(DETAILS);
 
         setClosable(true);
         setIconifiable(true);
@@ -396,22 +278,6 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel3.setText("SIZE FILTER");
-
-        jLabel4.setText("COLOR FILTER");
-
-        jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField3KeyReleased(evt);
-            }
-        });
-
-        jTextField4.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField4KeyReleased(evt);
-            }
-        });
-
         jButton1.setText("refresh");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -419,29 +285,21 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel5.setText("CLIENT FILTER");
+        jLabel3.setText("date");
 
-        jTextField5.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField5KeyReleased(evt);
+        datesearch.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                datesearchPropertyChange(evt);
             }
         });
 
-        jTextField6.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField6KeyReleased(evt);
+        jLabel4.setText("TO");
+
+        to.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                toPropertyChange(evt);
             }
         });
-
-        jLabel13.setText("SKU Filter");
-
-        jButton3.setText("Column");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-        jButton3.setVisible(false);
 
         javax.swing.GroupLayout headerLayout = new javax.swing.GroupLayout(header);
         header.setLayout(headerLayout);
@@ -456,82 +314,64 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(62, 62, 62)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(67, 67, 67)
+                .addGap(269, 269, 269)
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(headerLayout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(84, 84, 84)
-                        .addComponent(jLabel5)
-                        .addGap(119, 119, 119)
-                        .addComponent(jLabel13)
-                        .addGap(222, 222, 222)
-                        .addComponent(jButton1))
-                    .addGroup(headerLayout.createSequentialGroup()
-                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(30, 30, 30)
-                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel4)
+                        .addGap(22, 22, 22)
+                        .addComponent(to, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(352, 352, 352)
+                .addComponent(jButton1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, headerLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
         );
         headerLayout.setVerticalGroup(
             headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(headerLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1)
-                    .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel5)
-                        .addComponent(jLabel13))
+                    .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(to, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(headerLayout.createSequentialGroup()
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel4))))
                     .addGroup(headerLayout.createSequentialGroup()
-                        .addGap(3, 3, 3)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3))
+                        .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton1)
+                            .addComponent(jLabel2)
+                            .addGroup(headerLayout.createSequentialGroup()
+                                .addGap(3, 3, 3)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "EXCEPTION", "PACKING", "SHIPPED", "BALANCE"
+                "DATE", "PO NUM", "SKU", "QTY", "WORK ORDER", "TRAVEL NO"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true
+                false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
-            }
-        });
-        grid_data.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                grid_dataMouseReleased(evt);
             }
         });
         jScrollPane1.setViewportView(grid_data);
@@ -562,14 +402,6 @@ public class Work_status_open extends javax.swing.JInternalFrame {
 
         secondlabel.setText("0 Pieces");
 
-        jLabel18.setText("Sum Exception:");
-
-        except.setText("0 Pieces");
-
-        jLabel19.setText("Sum Order:");
-
-        orderlabel.setText("0 Pieces");
-
         javax.swing.GroupLayout statusLayout = new javax.swing.GroupLayout(status);
         status.setLayout(statusLayout);
         statusLayout.setHorizontalGroup(
@@ -587,14 +419,6 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 .addComponent(jLabel17)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(secondlabel)
-                .addGap(40, 40, 40)
-                .addComponent(jLabel18)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(except)
-                .addGap(41, 41, 41)
-                .addComponent(jLabel19)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(orderlabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -613,20 +437,13 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             .addComponent(jSeparator1)
             .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(statusLayout.createSequentialGroup()
-                .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel19)
-                        .addComponent(orderlabel))
-                    .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel18)
-                        .addComponent(except))
-                    .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel15)
-                        .addComponent(count)
-                        .addComponent(jLabel16)
-                        .addComponent(first)
-                        .addComponent(jLabel17)
-                        .addComponent(secondlabel)))
+                .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel15)
+                    .addComponent(count)
+                    .addComponent(jLabel16)
+                    .addComponent(first)
+                    .addComponent(jLabel17)
+                    .addComponent(secondlabel))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -691,45 +508,10 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         buscar();
     }//GEN-LAST:event_jTextField1KeyReleased
 
-    private void grid_dataMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_grid_dataMouseReleased
-        // TODO add your handling code here:
-        if(Principal.group.equals("Merchandizing")||Principal.group.equals("MIS")||
-                Principal.group.equals("Planing")){
-           
-        if(evt.getButton()==MouseEvent.BUTTON3){
-            if(!grid_data.getSelectionModel().isSelectionEmpty())
-            POPUP.show(grid_data,evt.getX(),evt.getY());
-            else
-                JOptionPane.showMessageDialog(this, "Please select a row!", "Warning", JOptionPane.INFORMATION_MESSAGE);
-        }
-        }
-    }//GEN-LAST:event_grid_dataMouseReleased
-
-    private void DETAILSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DETAILSActionPerformed
-        // TODO add your handling code here:
-        for(int i=0;i<grid_data.getSelectedRowCount();i++){
-            int ligne=grid_data.getSelectedRows()[i];
-        //grid_data.getValueAt(ligne, 0);
-        changeStatus(grid_data.getValueAt(ligne, 10).toString());
-            
-        
-        }
-    }//GEN-LAST:event_DETAILSActionPerformed
-
     private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
         // TODO add your handling code here:
         buscar();
     }//GEN-LAST:event_jTextField2KeyReleased
-
-    private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
-        // TODO add your handling code here:
-        buscar();
-    }//GEN-LAST:event_jTextField3KeyReleased
-
-    private void jTextField4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyReleased
-        // TODO add your handling code here:
-        buscar();
-    }//GEN-LAST:event_jTextField4KeyReleased
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
@@ -769,57 +551,87 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_exportActionPerformed
 
-    private void jTextField5KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField5KeyReleased
-        // TODO add your handling code here:
-        buscar();
-    }//GEN-LAST:event_jTextField5KeyReleased
-
-    private void jTextField6KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField6KeyReleased
-        // TODO add your handling code here:
-        buscar(); 
-    }//GEN-LAST:event_jTextField6KeyReleased
-
     private void progressPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_progressPropertyChange
         // TODO add your handling code here:
     }//GEN-LAST:event_progressPropertyChange
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void datesearchPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_datesearchPropertyChange
         // TODO add your handling code here:
-        column_menu.show(jButton3, jButton3.getX(), jButton3.getY()+jButton3.getHeight());
-    }//GEN-LAST:event_jButton3ActionPerformed
+        try{
+            
+            buscar();
+        }catch(NullPointerException e){
+        }
+    }//GEN-LAST:event_datesearchPropertyChange
+
+    private void toPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_toPropertyChange
+        // TODO add your handling code here:
+        try{
+            buscar();
+        }catch(NullPointerException e){
+        }
+    }//GEN-LAST:event_toPropertyChange
 
     private void buscar(){
         int tot=0,line=0;
         int sec=0,ex=0,apad=0,f=0,tplan=0,i=0;
         String potxt=jTextField1.getText().trim().toLowerCase();
         String style=jTextField2.getText().trim().toLowerCase();
-        String col=jTextField3.getText().trim().toLowerCase();
-        String size=jTextField4.getText().trim().toLowerCase();
-        String client=jTextField5.getText().trim().toLowerCase();
-         String sku=jTextField6.getText().trim().toLowerCase();
         
         String data="";
         
         DefaultTableModel tbm = (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
         for(Object[] o:listeData){
-            if(o[2].toString().toLowerCase().contains(potxt.trim().toLowerCase())&& o[3].toString().toLowerCase().contains(style.trim().toLowerCase())&&
-                    (o[5].toString().toLowerCase().contains(col.trim())||o[4].toString().toLowerCase().contains(col.trim()))&&
-                    o[6].toString().toLowerCase().contains(size.trim())&&o[1].toString().toLowerCase().contains(client)&&o[7].toString().toLowerCase().contains(sku)
+            f=(Integer)o[3];
+            int s=0;
+            int e=0;
+            if(datesearch.getDate()!=null){
+                if(o[0]!=null){
+                    if(to.getDate()!=null){
+                        Date d=new Date();
+                        Calendar cal=Calendar.getInstance(TimeZone.getDefault(), Locale.CANADA);
+                        cal.setTime(datesearch.getDate());
+                        cal.add(Calendar.DAY_OF_MONTH, -1);
+                        d=cal.getTime();
+            if(o[1].toString().trim().toLowerCase().contains(potxt)&&
+                    o[2].toString().trim().toLowerCase().contains(style)
+                    ){
+                try {
+                    Date dd=formatter.parse(o[0].toString());
+                    if(dd.after(d)&&dd.before(to.getDate())){
+                        line++;
+                        tot+=f;
+                        tbm.addRow(o);
+                    }
+                } catch (ParseException x) {
+                    Logger.getLogger(SOABAR_report.class.getName()).log(Level.SEVERE, null, x);
+                }
+                    
+                
+            }
+                    }else{
+                        if(o[1].toString().trim().toLowerCase().contains(potxt)&&
+                    o[2].toString().trim().toLowerCase().contains(style)&&
+                    o[0].toString().equals(formatter.format(datesearch.getDate())))
+                    
+                tbm.addRow(o);
+                        line++;
+                        tot+=f;
+                    }
+                }
+            }else{
+            if(o[1].toString().toLowerCase().contains(potxt.trim().toLowerCase())&& o[2].toString().toLowerCase().contains(style.trim().toLowerCase())
                ){
-                tot+=Integer.parseInt(o[8].toString());
-                sec+=Integer.parseInt(o[19].toString());
-                ex+=Integer.parseInt(o[20].toString());
-                f+=Integer.parseInt(o[18].toString());
+                tot+=Integer.parseInt(o[3].toString());
                 line++;
                 tbm.addRow(o);
             }
+            }
         }
         count.setText(line+" rows");
-            first.setText(f+" pieces");
+            first.setText(tot+" pieces");
             secondlabel.setText(sec+" pieces");
-            orderlabel.setText(tot+" pieces");
-            except.setText(ex+" pieces");
     }
 
     public void setCellData(XSSFSheet sheet,JTable table){
@@ -852,152 +664,32 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         }
     }
     
-    private void initpopcolumn(){
-        for(int i=0;i<grid_data.getColumnCount();i++){
-            String colname=grid_data.getColumnName(i);
-            JCheckBoxMenuItem menu=new JCheckBoxMenuItem(colname);
-            menu.setActionCommand(colname);
-            menu.addItemListener(new ItemListener() {
-
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    changeColumn(((JCheckBoxMenuItem)e.getItem()).getActionCommand(), ((JCheckBoxMenuItem)e.getItem()).isSelected());
-                }
-            });
-            menu.setSelected(true);
-            column_menu.add(menu);
-        }
-    }
-    private void changeColumn(String col, boolean state){
-        grid_data.setVisible(false);
-        if(state)
-            grid_data.getColumn(col).sizeWidthToFit();
-        else{
-            grid_data.getColumn(col).setMinWidth(0);
-            grid_data.getColumn(col).setMaxWidth(0);
-        }
-        grid_data.revalidate();
-        grid_data.setVisible(true);
-    }
-    private Map<String,Integer> type(){
-        Map<String,Integer> typ=new HashMap<>();
-        String requete="select ordnum_10,count(type_id) n from data_cut2 where type_id NOT IN(4,6,7) group by ordnum_10";
-        ResultSet rs=conn.select(requete);
-        try {
-            while(rs.next()){
-                typ.put(rs.getString("ordnum_10").trim(),rs.getInt("n"));
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(Ready_to_sew.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return typ;
-    }
-    private Map<String,Integer> listType(){
-        String query="select Distinct style,count(distinct[TYPE]) t FROM StyleMaster where type_id not in(4,6,7) group by style";
-        ResultSet rs=conn.select(query);
-        Map<String,Integer> lissty=new HashMap<>();
-        try {
-            while(rs.next()){
-                String sty=rs.getString("style").trim();
-                lissty.put(sty, rs.getInt("t"));
-                       
-            }
-        } catch (SQLException ex) {
-               //Logger.getLogger(Cansew.class.getName()).log(Level.SEVERE, null, ex);
-           }
-        return lissty;
-    }
-    private void data_cut(){
-                 Map<String,Integer> listType=listType();
-                 Map<String,Integer> typecount=type();
-               Map<String,Integer> production=new HashMap<>();
-               ref=new HashMap<>();
-               String query = "SELECT * from SUM_CUT1";
-                try {
-               ResultSet rs = conn.select(query);
-               
-               while (rs.next()){
-                       production.put(rs.getString("ORDNUM_10").trim(), rs.getInt("qty"));
-                       ref.put(rs.getString("ORDNUM_10").trim(),rs.getString("style"));
-               }
-           } catch (SQLException ex) {
-               Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
-           }
-           
-           for(String order:production.keySet()){
-               int value=0;
-               try{
-                   value=production.get(order);
-                   }catch(NullPointerException e){
-                       value=0;
-                   }
-               
-               String style=ref.get(order);
-               
-               int typ=0,ty=0;
-               try{
-                   typ=listType.get(style.trim());
-                   
-               }catch(NullPointerException e){
-                   typ=0;
-               }
-               
-               try{
-                   ty=typecount.get(order);
-               }catch(NullPointerException e){
-                   ty=0;
-               }
-               if(order.contains("30015")){
-               System.out.println("type2:"+typecount.get(order));
-               System.out.println("type:"+typ);
-               }
-               if(ty==typ)
-               prod.put(order, value);
-           }
-    }
-    
-    private boolean changeStatus(String ordnum){
-        String requete="update shoporder set status_147='5' where ordnum_147=?";
-        return conn.Update(requete, 0, ordnum);
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenuItem DETAILS;
-    private javax.swing.JPopupMenu POPUP;
-    private javax.swing.JPopupMenu column_menu;
     private javax.swing.JLabel count;
-    private javax.swing.JLabel except;
+    private com.toedter.calendar.JDateChooser datesearch;
     private javax.swing.JButton export;
     private javax.swing.JLabel first;
     private javax.swing.JTable grid_data;
     private javax.swing.JPanel header;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel18;
-    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JLabel orderlabel;
     private javax.swing.JProgressBar progress;
     private javax.swing.JLabel secondlabel;
     private javax.swing.JLabel state;
     private javax.swing.JPanel status;
+    private com.toedter.calendar.JDateChooser to;
     // End of variables declaration//GEN-END:variables
 }

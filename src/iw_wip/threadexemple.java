@@ -6,6 +6,10 @@
 package iw_wip;
 
 import connection.ConnectionDb;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -25,10 +29,20 @@ import observateurs.Observe;
 public class threadexemple implements Runnable,Observe{
 private ConnectionDb conn = ConnectionDb.instance();
 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+ Socket s;
+    public threadexemple(){
+    try {
+        s=new Socket(InetAddress.getByName("192.168.90.161"), 80);
+    } catch (UnknownHostException ex) {
+        Logger.getLogger(threadexemple.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (IOException ex) {
+        Logger.getLogger(threadexemple.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    }
     @Override
     public void run() {
         Calendar cal;
-        boolean isok=false;
+        boolean isok=false,netok=false;
         cal=Calendar.getInstance();
         cal.setTime(now());
         for(;;){
@@ -56,7 +70,24 @@ DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 }
                 alerter("stat");
                 alerter("timer",cal.getTime());
+            try {
                 //if(conn.)
+               s=new Socket(InetAddress.getByName("192.168.90.161"), 80);
+                System.out.println("connected:"+ s.isConnected());
+                System.out.println("db connected:"+ !conn.closed());
+                netok=s.isConnected();
+                if(conn.closed())
+                    conn = ConnectionDb.instance();
+                
+                
+                s.close();
+            } catch (IOException ex) {
+                netok=false;
+                System.out.println("connected:"+ netok);
+                System.out.println("db connected:"+ conn.closed());
+            }
+            //alerter("connection");
+            alerter("connection network",netok,conn);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -64,6 +95,7 @@ DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             }
             
         }
+        
     }
 
     private Date now(){

@@ -200,6 +200,40 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem5ActionPerformed"/>
               </Events>
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="jMenu2">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Audit"/>
+                <Property name="name" type="java.lang.String" value="Audit_menu" noResource="true"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem15">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Ready to Audit"/>
+                    <Property name="name" type="java.lang.String" value="create_batch" noResource="true"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem15ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem17">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Audited/Ready to ship"/>
+                    <Property name="name" type="java.lang.String" value="Audit_batch" noResource="true"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem17ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem16">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="packing list batch"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem16ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="MisMenu">
@@ -567,6 +601,33 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="WASHDREPORT">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="WASHING DAILY REPORT"/>
+                <Property name="name" type="java.lang.String" value="washdreport" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="WASHDREPORTActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="PRESSDREPORT">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="PRESS DAILY REPORT"/>
+                <Property name="name" type="java.lang.String" value="pressdreport" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PRESSDREPORTActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="MATCHBOOKREPORT">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="MATCHBOOK REPORT"/>
+                <Property name="name" type="java.lang.String" value="matchbookreport" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="MATCHBOOKREPORTActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="pack">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Packing"/>
@@ -628,6 +689,11 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="prod_ajust_sewActionPerformed"/>
               </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem18">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="INIT POST SEWING"/>
+              </Properties>
             </MenuItem>
           </SubComponents>
         </Menu>

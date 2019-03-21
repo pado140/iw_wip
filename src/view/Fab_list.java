@@ -25,7 +25,7 @@ public class Fab_list extends javax.swing.JDialog implements Observateurs,Observ
     private final ConnectionDb conn = ConnectionDb.instance();
     Map<String,Integer> listfab=new HashMap<>();
     private String label;
-    //private 
+    private boolean callback=false;
     
     
     public Fab_list(java.awt.Frame parent, boolean modal) {
@@ -218,6 +218,8 @@ public class Fab_list extends javax.swing.JDialog implements Observateurs,Observ
             data[1]=grid_po.getModel().getValueAt(selectedrow, 0);
             data[2]=listfab.get(grid_po.getModel().getValueAt(selectedrow, 0).toString());
             data[0]="fill";
+            if(callback)
+                data[0]="fill_tab";
             alerter(data);
             this.setVisible(false);
         }
@@ -297,6 +299,9 @@ public class Fab_list extends javax.swing.JDialog implements Observateurs,Observ
         
         if(obs[0].toString().equals("load fabric")){
             label=obs[1].toString();
+        }
+        if(obs[0].toString().equals("new_style")){
+            callback=true;
         }
     }
 

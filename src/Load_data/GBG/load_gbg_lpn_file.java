@@ -197,17 +197,19 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
                 lpn_col=7;
                 isold=false;
             }
+            String initmix=grid_data.getValueAt(0, 7).toString().trim();
             for(int i=0;i<grid_data.getRowCount();i++){
                 if(grid_data.getValueAt(i, 0)!=null){
                     lpn=grid_data.getValueAt(i, 7).toString().trim();
-                    mix=grid_data.getValueAt(i, 8).equals("true")?true:false;
+                    mix=grid_data.getValueAt(i, 8).equals("true")?true:(grid_data.getValueAt(i, 8).equals("TRUE")?true:false);
                     System.out.println("ddd"+mix);
                     if(mix){
-                        String initmix=grid_data.getValueAt(i, 7).toString().trim();
-                        if(! initmix.equals(lpn)){
+                        initmix=grid_data.getValueAt(i, 7).toString().trim();
+                        if(mix_exist(lpn)==0)
+                            id_mix=saveLpnmix(lpn);
+                        else
+                            id_mix=mix_exist(lpn);
                         
-                        id_mix=saveLpnmix(lpn);
-                        }
                     }
                     po=grid_data.getValueAt(i, 0).toString().trim();
                     style=grid_data.getValueAt(i, 1).toString().trim();
@@ -220,15 +222,16 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
                     //if()
                     ord=order(po,style+"."+color_code+"."+size);
                     //String stickers
+                    System.out.println(ord);
                     if(ord!=null){
                         int idlpn=0;
                         if(mix){
                             idlpn=exist(details); 
-                            System.out.println(details);
+                            System.out.println("details:"+details);
                             
                         }else{
                             idlpn=exist(lpn);
-                            System.out.println(lpn);
+                            System.out.println("lpn:"+lpn);
                            
                         }
                             
@@ -238,7 +241,7 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
                             
                         if(idlpn==0){
                         //if(0==0){
-                            System.out.println(details);
+                            System.out.println("details2:"+details);
                             if(mix)
                                 lpnval=details;
                             System.out.println(lpnval);

@@ -8,7 +8,6 @@ package view;
 import connection.ConnectionDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -24,7 +23,7 @@ private final ConnectionDb conn = ConnectionDb.instance();
 private DefaultTableModel tbm;
 private Object [][] data=null;
 private String order,travel,stravel;
-private int lot=0;
+private int lot=0,qty=0,sewn=0;
     /**
      * Creates new form update_production
      */
@@ -48,6 +47,8 @@ private int lot=0;
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         scrollpane = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
@@ -72,10 +73,26 @@ private int lot=0;
         });
 
         jButton2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jButton2.setText("Generate blank sticker");
+        jButton2.setText("Generate blank sticker(First)");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton3.setText("Generate Exception sticker");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jButton4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton4.setText("Generate blank sticker(Second)");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
             }
         });
 
@@ -84,22 +101,38 @@ private int lot=0;
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(41, 41, 41)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 238, Short.MAX_VALUE)
-                .addComponent(jButton2)
-                .addGap(31, 31, 31))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(41, 41, 41)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(737, 737, 737)
+                        .addComponent(jButton4))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton3)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(37, 37, 37)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(37, 37, 37)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
@@ -317,6 +350,57 @@ private int lot=0;
         get(travel);
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        String option="";
+        do{
+            option=JOptionPane.showInputDialog("set the quantity:");
+        }while(option.trim().isEmpty()|| option.matches("[A-Za-z ]+"));
+        int val=Integer.parseInt(option.trim());
+        if(val<=balance(travel, sewn)){
+        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'exception',?,?)";
+         boolean match=false,wash=false,press=false;
+         String style=stravel.replace(".", "-").split("-")[1];
+                match=step(style,"MATCHBOOK");
+                wash=step(style,"WASHING");
+                press=step(style,"PRESS");
+            
+                //int A=alpha.
+                String code=travel;
+                if(lot<10)
+                    code+="000"+(lot);
+                else
+                    code+="00"+(lot);
+                
+                    
+                        if(match)
+                            savematchbook(code,0,"first",order,travel);
+                        if(wash)
+                            savewash(code,0,"first",order,travel);
+                        if(press)
+                            savepress(code,0,"first",order,travel);
+                        conn.Update(requete, 0, val,stravel,code,order,travel);
+                       
+        get(travel); 
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        
+        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(0,?,?,0,'second',?,?)";
+        
+                String code=travel;
+                if(lot<10)
+                    code+="000"+(lot);
+                else
+                    code+="00"+(lot);
+                
+                        conn.Update(requete, 0, stravel,code,order,travel);
+                       
+        get(travel); 
+    }//GEN-LAST:event_jButton4ActionPerformed
+
     private Object[] value(JTable a,int ligne){
         Object[] ob=new Object[a.getColumnCount()];
         for(int i=0;i<a.getColumnCount();i++){
@@ -355,6 +439,8 @@ private int lot=0;
                stravel=rs.getString("s_traveller");
                i++;
                lot++;
+               qty+=rs.getInt("qty_per_lot");
+               sewn+=rs.getInt("STATUS")==1?rs.getInt("qty_per_lot"):0;
                 }
             //lot=i;
                 //((DefaultTableModel)grid_data.getModel())
@@ -403,6 +489,8 @@ private int lot=0;
     private javax.swing.JTable grid_data;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -411,4 +499,22 @@ private int lot=0;
     private javax.swing.JScrollPane scrollpane;
     private javax.swing.JMenuItem unscan;
     // End of variables declaration//GEN-END:variables
+
+    private int entry(String travel){
+        String requete="select qty from sew_start where stickers=?";
+        ResultSet rs=conn.select(requete,travel);
+        int id=0;
+        try {
+            while(rs.next()){
+                id=rs.getInt("qty");
+                 }   
+        } catch (SQLException ex) {
+            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return id;
+    }
+    
+    private int balance(String trave,int val){
+        return entry(trave)-val;
+    }
 }

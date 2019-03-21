@@ -401,7 +401,7 @@ public class Work_status extends javax.swing.JInternalFrame {
         grid_data = new javax.swing.JTable();
         jButton2 = new javax.swing.JButton();
 
-        DETAILS.setText("Close SKU");
+        DETAILS.setText("Open SKU");
         DETAILS.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DETAILSActionPerformed(evt);
@@ -727,7 +727,7 @@ public class Work_status extends javax.swing.JInternalFrame {
             int ligne=grid_data.getSelectedRows()[i];
             System.err.println(grid_data.getColumn("WORK ORDER").getModelIndex());
         if(changeStatus(grid_data.getValueAt(ligne, grid_data.getColumn("WORK ORDER").getModelIndex()).toString()))
-            grid_data.setValueAt("Closed",ligne, grid_data.getColumn("STATUS").getModelIndex());
+            grid_data.setValueAt("Open",ligne, grid_data.getColumn("STATUS").getModelIndex());
         
         }
     }//GEN-LAST:event_DETAILSActionPerformed
@@ -942,7 +942,7 @@ public class Work_status extends javax.swing.JInternalFrame {
      }
     
     private boolean changeStatus(String ordnum){
-        String requete="update shoporder set status_147='5' where ordnum_147=?";
+        String requete="update shoporder set status_147='3' where ordnum_147=?";
         return conn.Update(requete, 0, ordnum);
     }
 
