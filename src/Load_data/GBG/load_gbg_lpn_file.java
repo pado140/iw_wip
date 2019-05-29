@@ -59,6 +59,7 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
     public load_gbg_lpn_file() {
         initComponents();
         formatdata=new DataFormatter();
+        jProgressBar2.setStringPainted(true);
     }
 
     /**
@@ -73,11 +74,12 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        COUNT = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        COUNT = new javax.swing.JLabel();
+        jProgressBar2 = new javax.swing.JProgressBar();
 
         setClosable(true);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -96,35 +98,16 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
             }
         });
 
-        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/export.png"))); // NOI18N
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText("COUNT:");
-
-        COUNT.setText("0");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(COUNT, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 645, Short.MAX_VALUE)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2)
+                .addContainerGap(765, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -133,17 +116,10 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel1)
-                    .addComponent(COUNT, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jButton3)
-                .addGap(0, 2, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 0, 920, -1));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1, 0, 920, 60));
 
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -173,7 +149,38 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
         });
         jScrollPane1.setViewportView(grid_data);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 97, 921, 452));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 67, 921, 450));
+
+        jLabel1.setText("COUNT:");
+
+        COUNT.setText("0");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(COUNT, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jProgressBar2, javax.swing.GroupLayout.DEFAULT_SIZE, 774, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(COUNT, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jProgressBar2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 520, 920, 30));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -182,6 +189,7 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         
             erreur=new HashSet<>();
+            jProgressBar2.setMaximum(grid_data.getRowCount());
         Thread t=new Thread(){
              public void run() {
             conn.setErreur(null);
@@ -197,6 +205,7 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
                 lpn_col=7;
                 isold=false;
             }
+            int lon=grid_data.getRowCount();
             String initmix=grid_data.getValueAt(0, 7).toString().trim();
             for(int i=0;i<grid_data.getRowCount();i++){
                 if(grid_data.getValueAt(i, 0)!=null){
@@ -254,7 +263,10 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
                         }else{
                             updateLpn(idlpn, qty, ord,id_mix,mix);
                         }
-
+                        double result=i/lon;
+                        System.err.println("resultat:"+result+" lon:"+lon+"i: "+i);
+                           jProgressBar2.setValue(i+1);
+                           jProgressBar2.setString(String.format("%2f", result));
                     }
                 }
             }
@@ -267,42 +279,6 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
         t.setDaemon(true);
         t.start();
     }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-        JFileChooser file=new JFileChooser("C:/",FileSystemView.getFileSystemView());
-        file.setDialogTitle("enregistre le fichier");
-
-        file.setFileFilter(new FileNameExtensionFilter("Workbook excel","xlsx","xls"));
-        int returnAct=file.showSaveDialog(this);
-        if(returnAct==JFileChooser.APPROVE_OPTION){
-            XSSFWorkbook wb = new XSSFWorkbook();
-            XSSFSheet sheet = wb.createSheet("cutting card");
-
-            //Create some data to build the pivot table on
-            setCellData(sheet,grid_data);
-
-            FileOutputStream fileOut;
-            try {
-                String name=file.getSelectedFile().getAbsolutePath();
-                if(!name.endsWith(".xlsx"))
-                name=file.getSelectedFile().getAbsolutePath()+".xlsx";
-                System.out.println(name);
-                fileOut = new FileOutputStream(name);
-                wb.write(fileOut);
-                fileOut.close();
-                wb.close();
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            JOptionPane.showMessageDialog(null, "File saved with success");
-        }
-
-        
- 
-    }//GEN-LAST:event_jButton3ActionPerformed
 
     private boolean checkHeader(Map<Integer,String> data){
          Map<Integer, String> val=new HashMap<>();
@@ -562,9 +538,10 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
     private javax.swing.JTable grid_data;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JProgressBar jProgressBar2;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }

@@ -54,25 +54,18 @@ private Set<Object[]> lisData;
 private Object[][] data;
 private boolean initiated;
 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-private Task task;
+private task task;
     
-    private class Task extends SwingWorker<Void,Object>{
+    private class task extends SwingWorker<Void,Object>{
 
         int total,qty_f,qty_s,qty_e;
         String commande;
 
-        public Task(String commande) {
+        public task(String commande) {
             System.out.println("new task");
             this.commande=commande;
             initiated=false;
-            header.setEnabled(false);
-            for(Component c:header.getComponents()){
-                //System.out.println(c);
-                c.setEnabled(false);
-            }
-//            for(Component c:content.getComponents())
-//                c.setEnabled(false);
-            //content.setEnabled(false);
+            
             progress.setVisible(true);
             export.setEnabled(false);
             state.setText("initiating");
@@ -81,6 +74,7 @@ private Task task;
         @Override
         protected Void doInBackground() {
             int i=0;
+            visible(false);
             lisData=new HashSet<>();
             progress.setIndeterminate(false);
             progress.setString("0%");
@@ -150,7 +144,8 @@ private Task task;
         
         @Override
         protected void done() {
-            super.done(); 
+            super.done();
+           
             System.err.println("isCanceled"+this.isCancelled());
             System.err.println("state:"+this.getState().toString());
             state.setText("ready");
@@ -158,9 +153,7 @@ private Task task;
             progress.setForeground(Color.GREEN);
             progress.setString("Done");
             alerter("reload",data);
-            for(Component c:header.getComponents())
-                c.setEnabled(true);
-            
+            visible(true);
             export.setEnabled(true);
             progress.setVisible(false);
             count.setText(String.valueOf(total));
@@ -180,6 +173,13 @@ private Task task;
         
         inits();
     }
+    
+    private void visible(boolean status){
+        header.setEnabled(status);
+            for(Component c:header.getComponents()){
+                c.setEnabled(status);
+            }
+    }
 
     private void inits(){
         this.ajouterObservateur(this);
@@ -187,7 +187,7 @@ private Task task;
         progress.setIndeterminate(true);
             progress.setString("initiating");
             progress.setStringPainted(true);
-        task=new Task("load");
+        task=new task("load");
         task.addPropertyChangeListener((PropertyChangeEvent evt) -> {
             if(evt.getPropertyName().equals("progress")){
                 System.err.println(evt.getPropertyName());
@@ -203,7 +203,7 @@ private Task task;
     private void refresh(){
         progress.setIndeterminate(true);
             progress.setString("initiating");
-            task=new Task("load");
+            task=new task("load");
         task.addPropertyChangeListener((PropertyChangeEvent evt) -> {
             if(evt.getPropertyName().equals("progress")){
                 System.err.println(evt.getPropertyName());
@@ -215,7 +215,6 @@ private Task task;
             }
         });
         task.execute();
-            task.execute();
     }
     
     
@@ -920,6 +919,7 @@ private Task task;
     public void executer(Object... obs) {
         
         if(obs[0].equals("reload")){
+            
             GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             (Object[][])obs[1],
             new String [] {

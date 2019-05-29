@@ -13,7 +13,7 @@ import java.util.Set;
  * @author Padovano
  */
 public interface Observe {
-    public Set<Observateurs> obs=new HashSet<Observateurs>();
+    public Set<Observateurs> obs=new HashSet<>();
     
     public void ajouterObservateur(Observateurs ob);
     public void retirerObservateur(Observateurs ob);

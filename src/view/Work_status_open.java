@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,9 +32,8 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
@@ -123,6 +123,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 int mod=rs.getInt("at_mod");
                 int first=rs.getInt("sewn");
                 int second=rs.getInt("second");
+                int secondpost=rs.getInt("post_sewing");
                 int pack=rs.getInt("packed");
                 int shipped=rs.getInt("shipped");
                 int cutting=0;
@@ -147,10 +148,10 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 pp-=se;
                 se-=mod;
                 mod-=(first+second+exception);
-                first-=pack;
+                first-=pack-secondpost;
                 pack-=shipped;
                 
-                Object[] data=new Object[26];
+                Object[] data=new Object[28];
                 data[1]=rs.getString("brand");
                 data[2]=po;
                 data[3]=rs.getString("style").trim();
@@ -171,10 +172,12 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 data[17]=mod;
                 data[18]=first;
                 data[19]=second;
-                data[20]=exception;
-                data[21]=pack;
-                data[22]=shipped;
-                data[23]=bal;
+                data[20]=secondpost;
+                data[21]=0;
+                data[22]=exception;
+                data[23]=pack;
+                data[24]=shipped;
+                data[25]=bal;
                          
                         
                         
@@ -189,8 +192,8 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                             
                         
                data[9]=rs.getDate("last_production");
-                data[24]=sku;
-                data[25]=status;
+                data[26]=sku;
+                data[27]=status;
                 data[0]=rs.getDate("shipdate");
                 ij++;
                 setProgress((int)Math.ceil(ij*100/line));
@@ -441,7 +444,6 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 jButton3ActionPerformed(evt);
             }
         });
-        jButton3.setVisible(false);
 
         javax.swing.GroupLayout headerLayout = new javax.swing.GroupLayout(header);
         header.setLayout(headerLayout);
@@ -512,17 +514,17 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "EXCEPTION", "PACKING", "SHIPPED", "BALANCE"
+                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "OTFQPS", "SCRAP", "EXCEPTION", "PACKING", "SHIPPED", "BALANCE"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -869,15 +871,30 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         }
     }
     private void changeColumn(String col, boolean state){
-        grid_data.setVisible(false);
-        if(state)
-            grid_data.getColumn(col).sizeWidthToFit();
-        else{
-            grid_data.getColumn(col).setMinWidth(0);
-            grid_data.getColumn(col).setMaxWidth(0);
-        }
-        grid_data.revalidate();
-        grid_data.setVisible(true);
+        //grid_data.setVisible(false);
+        SwingUtilities.invokeLater(new Thread() {
+
+            @Override
+            public void run() {
+                if(state){
+                    
+                    grid_data.getColumn(col).sizeWidthToFit();
+                }else{
+                    System.out.println(state);
+                    grid_data.getColumn(col).setMinWidth(0);
+                    grid_data.getColumn(col).setMaxWidth(0);
+                }
+                
+            }
+        });
+//        if(state)
+//            grid_data.getColumn(col).sizeWidthToFit();
+//        else{
+//            grid_data.getColumn(col).setMinWidth(0);
+//            grid_data.getColumn(col).setMaxWidth(0);
+//        }
+//        grid_data.revalidate();
+//        grid_data.setVisible(true);
     }
     private Map<String,Integer> type(){
         Map<String,Integer> typ=new HashMap<>();

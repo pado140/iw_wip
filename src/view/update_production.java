@@ -333,7 +333,7 @@ private int lot=0,qty=0,sewn=0;
                 
                     
                         if(match)
-                            savematchbook(code,0,"first",order,travel);
+                            savematchbook(code,0,order,travel);
                         if(wash)
                             savewash(code,0,"first",order,travel);
                         if(press)

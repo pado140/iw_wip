@@ -52,7 +52,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private JInternalFrame summary,bundle_t,sewing_prod,cansew,report_r,wip_r,TRAVEL,packing,packed,packed_mix,nStyle
             ,at_pp,dreport,CONSO,at_soabar,lpnHol,lpnEd,lpnChs,ORD_WEST,workStyle,sewing,daily_soa,daily_pad,updatepo,oponly,delDaily,close,user,ord_gbg,
             update_production,lpn_gb,batch,packin_list_batch,audit,lpngbg_convert,sewing_ajust,update_workcenter,unscan,update_mod,tag,fab,lpn_update,
-            upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack,stylenew,washreport,pressreport,matchreport;
+            upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack,stylenew,washreport,pressreport,matchreport,close_travel,follow_up;
     public Connection_user auth;
     private lock_fen lockframe;
     public static int user_id=0;
@@ -147,6 +147,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         jMenuItem15 = new javax.swing.JMenuItem();
         jMenuItem17 = new javax.swing.JMenuItem();
         jMenuItem16 = new javax.swing.JMenuItem();
+        jMenuItem22 = new javax.swing.JMenuItem();
         MisMenu = new javax.swing.JMenu();
         user_manager = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
@@ -199,6 +200,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         jMenuItem20 = new javax.swing.JMenuItem();
         prod_ajust_sew = new javax.swing.JMenuItem();
         jMenuItem18 = new javax.swing.JMenuItem();
+        jMenuItem21 = new javax.swing.JMenuItem();
 
         profil.setText("profil");
         con_menu.add(profil);
@@ -451,6 +453,15 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         jMenu2.add(jMenuItem16);
 
         WIPMenu.add(jMenu2);
+
+        jMenuItem22.setText("Travel card follow");
+        jMenuItem22.setName("followup"); // NOI18N
+        jMenuItem22.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem22ActionPerformed(evt);
+            }
+        });
+        WIPMenu.add(jMenuItem22);
 
         jMenuBar1.add(WIPMenu);
 
@@ -852,6 +863,15 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
 
         jMenuItem18.setText("INIT POST SEWING");
         ajust.add(jMenuItem18);
+
+        jMenuItem21.setText("Close sewing");
+        jMenuItem21.setName("close_sewing"); // NOI18N
+        jMenuItem21.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem21ActionPerformed(evt);
+            }
+        });
+        ajust.add(jMenuItem21);
 
         jMenuBar1.add(ajust);
 
@@ -2009,6 +2029,48 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         matchreport.toFront();
     }//GEN-LAST:event_MATCHBOOKREPORTActionPerformed
 
+    private void jMenuItem21ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem21ActionPerformed
+        // TODO add your handling code here:
+        if(close_travel==null|| close_travel.isClosed()){
+            close_travel=new Sewing_prod_close_sku();
+            close_travel.setVisible(true);
+            label_principal.add(close_travel);
+            
+            System.out.println("new");
+        }
+        if(close_travel.isIcon()){
+            try {
+                close_travel.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        close_travel.toFront();
+    }//GEN-LAST:event_jMenuItem21ActionPerformed
+
+    private void jMenuItem22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem22ActionPerformed
+        // TODO add your handling code here:
+        if(follow_up==null|| follow_up.isClosed()){
+            follow_up=new report_alert();
+            follow_up.setVisible(true);
+            label_principal.add(follow_up);
+            
+            System.out.println("new");
+        }
+        if(follow_up.isIcon()){
+            try {
+                follow_up.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        follow_up.toFront();
+    }//GEN-LAST:event_jMenuItem22ActionPerformed
+
     private void init(){
         connecter=false;
         if(time==null)
@@ -2159,6 +2221,8 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenuItem jMenuItem19;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem20;
+    private javax.swing.JMenuItem jMenuItem21;
+    private javax.swing.JMenuItem jMenuItem22;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;

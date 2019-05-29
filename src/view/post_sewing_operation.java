@@ -92,7 +92,7 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                 data[12]=(operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press")-
                         (operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):rs.getInt("PACKED")):"N/A");
                 data[14]=(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match")-rs.getInt("ready"):"N/A");
-                data[13]=0;
+                data[13]=rs.getInt("post_sewing");
                 
                 data[15]=((operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):
                         operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press"):

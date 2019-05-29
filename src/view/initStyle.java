@@ -441,18 +441,34 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
         if(proto_id==0){
             log="please make sure you have indaicate the style and the style is already exist";
         }else{
-            String requete="insert into operations_styles values(?,"+proto_id+")";
+            String requete="insert into operations_styles(id_operation,id_style) values(?,"+proto_id+")";
+            String delrequete="delete from operations_styles where id_operation=? and id_style="+proto_id;
             if(wash_step.isSelected()){
                 if(!conn.Update(requete, 0, 1))
                     log+=conn.getErreur()+"\n";
+            }else{
+                if(operationexiste(1, proto_id)){
+                   if(!conn.Update(delrequete, 0, 1))
+                    log+=conn.getErreur()+"\n";
+                }
             }
             if(match_book_step.isSelected()){
                 if(!conn.Update(requete, 0, 2))
                     log+=conn.getErreur()+"\n";
+            }else{
+                if(operationexiste(2, proto_id)){
+                   if(!conn.Update(delrequete, 0, 2))
+                    log+=conn.getErreur()+"\n";
+                }
             }
             if(press_step.isSelected()){
                 if(conn.Update(requete, 0, 3))
                     log+=conn.getErreur()+"\n";
+            }else{
+                if(operationexiste(3, proto_id)){
+                   if(!conn.Update(delrequete, 0, 3))
+                    log+=conn.getErreur()+"\n";
+                }
             }
               System.out.println("log:"+log);          
            if(log.isEmpty()||log==null){
@@ -465,6 +481,17 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
         JOptionPane.showMessageDialog(this, log);
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private boolean operationexiste(int op,int proto){
+        String req="select * from operations_styles where id_operation=? and id_style=?";
+        ResultSet rs=conn.select(req, op,proto);
+        try {
+            while(rs.next())
+                return true;
+        } catch (SQLException ex) {
+            Logger.getLogger(initStyle.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
      private void save(){
         String requete="insert into proto_style (style,proto,brand,styfam,profam,description) values("
                 + "?,?,?,?,?,?)";
