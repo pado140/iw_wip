@@ -49,6 +49,8 @@ private int lot=0,qty=0,sewn=0;
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         scrollpane = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
@@ -96,6 +98,22 @@ private int lot=0,qty=0,sewn=0;
             }
         });
 
+        jButton5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton5.setText("Generate Scrap sticker");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        jButton6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButton6.setText("Generate Post Sewing sticker");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -114,7 +132,10 @@ private int lot=0,qty=0,sewn=0;
                         .addComponent(jButton4))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton3)))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton5, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton6, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -133,7 +154,10 @@ private int lot=0,qty=0,sewn=0;
                         .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
@@ -195,7 +219,7 @@ private int lot=0,qty=0,sewn=0;
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(empty_label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGap(392, 392, 392))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -205,7 +229,7 @@ private int lot=0,qty=0,sewn=0;
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addComponent(empty_label)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(scrollpane, javax.swing.GroupLayout.PREFERRED_SIZE, 404, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -222,7 +246,7 @@ private int lot=0,qty=0,sewn=0;
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(17, 17, 17)
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -373,12 +397,12 @@ private int lot=0,qty=0,sewn=0;
                     code+="00"+(lot);
                 
                     
-                        if(match)
-                            savematchbook(code,0,"first",order,travel);
-                        if(wash)
-                            savewash(code,0,"first",order,travel);
-                        if(press)
-                            savepress(code,0,"first",order,travel);
+//                        if(match)
+//                            savematchbook(code,0,"first",order,travel);
+//                        if(wash)
+//                            savewash(code,0,"first",order,travel);
+//                        if(press)
+//                            savepress(code,0,"first",order,travel);
                         conn.Update(requete, 0, val,stravel,code,order,travel);
                        
         get(travel); 
@@ -400,6 +424,62 @@ private int lot=0,qty=0,sewn=0;
                        
         get(travel); 
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        String option="";
+        do{
+            option=JOptionPane.showInputDialog("set the quantity:");
+        }while(option.trim().isEmpty()|| option.matches("[A-Za-z ]+"));
+        int val=Integer.parseInt(option.trim());
+        if(val<=balance(travel, sewn)){
+        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'scrap',?,?)";
+         boolean match=false,wash=false,press=false;
+         String style=stravel.replace(".", "-").split("-")[1];
+                match=step(style,"MATCHBOOK");
+                wash=step(style,"WASHING");
+                press=step(style,"PRESS");
+            
+                //int A=alpha.
+                String code=travel;
+                if(lot<10)
+                    code+="000"+(lot);
+                else
+                    code+="00"+(lot);
+                
+                    
+                        if(match)
+                            savematchbook(code,0,"scrap",order,travel);
+                        if(wash)
+                            savewash(code,0,"scrap",order,travel);
+                        if(press)
+                            savepress(code,0,"scrap",order,travel);
+                        conn.Update(requete, 0, val,stravel,code,order,travel);
+                       
+        get(travel); 
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+        String option="";
+        do{
+            option=JOptionPane.showInputDialog("set the quantity:");
+        }while(option.trim().isEmpty()|| option.matches("[A-Za-z ]+"));
+        int val=Integer.parseInt(option.trim());
+        if(val<=balance(travel, sewn)){
+        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'ps',?,?)";
+                    
+                String code=travel;
+                if(lot<10)
+                    code+="000"+(lot);
+                else
+                    code+="00"+(lot);
+                
+                        conn.Update(requete, 0, 0,stravel,code,order,travel);
+                        get(travel); 
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     private Object[] value(JTable a,int ligne){
         Object[] ob=new Object[a.getColumnCount()];
@@ -491,6 +571,8 @@ private int lot=0,qty=0,sewn=0;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

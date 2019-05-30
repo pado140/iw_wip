@@ -123,7 +123,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 int mod=rs.getInt("at_mod");
                 int first=rs.getInt("sewn");
                 int second=rs.getInt("second");
-                int secondpost=rs.getInt("post_sewing");
+                int secondpost=rs.getInt("post_sewing")+rs.getInt("second_ps");
                 int pack=rs.getInt("packed");
                 int shipped=rs.getInt("shipped");
                 int cutting=0;
