@@ -298,7 +298,7 @@
                     <Column editable="false" title="EXCEPTION" type="java.lang.Object"/>
                     <Column editable="false" title="PACKING" type="java.lang.Object"/>
                     <Column editable="false" title="SHIPPED" type="java.lang.Object"/>
-                    <Column editable="true" title="BALANCE" type="java.lang.Object"/>
+                    <Column editable="false" title="UNACCOUNTED FOR" type="java.lang.Object"/>
                   </Table>
                 </Property>
                 <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">

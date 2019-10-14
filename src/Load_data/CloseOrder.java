@@ -52,8 +52,10 @@ public class CloseOrder extends javax.swing.JInternalFrame implements Observe{
         
     private boolean checkHeader(List<String> data){
          boolean valid=false;
+         
          for(String val:data){
-             if(!val.trim().toUpperCase().equals("WORK ORDER")){
+             System.err.println(val);
+             if(val.trim().toUpperCase().equals("WORK ORDER")){
                 valid=true; 
                 
              }

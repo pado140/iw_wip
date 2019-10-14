@@ -233,8 +233,8 @@
                     <Column editable="false" title="FIRST QUALITY" type="java.lang.Object"/>
                     <Column editable="false" title="WASHING" type="java.lang.Object"/>
                     <Column editable="false" title="PRESSING" type="java.lang.Object"/>
-                    <Column editable="false" title="OTFQPS" type="java.lang.Object"/>
                     <Column editable="false" title="MATCHBOOOK" type="java.lang.Object"/>
+                    <Column editable="false" title="OTFQPS" type="java.lang.Object"/>
                     <Column editable="false" title="READY TO PACK" type="java.lang.Object"/>
                     <Column editable="false" title="AT PACKING" type="java.lang.Object"/>
                     <Column editable="false" title="AT AUDIT" type="java.lang.Object"/>

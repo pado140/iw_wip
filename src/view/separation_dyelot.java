@@ -291,9 +291,9 @@ public class separation_dyelot extends javax.swing.JDialog {
                 String col=sku.substring(sku.indexOf(".")+1, sku.lastIndexOf("."));
                 for(int i=0;i<rs.getInt("mrtio");i++){
                     for(int pl:dyelot){
-                        if(pl>50){
-                            int nb=(int)Math.ceil(pl/50);
-                            if(pl%50>0)
+                        if(pl>75){
+                            int nb=(int)Math.ceil(pl/75);
+                            if(pl%75>0)
                                 nb+=1;
                             for(int j=0;j<nb;j++){
                                 data_layout d=new data_layout();
@@ -305,10 +305,10 @@ public class separation_dyelot extends javax.swing.JDialog {
                                 d.setColor(col+"-"+rs.getString("COLOR"));
                                 d.setSize(rs.getString("size"));
                                 d.setStyle(rs.getString("style"));
-                                d.setQty(50);
-                                if(pl%50>0){
+                                d.setQty(75);
+                                if(pl%75>0){
                                     if(j==nb-1)
-                                        d.setQty(pl%50);
+                                        d.setQty(pl%75);
                                 }
                                 
                                 d.setNb(dyelot.length*rs.getInt("mrtio")*nb);

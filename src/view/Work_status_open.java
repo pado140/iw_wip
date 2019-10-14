@@ -97,7 +97,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         listeData=new HashSet<>();
         String requete="select * from work_process where state<>'5'";
         ResultSet rs = conn.select(requete);
-        int planqty=0,prodqty=0;
+        
         
         
         try {
@@ -117,17 +117,18 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                         desc.toLowerCase().contains("girls")||desc.toLowerCase().contains("boys"))
                 size="Y"+size;
                 }
+                int planqty=0,prodqty=0;
                 int sobar=rs.getInt("at_sb");
                 int pp=rs.getInt("at_pp");
                 int se=rs.getInt("at_sew");
                 int mod=rs.getInt("at_mod");
                 int first=rs.getInt("sewn");
                 int second=rs.getInt("second");
-                int secondpost=rs.getInt("post_sewing")+rs.getInt("second_ps");
+                int secondpost=rs.getInt("second_ps")+rs.getInt("second_wash")+rs.getInt("second_press")+rs.getInt("second_matchbook");
                 int pack=rs.getInt("packed");
                 int shipped=rs.getInt("shipped");
                 int cutting=0;
-                int bal=rs.getInt("qty")-shipped;
+                int bal=rs.getInt("balance");
                 exception=rs.getInt("exception");
                 try{
                     planqty=plan.get(order);
@@ -137,6 +138,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 try{
                     prodqty=prod.get(order);
                 }catch(NullPointerException ex1){
+                    System.out.println("order:"+order);
                     prodqty=0;
                 }
                 if(prodqty>0){
@@ -148,7 +150,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 pp-=se;
                 se-=mod;
                 mod-=(first+second+exception);
-                first-=pack-secondpost;
+                first-=(pack+secondpost);
                 pack-=shipped;
                 
                 Object[] data=new Object[28];
@@ -520,11 +522,11 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "OTFQPS", "SCRAP", "EXCEPTION", "PACKING", "SHIPPED", "BALANCE"
+                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "OTFQPS", "SCRAP", "EXCEPTION", "PACKING", "SHIPPED", "UNACCOUNTED FOR"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -811,7 +813,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                ){
                 tot+=Integer.parseInt(o[8].toString());
                 sec+=Integer.parseInt(o[19].toString());
-                ex+=Integer.parseInt(o[20].toString());
+                ex+=Integer.parseInt(o[22].toString());
                 f+=Integer.parseInt(o[18].toString());
                 line++;
                 tbm.addRow(o);
@@ -964,9 +966,10 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                }catch(NullPointerException e){
                    ty=0;
                }
-               if(order.contains("30015")){
+               if(order.contains("30039733")){
                System.out.println("type2:"+typecount.get(order));
                System.out.println("type:"+typ);
+                   System.out.println("value:"+value);
                }
                if(ty==typ)
                prod.put(order, value);

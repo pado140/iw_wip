@@ -18,7 +18,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Padovano
  */
-public class update_production extends javax.swing.JInternalFrame {
+public class update_post_sewing extends javax.swing.JInternalFrame {
 private final ConnectionDb conn = ConnectionDb.instance();
 private DefaultTableModel tbm;
 private Object [][] data=null;
@@ -27,8 +27,11 @@ private int lot=0,qty=0,sewn=0;
     /**
      * Creates new form update_production
      */
-    public update_production() {
+    public update_post_sewing() {
         initComponents();
+        wash.setActionCommand("Wash");
+        press.setActionCommand("Press");
+        matchbook.setActionCommand("Matchbook");
         init();
     }
 
@@ -43,14 +46,15 @@ private int lot=0,qty=0,sewn=0;
 
         jPopupMenu1 = new javax.swing.JPopupMenu();
         unscan = new javax.swing.JMenuItem();
+        choicegroup = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        wash = new javax.swing.JRadioButton();
+        press = new javax.swing.JRadioButton();
+        matchbook = new javax.swing.JRadioButton();
         jPanel2 = new javax.swing.JPanel();
         scrollpane = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
@@ -82,14 +86,6 @@ private int lot=0,qty=0,sewn=0;
             }
         });
 
-        jButton3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jButton3.setText("Generate Exception sticker");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-
         jButton4.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jButton4.setText("Generate blank sticker(Second)");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
@@ -98,21 +94,15 @@ private int lot=0,qty=0,sewn=0;
             }
         });
 
-        jButton5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jButton5.setText("Generate Scrap sticker");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
+        choicegroup.add(wash);
+        wash.setSelected(true);
+        wash.setText("Wash");
 
-        jButton6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jButton6.setText("Generate Post Sewing sticker");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
-            }
-        });
+        choicegroup.add(press);
+        press.setText("Press");
+
+        choicegroup.add(matchbook);
+        matchbook.setText("Matchbook");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -129,14 +119,16 @@ private int lot=0,qty=0,sewn=0;
                         .addComponent(jButton2))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(737, 737, 737)
-                        .addComponent(jButton4))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton5, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton6, javax.swing.GroupLayout.Alignment.TRAILING))))
+                        .addComponent(jButton4)))
                 .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(142, 142, 142)
+                .addComponent(wash)
+                .addGap(97, 97, 97)
+                .addComponent(press)
+                .addGap(111, 111, 111)
+                .addComponent(matchbook)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -152,12 +144,12 @@ private int lot=0,qty=0,sewn=0;
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(wash)
+                    .addComponent(press)
+                    .addComponent(matchbook))
+                .addGap(21, 21, 21))
         );
 
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
@@ -253,16 +245,6 @@ private int lot=0,qty=0,sewn=0;
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
-        // TODO add your handling code here:
-        if(evt.getKeyCode()==10){
-            System.out.println(evt.getKeyCode()==10);
-            //if(!jTextField1.getText().trim().isEmpty())
-                get(jTextField1.getText().trim());
-                jTextField1.setText("");
-        }
-    }//GEN-LAST:event_jTextField1KeyReleased
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
          // TODO add your handling code here:
         String Code=JOptionPane.showInputDialog(this,"Please confirm your Access key","Confim",JOptionPane.WARNING_MESSAGE);
@@ -282,8 +264,8 @@ private int lot=0,qty=0,sewn=0;
         Logger.getLogger(update_production.class.getName()).log(Level.SEVERE, null, ex);
     }
            if(check){
-               String requete1="update sewing_production set qty_updated=? ,QTY_PER_LOT=? ,date_updated=getDate() where sew_id=?";
-               String requete2="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('sewing Updated',?,?,3,?,?,?,?)";
+               String requete1="update "+from()+" set qty_updated=? ,QTY=? ,date_updated=getDate() where id=?";
+               String requete2="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('"+from()+" Updated',?,?,3,?,?,?,?)";
                String error="";
                for(int i=0;i<target.getRowCount();i++){
                    Object[] data=value(target,i);
@@ -308,191 +290,55 @@ private int lot=0,qty=0,sewn=0;
            }
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void savewash(Object... ob){
-        String requete="INSERT INTO washing (stickers,QTY,type,ordernum,travel_no) VALUES(?,?,?,?,?)";
-        if(!conn.Update(requete, 0, ob))
-            System.err.println(conn.getErreur());
-    }
-    
-    private void savepress(Object... ob){
-        String requete="INSERT INTO press (stickers,QTY,type,ordnum,travel_no) VALUES(?,?,?,?,?)";
-        if(!conn.Update(requete, 0, ob))
-            System.err.println(conn.getErreur());
-    }
-    
-    private void savematchbook(Object... ob){
-        String requete="INSERT INTO matchbook (stickers,QTY,type,ordernum,travel_no) VALUES(?,?,?,?,?)";
-        if(!conn.Update(requete, 0, ob))
-            System.err.println(conn.getErreur());
-    }
-    
-    private boolean step(String style,String step){
-        String requete="select * from style_operations where style=? and name=?";
-        ResultSet rs=conn.select(requete, style,step);
-        try {
-            while(rs.next()){
-                return true;
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(lot.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+
+        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(0,?,?,0,'second',?,?)";
+        boolean match=false,wash=false,press=false;
+        String style=stravel.replace(".", "-").split("-")[1];
+       
+        String code=travel;
+        if(lot<10)
+        code+="000"+(lot);
+        else
+        code+="00"+(lot);
+
         
-    }
+        conn.Update(requete, 0, stravel,code,order,travel);
+
+        get(travel);
+    }//GEN-LAST:event_jButton4ActionPerformed
+
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(0,?,?,0,'first',?,?)";
-         boolean match=false,wash=false,press=false;
-         String style=stravel.replace(".", "-").split("-")[1];
-                match=step(style,"MATCHBOOK");
-                wash=step(style,"WASHING");
-                press=step(style,"PRESS");
-            
-                //int A=alpha.
-                String code=travel;
-                if(lot<10)
-                    code+="000"+(lot);
-                else
-                    code+="00"+(lot);
-                
-                    
-                        if(match)
-                            savematchbook(code,0,"first",order,travel);
-                        if(wash)
-                            savewash(code,0,"first",order,travel);
-                        if(press)
-                            savepress(code,0,"first",order,travel);
-                        conn.Update(requete, 0, stravel,code,order,travel);
-                        
-                    
-                
-                        
-            
-            //System.out.println(data[5].toString());
-            //
-            //int line=Integer.parseInt(obs[1][5].toString());
+        boolean match=false,wash=false,press=false;
+        String style=stravel.replace(".", "-").split("-")[1];
+        
+        String code=travel;
+        if(lot<10)
+        code+="000"+(lot);
+        else
+        code+="00"+(lot);
+
+        
+        conn.Update(requete, 0, stravel,code,order,travel);
+
+        //System.out.println(data[5].toString());
+        //
+        //int line=Integer.parseInt(obs[1][5].toString());
         get(travel);
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
         // TODO add your handling code here:
-        String option="";
-        do{
-            option=JOptionPane.showInputDialog("set the quantity:");
-        }while(option.trim().isEmpty()|| option.matches("[A-Za-z ]+"));
-        int val=Integer.parseInt(option.trim());
-        if(val<=balance(travel, sewn)){
-        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'exception',?,?)";
-         boolean match=false,wash=false,press=false;
-         String style=stravel.replace(".", "-").split("-")[1];
-                match=step(style,"MATCHBOOK");
-                wash=step(style,"WASHING");
-                press=step(style,"PRESS");
-            
-                //int A=alpha.
-                String code=travel;
-                if(lot<10)
-                    code+="000"+(lot);
-                else
-                    code+="00"+(lot);
-                
-                    
-//                        if(match)
-//                            savematchbook(code,0,"first",order,travel);
-//                        if(wash)
-//                            savewash(code,0,"first",order,travel);
-//                        if(press)
-//                            savepress(code,0,"first",order,travel);
-                        conn.Update(requete, 0, val,stravel,code,order,travel);
-                       
-        get(travel); 
+        if(evt.getKeyCode()==10){
+            System.out.println(evt.getKeyCode()==10);
+            //if(!jTextField1.getText().trim().isEmpty())
+            get(jTextField1.getText().trim());
+            jTextField1.setText("");
         }
-    }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-        
-        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(0,?,?,0,'second',?,?)";
-        boolean match=false,wash=false,press=false;
-         String style=stravel.replace(".", "-").split("-")[1];
-                match=step(style,"MATCHBOOK");
-                wash=step(style,"WASHING");
-                press=step(style,"PRESS");
-            
-                //int A=alpha.
-                String code=travel;
-                if(lot<10)
-                    code+="000"+(lot);
-                else
-                    code+="00"+(lot);
-                
-                    
-                        if(match)
-                            savematchbook(code,0,"second",order,travel);
-                        if(wash)
-                            savewash(code,0,"second",order,travel);
-                        if(press)
-                            savepress(code,0,"second",order,travel);
-                
-                        conn.Update(requete, 0, stravel,code,order,travel);
-                       
-        get(travel); 
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
-        String option="";
-//        do{
-//            option=JOptionPane.showInputDialog("set the quantity:");
-//        }while(option.trim().isEmpty()|| option.matches("[A-Za-z ]+"));
-//        int val=Integer.parseInt(option.trim());
-//        if(val<=balance(travel, sewn)){
-        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'scrap',?,?)";
-         boolean match=false,wash=false,press=false;
-         String style=stravel.replace(".", "-").split("-")[1];
-                match=step(style,"MATCHBOOK");
-                wash=step(style,"WASHING");
-                press=step(style,"PRESS");
-            
-                //int A=alpha.
-                String code=travel;
-                if(lot<10)
-                    code+="000"+(lot);
-                else
-                    code+="00"+(lot);
-                
-                    
-                        if(match)
-                            savematchbook(code,0,"scrap",order,travel);
-                        if(wash)
-                            savewash(code,0,"scrap",order,travel);
-                        if(press)
-                            savepress(code,0,"scrap",order,travel);
-                        conn.Update(requete, 0, 0,stravel,code,order,travel);
-                       
-        get(travel); 
-        //}
-    }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
-        
-       
-        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'ps',?,?)";
-                    
-                String code=travel;
-                if(lot<10)
-                    code+="000"+(lot);
-                else
-                    code+="00"+(lot);
-                
-                System.err.println(code);
-                
-                        conn.Update(requete, 0, 0,stravel,code,order,travel);
-                         
-        //}
-        get(travel);
-    }//GEN-LAST:event_jButton6ActionPerformed
+    }//GEN-LAST:event_jTextField1KeyReleased
 
     private Object[] value(JTable a,int ligne){
         Object[] ob=new Object[a.getColumnCount()];
@@ -502,16 +348,48 @@ private int lot=0,qty=0,sewn=0;
         return ob;
     }
     
+    private String from(){
+        String tab="washing";
+        System.out.println(choicegroup.getSelection().getActionCommand());
+        if(choicegroup.getSelection().getActionCommand().equals("Wash"))
+            tab="washing";
+        if(choicegroup.getSelection().getActionCommand().equals("Press"))
+            tab="press";
+        if(choicegroup.getSelection().getActionCommand().equals("Matchbook"))
+            tab="Matchbook";
+        return tab;
+        
+    }
+    private String status(String from){
+        String status="isWash";
+        if(from.equals("washing"))
+            status="isWash";
+        if(from.equals("Press"))
+            status="pressed";
+        if(from.equals("Matchbook"))
+            status="booked";
+        return status;
+        
+    }
+    private String ordernum(String from){
+        String ord="ordernum";
+        if(from.equals("Press"))
+            ord="ordnum";
+        
+        return ord;
+        
+    }
     private void get(String code){
         //code=code.substring(0,8);
         //tbm.setRowCount(0);
+        
         System.out.println(code);
         data=null;
         order=null;
         travel=null;
         lot=1;
         stravel=null;
-        String requete="select * from sewing_production where lot_stickers=?";
+        String requete="select * from "+from()+" where travel_no=?";
         ResultSet rs=conn.select(requete, code);
         try {
             rs.last();
@@ -519,21 +397,19 @@ private int lot=0,qty=0,sewn=0;
         rs.beforeFirst();
         int i=0;
             while(rs.next()){
-               data[i][0]=rs.getInt("sew_id");
-               data[i][2]=rs.getString("s_traveller");
-               data[i][1]=rs.getString("order_num");
-               data[i][3]=rs.getString("slot");
-               data[i][4]=rs.getInt("qty_per_lot");
-                data[i][5]=rs.getString("type_sew");
-               data[i][6]=rs.getInt("STATUS")==1?"Scanned":rs.getInt("STATUS")==2?"Invalid":"empty";
-               data[i][7]=rs.getInt("qty_per_lot");
-               order=rs.getString("order_num");
-               travel=rs.getString("lot_stickers");
-               stravel=rs.getString("s_traveller");
+               data[i][0]=rs.getInt("id");
+               data[i][1]=rs.getString(ordernum(from()));
+               data[i][3]=rs.getString("stickers");
+               data[i][4]=rs.getInt("qty");
+                data[i][5]=rs.getString("type");
+               data[i][6]=rs.getInt(status(from()))==1?"Scanned":rs.getInt(status(from()))==2?"Invalid":"empty";
+               data[i][7]=rs.getInt("qty");
+               order=rs.getString(ordernum(from()));
+               travel=rs.getString("travel_no");
                i++;
                lot++;
-               qty+=rs.getInt("qty_per_lot");
-               sewn+=rs.getInt("STATUS")==1?rs.getInt("qty_per_lot"):0;
+               qty+=rs.getInt("qty");
+               sewn+=rs.getInt(status(from()))==1?rs.getInt("qty"):0;
                 }
             //lot=i;
                 //((DefaultTableModel)grid_data.getModel())
@@ -578,21 +454,22 @@ private int lot=0,qty=0,sewn=0;
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup choicegroup;
     private javax.swing.JLabel empty_label;
     private javax.swing.JTable grid_data;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JRadioButton matchbook;
+    private javax.swing.JRadioButton press;
     private javax.swing.JScrollPane scrollpane;
     private javax.swing.JMenuItem unscan;
+    private javax.swing.JRadioButton wash;
     // End of variables declaration//GEN-END:variables
 
     private int entry(String travel){

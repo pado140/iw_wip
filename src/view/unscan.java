@@ -6,6 +6,10 @@
 package view;
 
 import connection.ConnectionDb;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -89,8 +93,26 @@ public class unscan extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jTextField1KeyReleased
 
     private void unscanit(String stick){
+        String requete2="select * from production_scan where Slot=?";
+        ResultSet rs=conn.select(requete2, stick);
+    boolean exist=false,used=false, valid=true;
+    String sewing_t="",item="",type="",lot="";
+    int id=0;
+    int qty=0;
+        try {
+            while(rs.next()){
+                qty=rs.getInt("QTY_PER_LOT");
+                
+                sewing_t=rs.getString("S_TRAVELLER").trim();
+                item=rs.getString("slot");
+            }
+        }catch(SQLException ex) {
+            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
+        }
         String requete="update sewing_production set status=0 where slot=?";
         if(conn.Update(requete, 0, stick)){
+            String requete1="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('Unscan',?,?,4,?,?,?,?)";
+                    conn.Update(requete1, 0, new Object[]{sewing_t,qty,"Unscan Sticker",item,qty,Principal.user_id});
             JOptionPane.showMessageDialog(this, "Successfuly saved");
         }else
             JOptionPane.showMessageDialog(this, "fail");

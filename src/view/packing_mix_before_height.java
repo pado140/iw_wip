@@ -11,6 +11,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
+import observateurs.Observateurs;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -31,16 +35,20 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Padovano
  */
-public class packing_mix extends javax.swing.JInternalFrame {
+public class packing_mix_before_height extends javax.swing.JInternalFrame implements Observateurs{
 private ConnectionDb conn = ConnectionDb.instance();
 private Map<String,Integer>list_second;
 private DefaultTableModel tbm,tbm1;
 private String Erreur="";
+private Date dat;
+private int inactive=0;
+private boolean active=false;
 private JFileChooser file;
+private final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     /**
      * Creates new form packing
      */
-    public packing_mix() {
+    public packing_mix_before_height() {
         initComponents();
         
         file=new JFileChooser("C:/",FileSystemView.getFileSystemView());
@@ -66,6 +74,7 @@ private JFileChooser file;
         jButton3 = new javax.swing.JButton();
         isdefault = new javax.swing.JCheckBox();
         tablelist = new javax.swing.JComboBox();
+        date = new javax.swing.JLabel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -109,21 +118,33 @@ private JFileChooser file;
 
         tablelist.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Select table--", "Packing 1", "Packing 2", "Packing 3" }));
 
+        date.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        date.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        date.setText("jLabel3");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(31, 31, 31)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(64, 64, 64)
-                        .addComponent(tablelist, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(isdefault))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
+                        .addGap(31, 31, 31)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 277, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(isdefault)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(tablelist, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(54, 54, 54))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(date, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -131,18 +152,23 @@ private JFileChooser file;
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3)
-                .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(41, 41, 41)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(tablelist, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(isdefault)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(27, 27, 27)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(date, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(isdefault)
+                            .addComponent(tablelist, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton3)
+                        .addContainerGap())))
         );
 
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
@@ -236,7 +262,7 @@ private JFileChooser file;
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 682, Short.MAX_VALUE))
+                .addGap(0, 686, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                     .addGap(0, 117, Short.MAX_VALUE)
@@ -257,6 +283,7 @@ private JFileChooser file;
             if(!jTextField1.getText().trim().isEmpty())
                 act();
             jTextField1.setText("");
+            
         }
         
     }//GEN-LAST:event_jTextField1KeyReleased
@@ -363,7 +390,7 @@ private JFileChooser file;
        }
        if(tablelist.getSelectedIndex()>0)
            table=tablelist.getSelectedItem().toString();
-           
+        inactive=0;
 //        new Thread(){
 //            public void run(){
                 String text=jTextField1.getText().trim();
@@ -372,7 +399,6 @@ private JFileChooser file;
                 t.start();
             //}
 //        }.start();
-        
     }
     private boolean alreadyPacked(String cr){
         String requete="select count(lpnScan) n from packed_lpn where lpnScan=?";
@@ -441,8 +467,9 @@ private JFileChooser file;
             Erreur="this sticker is invalid";
             return false;
         }
-        
+        //System.out.println("");
         for(Object[] ob:val){
+            System.out.println("first:"+ob[0]+"-"+ob[1]);
             if((Integer)ob[0]>(Integer)ob[1]){
                 Erreur+="the po:"+ob[2].toString().trim()+" and the sku:"+ob[3].toString().trim()+" can't scan \n";
                 return false;
@@ -463,13 +490,14 @@ private JFileChooser file;
         rs.first();
         return rs.getInt("n") != 0;
     } catch (SQLException ex) {
-        Logger.getLogger(packing_mix.class.getName()).log(Level.SEVERE, null, ex);
+        Logger.getLogger(Upload_second.class.getName()).log(Level.SEVERE, null, ex);
     }
        return false; 
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;
     private javax.swing.JTable Log;
+    private javax.swing.JLabel date;
     private javax.swing.JCheckBox isdefault;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
@@ -499,7 +527,7 @@ class T implements Runnable{
             if(exists(text)){
            if(!alreadyPacked(text)){
             if(canSave(atpacking(text))){
-                conn.savecst("{call proc_pack(?,?)}",text,packtable);
+                conn.savecst("{call proc_pack(?,?,?)}",text,packtable,date.getText());
                 tbm1.setValueAt("Success", lineSelected, 2);
                 tbm1.setValueAt("Ok", lineSelected, 1);
             }else{
@@ -521,5 +549,24 @@ class T implements Runnable{
         
     
 }
+@Override
+    public void executer(Object... obs) {
+        System.out.println("obs");
+        if(obs[0].equals("modifier date"))
+        {
+            dat=(Date)obs[1];
+          date.setText(dateFormat.format(dat));
+        }
+        if(obs[0].equals("stat")){
+            if(tablelist.getSelectedIndex()==0 && !isdefault.isSelected())
+                return;
+               inactive++;
+               if(inactive==10){
+                   tablelist.setSelectedIndex(0);
+                   if(isdefault.isSelected())
+                       isdefault.setSelected(false);
+               }
+        }
+    }
 }
 

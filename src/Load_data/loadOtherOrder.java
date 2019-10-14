@@ -37,7 +37,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
-public class loadlpn extends javax.swing.JInternalFrame implements Observe{
+public class loadOtherOrder extends javax.swing.JInternalFrame implements Observe{
 
      private String inputFile;
      private final ConnectionDb conn=ConnectionDb.instance();
@@ -51,7 +51,7 @@ public class loadlpn extends javax.swing.JInternalFrame implements Observe{
      //private JInternalFrame summary
 
   
-    public loadlpn() {
+    public loadOtherOrder() {
         initComponents();
         init();
         fileChooser = new JFileChooser();
@@ -113,7 +113,7 @@ fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
     public void setInputFile(String inputFile) {
                 this.inputFile = inputFile;
         }
-     //										CONF QTY	EXT. MSG #	DEL. NOTE DATE	MSG #	SUPPLIER	PACKAGING	PO LINE	MO NUM
+     
  	 		  	 	  	   	  
 
     private boolean checkHeader(List<Object> data,int type){
@@ -126,27 +126,20 @@ fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
             titre.put(4,"SIZE");
             titre.put(5,"QTY");
             titre.put(6,"DESCRIP");
-            titre.put(7,"W/H");
-            titre.put(8,"LPN#");
-            titre.put(9,"ABC");
+            titre.put(7,"LPN#");
+            titre.put(8,"XFACT");
          }
          if(type==0){
-            titre.put(0,"Plan date");
-            titre.put(1,"Description");
-            titre.put(2,"Color");
-            titre.put(3,"Item number");
-            titre.put(4,"Quantity");
-            titre.put(5,"U/M");
-            titre.put(6,"U/Ctn");
-            titre.put(7,"#Ctns");
-            titre.put(8,"U/Bag");
-            titre.put(9,"Pckgng");
-            titre.put(10,"Box volume");
-            titre.put(11,"CBM volume");
-            titre.put(12,"Purch price");
-            titre.put(13,"Amount");
+            titre.put(0,"PO");
+            titre.put(1,"STYLE");
+            titre.put(2,"COLOR CODE");
+            titre.put(3,"COLOR");
+            titre.put(4,"SIZE");
+            titre.put(5,"QTY");
+            titre.put(6,"DESCRIP");
+            titre.put(7,"XFACT");
          }
-         
+         System.out.println(titre);
          boolean valid=true;
          String text="";
          if(data.isEmpty())
@@ -213,13 +206,8 @@ fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
                     String champ=formatdata.formatCellValue(ce).trim().toLowerCase();
                     String val=formatdata.formatCellValue(tit.getCell(1)).trim();
                     val=filtre(val);
-                    if(champ.contains("po date"))
-                        po_date.setText(val);
-                            if(champ.contains("ship date"))
-                                ship_date.setText(val);
-                            if(champ.contains("req de"))
-                                last_date.setText(val);
-                            if(champ.contains("po no")){
+                    
+                            if(champ.contains("po")){
                                 po_text.setText(val);
                                ispo=true;
                             }
@@ -358,18 +346,18 @@ public boolean saveCom(Object[] o){
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setIconifiable(true);
         setMaximizable(true);
-        setTitle("LOAD LPN ASG");
+        setTitle("LOAD LPN FILE");
 
         grid_po.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "PO NUM", "STYLE", "COL", "COLDSP", "SIZE", "QTY", "DESCRIP", "W/H", "LPN#"
+                "PO NUM", "STYLE", "COL", "COLDSP", "SIZE", "QTY", "DESCRIP", "W/H", "LPN#", "XFACT"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, true, false
+                false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -454,7 +442,7 @@ public boolean saveCom(Object[] o){
 
         jLabel6.setText("Last Date:");
 
-        comb_cust.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select Customer", "HWY", "AUG", "CLV", " " }));
+        comb_cust.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select Customer", "HWY", "AUG", "CLV", "" }));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -610,7 +598,7 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
-        loadFrame pivot=new loadFrame(new JFrame(),true);
+        pivot pivot=new pivot(new JFrame(),true);
         //pivot.setVisible(true);
         //pivot.
         this.ajouterObservateur(pivot );
@@ -624,9 +612,15 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
         int ordernum=Integer.parseInt(ord);
         int line=1,del=1;
          Map<String ,String> error =new LinkedHashMap<>();
-        if(Po_Exist(po_text.getText().trim())==0){
-            
-            String po=po_text.getText().trim();
+        
+        
+            String po=grid_po.getValueAt(0, 0).toString().trim();
+            String brand=comb_cust.getSelectedItem().toString();
+            for(int i=0;i<grid_po.getRowCount();i++){
+                ordernum++;
+                
+                if(Po_Exist(po)==0){
+                po=grid_po.getValueAt(i, 0).toString().trim();    
             if(po.contains(".")){
                 po=po.substring(0,po.indexOf(".")-1);
             }
@@ -634,28 +628,22 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
                 Date poDate=null;
                 Date shipDate=null;
             try {
-                xfact=formatter.parse(last_date.getText().trim());
-                poDate=formatter.parse(po_date.getText().trim());
-                shipDate=formatter.parse(ship_date.getText().trim());
+                xfact=formatter.parse(grid_po.getValueAt(i, 7).toString().trim());
+                poDate=formatter.parse(grid_po.getValueAt(i, 7).toString().trim());
+                shipDate=formatter.parse(grid_po.getValueAt(i, 7).toString().trim());
             } catch (ParseException ex) {
                 Logger.getLogger(loadlpn.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            String brand=comb_cust.getSelectedItem().toString();
-            for(int i=0;i<grid_po.getRowCount();i++){
-                ordernum++;
                 String ord1=String.valueOf(ordernum);
-                String prtid=grid_po.getValueAt(i, 3).toString().trim();
-                String color=grid_po.getValueAt(i, 2).toString().trim();
-                String code=prtid.substring(prtid.indexOf(".")+1,prtid.lastIndexOf("."));
-                color=color.substring(color.indexOf("-")+1);
-                String size=prtid.substring(prtid.lastIndexOf(".")+1);
-                String style=prtid.substring(0, prtid.indexOf("."));
-                int qty=(int)Double.parseDouble(grid_po.getValueAt(i, 4).toString());
-                double po_price=grid_po.getValueAt(i, 12).toString().trim().isEmpty()?0:Double.parseDouble(grid_po.getValueAt(i, 12).toString());
-                double lbs=grid_po.getValueAt(i, 10).toString().trim().isEmpty()?0:(Double.parseDouble(grid_po.getValueAt(i, 10).toString())>10?
-                        Double.parseDouble(grid_po.getValueAt(i, 10).toString())/1000:Double.parseDouble(grid_po.getValueAt(i, 10).toString()));
-                String description =grid_po.getValueAt(i, 1).toString().trim();
+                String prtid=grid_po.getValueAt(i, 1).toString().trim()+"."+grid_po.getValueAt(i, 2).toString().trim()+"."+grid_po.getValueAt(i, 4).toString().trim();
+                String color=grid_po.getValueAt(i, 3).toString().trim();
+                String code=grid_po.getValueAt(i, 2).toString().trim();
+                String size=grid_po.getValueAt(i, 4).toString().trim();
+                String style=grid_po.getValueAt(i, 1).toString().trim();
+                int qty=(int)Double.parseDouble(grid_po.getValueAt(i, 5).toString());
+                double po_price=0;
+                double lbs=0;
+                String description =grid_po.getValueAt(i, 6).toString().trim();
                 String desc=description;
                 if(description.toLowerCase().contains("youth"))
                         desc=description.replace("YOUTH ", "");
@@ -694,8 +682,7 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
                 }
                 JOptionPane.showMessageDialog(this, er, "error insert", JOptionPane.ERROR_MESSAGE);
             }
-        }else
-            JOptionPane.showMessageDialog(this, "This PO is already in the database", "duplicate", JOptionPane.ERROR_MESSAGE);
+            }
         
     }//GEN-LAST:event_jButton3ActionPerformed
 

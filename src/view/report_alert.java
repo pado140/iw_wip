@@ -94,7 +94,7 @@ public class report_alert extends javax.swing.JInternalFrame {
 
     private void init(){
         tbm = (DefaultTableModel) grid_data.getModel();
-        
+        System.out.println("ssss");
         tbm.setRowCount(0);
         
         FT=new fillTable();

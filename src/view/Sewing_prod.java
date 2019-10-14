@@ -187,7 +187,7 @@ private void get(String sew){
     String requete="select * from production_scan where Slot=?";
     System.out.println(requete);
     ResultSet rs=conn.select(requete, sew);
-    boolean exist=false,used=false, valid=true;
+    boolean exist=false,used=false, valid=true,closed=true;
     String sewing_t="",item="",type="",lot="";
     Date dat=new Date();
     int bar=29;
@@ -204,7 +204,7 @@ private void get(String sew){
                 if(rs.getInt("status")==2)
                     valid=false;
                 qty=rs.getInt("QTY_PER_LOT");
-                
+                closed=rs.getString("status_10").trim().equalsIgnoreCase("5");
                 sewing_t=rs.getString("S_TRAVELLER").trim();
                 item=rs.getString("slot");
                 lot=rs.getString("lot_stickers");
@@ -213,88 +213,92 @@ private void get(String sew){
             }   } catch (SQLException ex) {
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if(exist){
-            if(!used){
-                if(valid){
-                if(qty==0){
-                    bar=balance(lot,QTY_CUT);
-                    System.out.println("balance:"+bar);
-                        if(bar>30)
-                            bar=25;
-                        Date mod=null;
-                    if(type.equals("first")){
-                        mod=lastInsertBlank(lot);
-                        
-                    }else
-                        mod=lastInsertSecond(lot);
-                    if(mod!=null){
-                        String date_mod=1900+mod.getYear()+"-";
-                        date_mod+=mod.getMonth()+"-";
-                        date_mod+=mod.getDate();
-                        
-                        String dat_new=1900+dat.getYear()+"-";
-                        dat_new+=dat.getMonth()+"-";
-                        dat_new+=dat.getDate();
-                        if(date_mod.equals(dat_new)){
-                            
-                            JOptionPane.showMessageDialog(this, "you cannot scan multiple blank stickers in a same date");
-                            return;
+        if(!closed){
+            if(exist){
+                if(!used){
+                    if(valid){
+                    if(qty==0){
+                        bar=balance(lot,QTY_CUT);
+                        System.out.println("balance:"+bar);
+                            if(bar>30)
+                                bar=25;
+                            Date mod=null;
+                        if(type.equals("first")){
+                            mod=lastInsertBlank(lot);
+
+                        }else
+                            mod=lastInsertSecond(lot);
+                        if(mod!=null){
+                            String date_mod=1900+mod.getYear()+"-";
+                            date_mod+=mod.getMonth()+"-";
+                            date_mod+=mod.getDate();
+
+                            String dat_new=1900+dat.getYear()+"-";
+                            dat_new+=dat.getMonth()+"-";
+                            dat_new+=dat.getDate();
+                            if(date_mod.equals(dat_new)){
+
+                                JOptionPane.showMessageDialog(this, "you cannot scan multiple blank stickers in a same date");
+                                return;
+                            }
                         }
+
+
+                            //}
+
+
+
+                        String option="";
+                        do{
+                        option=JOptionPane.showInputDialog(this, "please Confirm quantity"
+                                + "\n Quantity must inferior or equals to:"+bar, "Confirmation", JOptionPane.WARNING_MESSAGE);
+                        }while(option.trim().isEmpty() || Pattern.matches("\\d+",option)==false||Integer.parseInt(option)>bar);
+                        System.out.println(option);
+                        qty=Integer.parseInt(option);
+                            if(type.equalsIgnoreCase("first"))
+                                setInvalid(first(lot));
+
+                        setqty(Integer.parseInt(option),sew);
+
+
+                        }
+
+                    setSewn(sew);
+
+
+                    String []posku=sewing_t.replace(".", "-").split("-");
+                    String color,Code;
+                   color=null;
+                   Code=posku[2];
+                    data[0]=posku[0];
+                       data[1]=posku[1];
+                       data[6]=item;
+                       data[7]=type;
+                       data[2]=Code;
+                       data[3]=color;
+                       data[4]=posku[3];
+                       data[5]=qty;
+                       datalist.add(data);
+                       tbm.addRow(data);
+
+
+
+                    String requete1="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('sewing',?,?,3,?,?,?,?)";
+                        conn.Update(requete1, 0, new Object[]{sewing_t,QTY_CUT,"sewing",item,qty,Principal.user_id});
+                    }else{
+                        JOptionPane.showMessageDialog(this, "This sticker you scan is invalid", "Alert", JOptionPane.ERROR_MESSAGE);
                     }
-                    
-                    
-                        //}
-                       
-                    
-                        
-                    String option="";
-                    do{
-                    option=JOptionPane.showInputDialog(this, "please Confirm quantity"
-                            + "\n Quantity must inferior or equals to:"+bar, "Confirmation", JOptionPane.WARNING_MESSAGE);
-                    }while(option.trim().isEmpty() || Pattern.matches("\\d+",option)==false||Integer.parseInt(option)>bar);
-                    System.out.println(option);
-                    qty=Integer.parseInt(option);
-                        if(type.equalsIgnoreCase("first"))
-                            setInvalid(first(lot));
-                    
-                    setqty(Integer.parseInt(option),sew);
-                    
-                    
-                    }
-                
-                setSewn(sew);
-                
-                
-                String []posku=sewing_t.replace(".", "-").split("-");
-                String color,Code;
-               color=null;
-               Code=posku[2];
-                data[0]=posku[0];
-                   data[1]=posku[1];
-                   data[6]=item;
-                   data[7]=type;
-                   data[2]=Code;
-                   data[3]=color;
-                   data[4]=posku[3];
-                   data[5]=qty;
-                   datalist.add(data);
-                   tbm.addRow(data);
-                
-                
-                
-                String requete1="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('sewing',?,?,3,?,?,?,?)";
-                    conn.Update(requete1, 0, new Object[]{sewing_t,QTY_CUT,"sewing",item,qty,Principal.user_id});
-                }else{
-                    JOptionPane.showMessageDialog(this, "This sticker you scan is invalid", "Alert", JOptionPane.ERROR_MESSAGE);
                 }
-            }
-            else
-            {
-                JOptionPane.showMessageDialog(this, "This sticker you scan is already scanned", "Alert", JOptionPane.ERROR_MESSAGE);
+                else
+                {
+                    JOptionPane.showMessageDialog(this, "This sticker you scan is already scanned", "Alert", JOptionPane.ERROR_MESSAGE);
+                }
+            }else{
+                JOptionPane.showMessageDialog(this, "This sticker you scan is not valid", "Alert", JOptionPane.ERROR_MESSAGE);
             }
         }else{
-            JOptionPane.showMessageDialog(this, "This sticker you scan is not valid", "Alert", JOptionPane.ERROR_MESSAGE);
-        }
+                JOptionPane.showMessageDialog(this, "This workorder is already close", "Alert", JOptionPane.ERROR_MESSAGE);
+            }
         
 }
     private void mostrar(){

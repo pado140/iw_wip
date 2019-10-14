@@ -132,6 +132,7 @@ public class Module_summary extends javax.swing.JInternalFrame {
                     previous=null;
                     for(Date titles :donnes.keySet()){
                         Date in=titles;
+                        
                         if(previous!=null&&!previous.isEmpty()){
                             for(Object val[] :previous){
                                 int qty=Integer.parseInt(val[10].toString());
@@ -145,7 +146,9 @@ public class Module_summary extends javax.swing.JInternalFrame {
                                         ad+=1;
                                     cal.add(Calendar.DATE, ad);
                                     Calendar now=Calendar.getInstance();
-                                    if(nbreJours(now.getTimeInMillis()-cal.getTimeInMillis())>=1)
+                                    if(nbreJours(now.getTimeInMillis()-cal.getTimeInMillis())>=9)
+                                        text_icon="Unaccountable qty";
+                                    else if(nbreJours(now.getTimeInMillis()-cal.getTimeInMillis())>=1)
                                         text_icon="past due";
                                     else
                                         text_icon="deadline soon";

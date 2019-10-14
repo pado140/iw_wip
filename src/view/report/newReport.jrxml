@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" columnCount="3" printOrder="Horizontal" pageWidth="595" pageHeight="842" columnWidth="185" leftMargin="20" rightMargin="20" topMargin="12" bottomMargin="12" uuid="2dc4e245-597e-48fb-aac0-a20875deb6ca">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="74"/>
+	<property name="ireport.y" value="0"/>
 	<style name="table">
 		<box>
 			<pen lineWidth="1.0" lineColor="#000000"/>
@@ -185,8 +185,8 @@
 				<textFieldExpression><![CDATA[$P{sku}+"."+$P{qtity}]]></textFieldExpression>
 			</textField>
 			<componentElement>
-				<reportElement x="464" y="7" width="66" height="40" uuid="b6d5fa82-f422-4666-bf8e-1dc43d4ac919"/>
-				<jr:Code128 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+				<reportElement mode="Opaque" x="464" y="7" width="66" height="29" uuid="b6d5fa82-f422-4666-bf8e-1dc43d4ac919"/>
+				<jr:Code128 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" textPosition="none">
 					<jr:codeExpression><![CDATA[$P{codes}]]></jr:codeExpression>
 				</jr:Code128>
 			</componentElement>
@@ -340,6 +340,13 @@
 				</textElement>
 				<text><![CDATA[SKU QTY:]]></text>
 			</staticText>
+			<textField>
+				<reportElement x="441" y="36" width="106" height="20" uuid="67d448be-aa4a-47e2-8f4e-90dfc324d890"/>
+				<textElement>
+					<font fontName="Century Gothic" size="15" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{codes}]]></textFieldExpression>
+			</textField>
 		</band>
 	</pageHeader>
 	<columnHeader>

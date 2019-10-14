@@ -26,12 +26,10 @@ public class iconRenderer extends DefaultTableCellRenderer{
     private final ImageIcon ALERT_IMAGE = new ImageIcon(getClass().getResource("/view/icon/icons8_Clock_20px.png"));
     private final ImageIcon ALERT_out = new ImageIcon(getClass().getResource("/view/icon/icons8_Expired_20px_2.png"));
     private final ImageIcon ALERT_PROCESSING = new ImageIcon(getClass().getResource("/view/icon/icons8_Sync_24px_1.png"));
+    private final ImageIcon ALERT_found = new ImageIcon(getClass().getResource("/view/icon/not found.png"));
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         Object[] val=new Object[16];
-        for(int i=0;i<16;i++){
-            val[i]=table.getValueAt(row, i);
-        }
         JLabel label=new JLabel(){
             
             private JToolTip createTooltip(){
@@ -72,8 +70,10 @@ public class iconRenderer extends DefaultTableCellRenderer{
             label.setIcon(ALERT_out);
             
         }
-        if(value.equals("In Process")){
+        if(value.equals("In Process"))
             label.setIcon(ALERT_PROCESSING);
+        if(value.equals("Unaccountable qty")){
+            label.setIcon(ALERT_found);
             
         }
         

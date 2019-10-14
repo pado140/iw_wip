@@ -316,7 +316,9 @@ public class lpn_update extends javax.swing.JInternalFrame {
         String last_num=box_stickers.substring((ordnum.trim()+initVal).length()-1);
         String new_stickers=ordnum.trim()+qty.getValue()+last_num;
         String requete="Update box_contain set box_stickers=? ,qty=? where lpn=?";
-        return conn.Update(requete, 0, new_stickers,qty.getValue(),lpn_val.getText());
+        String requete1="Update box_detail set stickers=? ,qty=? where lpndetails=?";
+        conn.Update(requete, 0, new_stickers,qty.getValue(),lpn_val.getText());
+        return conn.Update(requete1, 0, new_stickers,qty.getValue(),lpn_val.getText());
         //return false;
     }
     

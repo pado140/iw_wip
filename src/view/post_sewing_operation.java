@@ -91,18 +91,18 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
                 data[11]=(operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash")-rs.getInt("at_press"):"N/A");
                 data[12]=(operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press")-
                         (operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):rs.getInt("PACKED")):"N/A");
-                data[14]=(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match")-rs.getInt("ready"):"N/A");
-                data[13]=rs.getInt("post_sewing");
+                data[13]=(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match")-rs.getInt("ready"):"N/A");
+                data[14]=rs.getInt("second_wash")+rs.getInt("second_press")+rs.getInt("second_matchbook");
                 
                 data[15]=((operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):
                         operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press"):
                         operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash"):0)-rs.getInt("packed")>0?(operations.contains(rs.getString("style").trim()+2)?rs.getInt("at_match"):
                         operations.contains(rs.getString("style").trim()+3)?rs.getInt("at_press"):
-                        operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash"):0)-rs.getInt("packed"):0);
+                        operations.contains(rs.getString("style").trim()+1)?rs.getInt("at_wash"):0)-rs.getInt("packed"):0)-(rs.getInt("second_wash")+rs.getInt("second_press")+rs.getInt("second_matchbook"));
                 data[16]=rs.getInt("packed")-rs.getInt("at_audit");
                 if(rs.getInt("packed")!=0){
                     if(operations.contains(rs.getString("style").trim()+2))
-                        data[14]=0;
+                        data[13]=0;
                     else{
                         if(operations.contains(rs.getString("style").trim()+3))
                             data[12]=0;
@@ -278,7 +278,7 @@ public class post_sewing_operation extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "WORK ORDER", "PO", "STYLE", "COLOR", "SIZE", "ORDER", "PLANNED", "AT MODULE", "OTFQ", "BALANCE IN MODULE", "FIRST QUALITY", "WASHING", "PRESSING", "OTFQPS", "MATCHBOOOK", "READY TO PACK", "AT PACKING", "AT AUDIT", "PACKED"
+                "WORK ORDER", "PO", "STYLE", "COLOR", "SIZE", "ORDER", "PLANNED", "AT MODULE", "OTFQ", "BALANCE IN MODULE", "FIRST QUALITY", "WASHING", "PRESSING", "MATCHBOOOK", "OTFQPS", "READY TO PACK", "AT PACKING", "AT AUDIT", "PACKED"
             }
         ) {
             boolean[] canEdit = new boolean [] {

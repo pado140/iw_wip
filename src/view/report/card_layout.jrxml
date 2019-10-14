@@ -100,7 +100,7 @@
 				<textElement>
 					<font fontName="Century Gothic" size="11" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{ticket_num}+ " of " +$F{nb}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ticket_num}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="499" y="27" width="70" height="20" uuid="d1d06776-900d-4f99-80f2-91c46e7fc43a"/>
@@ -177,7 +177,7 @@
 				<textElement>
 					<font fontName="Century Gothic" size="11" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{ticket_num}+ " of " +$F{nb}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{ticket_num}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="345" y="47" width="41" height="16" uuid="8502ccbd-fe7f-462d-8c38-7ec8ae89d66d"/>

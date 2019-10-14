@@ -7,10 +7,14 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -18,14 +22,14 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import observateurs.Observateurs;
-import view.lpn_update;
 
 
-public class loadFrame extends javax.swing.JDialog implements Observateurs{
+public class pivot extends javax.swing.JDialog implements Observateurs{
      private final ConnectionDb conn=ConnectionDb.instance();
      private Map<String,Map<String,Integer>> listData;
+     private SimpleDateFormat formatter=new SimpleDateFormat("MM/dd/yy");
 
-    public loadFrame(Frame owner, boolean modal) {
+    public pivot(Frame owner, boolean modal) {
         super(owner, modal);
         initComponents();
         
@@ -34,7 +38,7 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
     }
 
   
-    public loadFrame() {
+    public pivot() {
         initComponents();
         
        grid_po.getTableHeader().setFont( new Font( "Arial" , Font.BOLD, 13 ));
@@ -51,6 +55,12 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
             String initColor=ob.get(0)[3].toString();
             String initSize=ob.get(0)[4].toString();
             String initDesc=ob.get(0)[6].toString();
+            Date xfact=null;
+         try {
+             xfact=new SimpleDateFormat("M/d/yyyy").parse(ob.get(0)[7].toString());
+         } catch (ParseException ex) {
+             Logger.getLogger(pivot.class.getName()).log(Level.SEVERE, null, ex);
+         }
             
             DefaultTableModel tbm = (DefaultTableModel) grid_po.getModel();
             tbm.setRowCount(0);
@@ -68,11 +78,16 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
                     initColor=o[3].toString();
                     initSize=o[4].toString();
                     initDesc=o[6].toString();
+                    try {
+             xfact=new SimpleDateFormat("MM/dd/yyyy").parse(ob.get(0)[7].toString());
+         } catch (ParseException ex) {
+             Logger.getLogger(pivot.class.getName()).log(Level.SEVERE, null, ex);
+         }
                 }
                 System.out.println(o[16].toString());
                 total+=(int)Double.parseDouble(o[5].toString());
             }
-            tbm.addRow(new Object[]{initPo,initStyle,initCol,initColor,initSize,total,initDesc});
+            tbm.addRow(new Object[]{initPo,initStyle,initCol,initColor,initSize,total,initDesc,xfact});
             
  txt_box.setText(String.valueOf(grid_po.getRowCount()));
         }
@@ -82,10 +97,11 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
         Set<String> skus=new HashSet<>();
             //int initPoline=(int)Double.parseDouble(ob.get(0)[16].toString());
             String initPo,initStyle,initCol,initColor,initSize,initDesc,initWh,initAbc,desc;
-            
+            String xfact=ob.get(0)[8].toString();
+        
             DefaultTableModel tbm = (DefaultTableModel) grid_po.getModel();
             tbm.setRowCount(0);
-            int total;
+            int total,pieces=0;
             //System.out.println(ob.size());
             listData= new HashMap<>();
             Map<String,Integer> listLpn;
@@ -117,25 +133,29 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
                         desc=initDesc.replace("LDS ", "");
                     else if(initDesc.toLowerCase().contains("adult"))
                         desc=initDesc.replace("ADULT ", "");
-                    initWh=o[7].toString().trim();
-                    initAbc="";
+                    
+                    
+             xfact=o[8].toString();
+         
                 for(Object[] o1:ob){
                     String sku1=o1[0].toString().substring(o1[0].toString().indexOf("-")+1).trim().concat("."+o1[1].toString().trim()).concat("."+o1[2].toString().trim()
                 .concat("."+o1[4].toString().trim()));
                     if(sku.equals(sku1)){
-                     listLpn.put(o1[8].toString(), (int)Double.parseDouble(o1[5].toString()));
+                     listLpn.put(o1[7].toString(), (int)Double.parseDouble(o1[5].toString()));
                     //System.out.println(o[16].toString());
                     total+=(int)Double.parseDouble(o1[5].toString());  
                     }
                 }
                 listData.put(sku, listLpn);
-                tbm.addRow(new Object[]{initPo,initStyle,initCol,initColor,initSize,total,initDesc,desc,initAbc,initWh});
+                tbm.addRow(new Object[]{initPo,initStyle,initCol,initColor,initSize,total,initDesc,desc,xfact});
+                pieces+=total;
                 }
                 
             }
             //tbm.addRow(new Object[]{initPo,initStyle,initCol,initColor,initSize,total,initDesc});
             
  txt_box.setText(String.valueOf(grid_po.getRowCount()));
+ txt_piece.setText(String.valueOf(pieces));
         }
     
     @SuppressWarnings("unchecked")
@@ -164,11 +184,11 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
 
             },
             new String [] {
-                "PO NUM", "STYLE", "COL", "COLDSP", "SIZE", "QTY", "DESCRIP", "DESC", "CLASS", "W/H"
+                "PO NUM", "STYLE", "COL", "COLDSP", "SIZE", "QTY", "DESCRIP", "DESC", "XFACT"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -242,7 +262,7 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setText("Date Plan");
 
-        plan.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--SELECTED--", "HWY", "AUG" }));
+        plan.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--SELECTED--", "HWY", "AUG", "CLV", "LAT" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -310,6 +330,18 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
     private boolean saveLpn(String ordnum,String lpn,String sticker,int qty){
         String requete="INSERT INTO BOX_CONTAIN(ORDNUM,LPN,BOX_STICKERS,QTY) VALUES (?,?,?,?)";
         return conn.Update(requete, 0, ordnum,lpn,sticker,qty);
+    }
+    private boolean Lpnexist(String ordnum,String lpn){
+        String requete="select *from BOX_CONTAIN where ORDNUM=? and LPN=?";
+        ResultSet rs=conn.select(requete, ordnum,lpn);
+        try{
+             while(rs.next())
+             return true;
+            
+         } catch (SQLException ex) {
+             Logger.getLogger(loadFrame.class.getName()).log(Level.SEVERE, null, ex);
+         } 
+        return false;
     }
     private String Order_Exist(String Po,String part_id){
          try {
@@ -396,35 +428,54 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
          } 
          return null;
     }
-    private int nbLpn(String ord){
-        String requete="select count(ordnum) nb from BOX_CONTAIN where ordnum =?";
-        ResultSet rs=conn.select(requete, ord);
-        
-        try {
-            while(rs.next())
-            {
-                return rs.getInt("nb")+1;
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(lpn_update.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return 1;
+    private String UpdatePartid(String partid,String Descrip,String Desc,String upc,String color){
+        String requete="update Part_Master SET PMDES1_01=?,PMDES2_01=?,UDFKEY_01=?,UDFREF_01=? where PRTNUM_01=?";
+        upc=upc.length()>15?"":upc;
+        if(conn.Update(requete, 0,Descrip,Desc,upc,color, partid))
+            return partid;
+            
+        return null;
     }
+    
+    private boolean update(String order,int qty,Date xfact,double price){
+        String query="update Order_Master set CURQTY_10=?,ORGQTY_10=?,DUEQTY_10=?,ORGDUE_10=?,COST_10=? where ORDNUM_10=?";
+      return conn.Update(query,0,qty,qty,qty,xfact,price,order);
+    }
+    
+    private Set<String> listOrder(String Po){
+        Set<String> order=new HashSet<>();
+         try {
+             String query="select ordnum_147 ord from shoporder where cusord_147=?";
+             ResultSet rs=conn.select(query, Po);
+             while(rs.next())
+                 order.add(rs.getString("ord"));
+            
+         } catch (SQLException ex) {
+             Logger.getLogger(loadFrame.class.getName()).log(Level.SEVERE, null, ex);
+         } 
+         return order;
+    }
+    
     private void Save(){
         Map<String,String> errors=new HashMap<>();
         String ord=lastOrdnum();
         int ordernum=Integer.parseInt(ord);
         String partid;
+        Map<String,Object[]> datatoUpdate=new HashMap<>();
+        Calendar c=Calendar.getInstance(Locale.CANADA);
+        String po=grid_po.getValueAt(0, 0).toString().trim();
+        Set<String> toRemove=listOrder(po);
         for(int a=0;a<grid_po.getRowCount();a++){
-            String po=grid_po.getValueAt(a, 0).toString().trim();
+                po=grid_po.getValueAt(a, 0).toString().trim();
+                toRemove.addAll(listOrder(po));
             int qty=Integer.parseInt(grid_po.getValueAt(a, 5).toString());
             po=po.substring(po.indexOf("-")+1);
-            String classe=grid_po.getValueAt(a, 8).toString();
+            String classe="A";
             String description=grid_po.getValueAt(a, 6).toString();
             String desc=grid_po.getValueAt(a, 7).toString();
             String style=grid_po.getValueAt(a, 1).toString().trim();
             String size=grid_po.getValueAt(a, 4).toString().trim();
-            String wh=grid_po.getValueAt(a, 9).toString();
+            String wh="";
             String color=grid_po.getValueAt(a, 3).toString();
             String sku1,sku=grid_po.getValueAt(a, 1).toString().trim();
             sku+="."+grid_po.getValueAt(a, 2).toString().trim();
@@ -433,10 +484,19 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
             sku1=po+"."+grid_po.getValueAt(a, 1).toString().trim();
             sku1+="."+grid_po.getValueAt(a, 2).toString().trim();
             //System.out.println(sku);
-            
+            Date date=new Date();
+            try{
+                date=formatter.parse(grid_po.getValueAt(a, 8).toString());
+                //c.setTime(date);
+            }catch(NullPointerException e){
+                
+            } catch (ParseException ex) {
+                Logger.getLogger(pivot.class.getName()).log(Level.SEVERE, null, ex);
+            }
             String ord1;
             try{
-            partid=Prtid_Exist(sku)[0];
+                partid=Prtid_Exist(sku)[0];
+                UpdatePartid(partid,description,desc,sku,color);
             }catch(NullPointerException e){
                 partid=savePartid(sku,plan.getSelectedItem().toString(),description,desc,style,wh,sku,size,color);
                 if(conn.getErreur()!=null){
@@ -449,15 +509,20 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
                     ordernum++;
                     ord1=String.valueOf(ordernum);
                     //String key=Integer.parseInt(wh)>0?"":wh;
-                    saveOrder(po, ord1, partid,date_plan.getDate(), qty, plan.getSelectedItem().toString(),classe, sku1, classe);
+                    if(!saveOrder(po, ord1, partid,date, qty, plan.getSelectedItem().toString(),classe, sku1, classe))
+                        ord1=null;
                     if(conn.getErreur()!=null){
                     errors.put(ord1, conn.getErreur());
                 }
+                }else{
+                    System.out.println("ordernum:"+ord1);
+                    datatoUpdate.put(ord1, new Object[]{qty,c.getTime(),0.0});
+                    toRemove.remove(ord1);
                 }
                 if(partid!=null && ord1!=null){
-                    int inc=nbLpn(ord1);
+                    int inc=1;
                     for(String lpn:listData.get(po.concat(".").concat(sku)).keySet()){
-                    
+                    if(!Lpnexist(ord1, lpn)){
                     String ind=String.valueOf(inc);
                     int qt=listData.get(po.concat(".").concat(sku)).get(lpn);
                     String sticker=ord1+"000".substring(ind.length())+ind;
@@ -469,7 +534,29 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
                     inc++;
                     //System.out.println(sticker+"\t"+lpn);
                     }
+                    }
                 }
+        }
+        if(datatoUpdate.size()>0){
+            int choix=JOptionPane.showConfirmDialog(this, "this po is exist.\n would you like to update the order",
+                    "Update order",JOptionPane.YES_NO_OPTION);
+            if(choix==JOptionPane.YES_OPTION){
+                
+                for(String title:datatoUpdate.keySet()){
+                   Object[] ob=datatoUpdate.get(title);
+                       update(title,(Integer)ob[0],(Date)ob[1],(Double)ob[2]);
+                    
+                }
+            }
+            
+        }
+        if(!toRemove.isEmpty()){
+            String requete="delete from order_master where ordnum_10 =?";
+            for(String order:toRemove){
+//                if(!conn.Update(requete, 0, order))
+//                    errors.put(order, conn.getErreur());
+            }
+            
         }
         if(errors.isEmpty())
             JOptionPane.showMessageDialog(this, "Save without warnings");

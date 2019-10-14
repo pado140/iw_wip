@@ -66,8 +66,7 @@ private DefaultTableModel tbm;
             this.commande=commande;
             header.setEnabled(false);
             for(Component c:header.getComponents())
-                c.setEnabled(false);
-            content.setEnabled(false);
+                c.setEnabled(false);            content.setEnabled(false);
             progress.setVisible(true);
             export.setEnabled(false);
             state.setText("initiating");
@@ -77,7 +76,7 @@ private DefaultTableModel tbm;
         @Override
         protected Void doInBackground() {
             int i=0;
-            
+            visible(false);
             progress.setIndeterminate(false);
             progress.setString("0%");
             count.setText("Waiting...");
@@ -137,8 +136,7 @@ private DefaultTableModel tbm;
             progress.setForeground(Color.GREEN);
             progress.setString("Done");
             //alerter("reload",data);
-            for(Component c:header.getComponents())
-                c.setEnabled(true);
+            visible(true);
             export.setEnabled(true);
             progress.setVisible(false);
             count.setText(String.valueOf(total));
@@ -154,6 +152,12 @@ private DefaultTableModel tbm;
         initComponents();
         tbm=(DefaultTableModel)GRID_DATA.getModel();
         inits();
+    }
+    private void visible(boolean status){
+        header.setEnabled(status);
+            for(Component c:header.getComponents()){
+                c.setEnabled(status);
+            }
     }
 
     private void inits(){

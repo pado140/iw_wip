@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -32,6 +33,8 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
+import observateurs.Observateurs;
+import observateurs.Observe;
 import view.report.Data;
 import view.report.cutpart;
 import view.report.sewing;
@@ -40,16 +43,20 @@ import view.report.sewing;
  *
  * @author Padovano
  */
-public class At_soabar extends javax.swing.JInternalFrame {
+public class At_soabar extends javax.swing.JInternalFrame implements Observe{
 private final ConnectionDb conn = ConnectionDb.instance();
 private DefaultTableModel tbm;
 private Set<Object[]> listedata;
 private Map<String , Integer> padprint;
+public static int qtyToTransfer=0;
+public static boolean transfer=false;
     /**
      * Creates new form Confirm_at_soabar
      */
     public At_soabar() {
         initComponents();
+        observa=new Split(null,false);
+        ajouterObservateur(observa);
         listedata=new LinkedHashSet<>();
         init();
     }
@@ -65,6 +72,7 @@ private Map<String , Integer> padprint;
 
         POPUP = new javax.swing.JPopupMenu();
         AT_EMBL = new javax.swing.JMenuItem();
+        split = new javax.swing.JMenuItem();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         GRID_DATA = new javax.swing.JTable();
@@ -85,6 +93,14 @@ private Map<String , Integer> padprint;
             }
         });
         POPUP.add(AT_EMBL);
+
+        split.setText("Split to padprint");
+        split.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                splitActionPerformed(evt);
+            }
+        });
+        POPUP.add(split);
 
         setClosable(true);
         setTitle("At soa bar");
@@ -260,8 +276,13 @@ private Map<String , Integer> padprint;
     private void GRID_DATAMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_GRID_DATAMouseReleased
         // TODO add your handling code here:
         if(evt.getButton()==MouseEvent.BUTTON3){
-            if(!GRID_DATA.getSelectionModel().isSelectionEmpty())
+            if(!GRID_DATA.getSelectionModel().isSelectionEmpty()){
+                if(GRID_DATA.getSelectedRowCount()>1)
+                    split.setVisible(false);
+                else
+                    split.setVisible(true);
             POPUP.show(GRID_DATA,evt.getX(),evt.getY());
+            }
             else
                 JOptionPane.showMessageDialog(this, "Please select a row!", "Warning", JOptionPane.INFORMATION_MESSAGE);
         }
@@ -308,22 +329,15 @@ private Map<String , Integer> padprint;
                 data[5]=GRID_DATA.getValueAt(ligne, 5);
                 data[6]=GRID_DATA.getValueAt(ligne, 6);
                 data[7]=GRID_DATA.getValueAt(ligne, 7);
-                
+                if(!transfer)
+                    qtyToTransfer=Integer.parseInt(data[5].toString());
                 String color=data[3].toString().trim();
                 
             print(color.split("-")[1],color.split("-")[0],data[4].toString().trim(),
-                         Integer.parseInt(data[5].toString()),stickers,data[1].toString().trim(),data[2].toString().trim(),GRID_DATA.getValueAt(ligne, 7).toString()
-                         ,Integer.parseInt(GRID_DATA.getValueAt(ligne, 8).toString())+Integer.parseInt(data[5].toString()),GRID_DATA.getValueAt(ligne, 9).toString(),Integer.parseInt(GRID_DATA.getValueAt(ligne, 10).toString()),
+                         qtyToTransfer,stickers,data[1].toString().trim(),data[2].toString().trim(),GRID_DATA.getValueAt(ligne, 7).toString()
+                         ,Integer.parseInt(GRID_DATA.getValueAt(ligne, 8).toString())+qtyToTransfer,GRID_DATA.getValueAt(ligne, 9).toString(),Integer.parseInt(GRID_DATA.getValueAt(ligne, 10).toString()),
                          Integer.parseInt(GRID_DATA.getValueAt(ligne, 11).toString()),Integer.parseInt(GRID_DATA.getValueAt(ligne, 12).toString()),sewing,s_travel);
-                /*if(!conn.Update(requete, 0, sewing,s_travel,stickers,qty,Principal.user_id))
-                JOptionPane.showMessageDialog(this, conn.getErreur(), "Fatal Error", JOptionPane.ERROR_MESSAGE);
-                else{
-                conn.Update(requ, 0, sewing);
-                if(!conn.Update(requete1, 0, sewing,qty,stickers,Principal.user_id))
-                JOptionPane.showMessageDialog(this, conn.getErreur(), "Fatal Error", JOptionPane.ERROR_MESSAGE);
-                
-                
-                }*/
+                qtyToTransfer=0;
         
         }
         
@@ -356,6 +370,16 @@ private Map<String , Integer> padprint;
         mostrarData();
         recherche();
     }//GEN-LAST:event_formInternalFrameActivated
+
+    private void splitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_splitActionPerformed
+        // TODO add your handling code here:
+        alerter("split",GRID_DATA.getValueAt(GRID_DATA.getSelectedRow(), 5));
+        ((JDialog)observa).setModal(true);
+        ((JDialog)observa).setVisible(true);
+        if(transfer)
+            AT_EMBLActionPerformed(evt);
+        transfer=false;
+    }//GEN-LAST:event_splitActionPerformed
 
     private void get(String sew){
     Object[] state=state(sew);
@@ -540,9 +564,11 @@ private Map<String , Integer> padprint;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField po_filter;
     private javax.swing.JTextField size_filter;
+    private javax.swing.JMenuItem split;
     private javax.swing.JTextField style_filter;
     // End of variables declaration//GEN-END:variables
 
+    private Observateurs observa;
     private void print(String color,String color_code,String size,int qty,String code,String pot,String stylet,String no,int cum,String client,int order,int plan,int proto_id,String sewing,String s_travel){
         ArrayList<Data> listdata=new ArrayList<>();
         String requete="insert into pad_print(order_num,SEWING_TRAVElLER,stickers,QTY,user_id) values(?,?,?,?,?)";
@@ -694,5 +720,21 @@ private Map<String , Integer> padprint;
             Logger.getLogger(Ready_to_sew.class.getName()).log(Level.SEVERE, null, ex);
         }
         return "";
+    }
+
+    @Override
+    public void ajouterObservateur(Observateurs ob) {
+        obs.add(ob);
+    }
+
+    @Override
+    public void retirerObservateur(Observateurs ob) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void alerter(Object... ob) {
+        for(Observateurs o:obs)
+            o.executer(ob);
     }
 }

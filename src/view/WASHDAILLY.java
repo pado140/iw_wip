@@ -65,8 +65,7 @@ private DefaultTableModel tbm;
             System.out.println("new task");
             this.commande=commande;
             header.setEnabled(false);
-            for(Component c:header.getComponents())
-                c.setEnabled(false);
+            visible(false);
             content.setEnabled(false);
             progress.setVisible(true);
             export.setEnabled(false);
@@ -140,8 +139,7 @@ private DefaultTableModel tbm;
             progress.setForeground(Color.GREEN);
             progress.setString("Done");
             //alerter("reload",data);
-            for(Component c:header.getComponents())
-                c.setEnabled(true);
+            visible(true);
             export.setEnabled(true);
             progress.setVisible(false);
             count.setText(String.valueOf(total));
@@ -160,6 +158,12 @@ private DefaultTableModel tbm;
         inits();
     }
 
+    private void visible(boolean status){
+        header.setEnabled(status);
+            for(Component c:header.getComponents()){
+                c.setEnabled(status);
+            }
+    }
     private void inits(){
         this.ajouterObservateur(this);
         state.setText("initiating");

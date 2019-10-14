@@ -15,6 +15,7 @@ import Load_data.GBG.Transform_file_to_lpn;
 import Load_data.GBG.load_gbg_lpn_file;
 import Load_data.loadlpn;
 import Load_data.EDG.loadlpnEDS;
+import Load_data.loadOtherOrder;
 import connection.ConnectionDb;
 import iw_wip.threadexemple;
 import java.awt.Color;
@@ -37,7 +38,6 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import observateurs.Observateurs;
 import observateurs.Observe;
@@ -52,7 +52,8 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private JInternalFrame summary,bundle_t,sewing_prod,cansew,report_r,wip_r,TRAVEL,packing,packed,packed_mix,nStyle
             ,at_pp,dreport,CONSO,at_soabar,lpnHol,lpnEd,lpnChs,ORD_WEST,workStyle,sewing,daily_soa,daily_pad,updatepo,oponly,delDaily,close,user,ord_gbg,
             update_production,lpn_gb,batch,packin_list_batch,audit,lpngbg_convert,sewing_ajust,update_workcenter,unscan,update_mod,tag,fab,lpn_update,
-            upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack,stylenew,washreport,pressreport,matchreport,close_travel,follow_up;
+            upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack,stylenew,washreport,pressreport,matchreport,close_travel,follow_up,second_post,ajust_post,
+            upload,packajust,secondupload;
     public Connection_user auth;
     private lock_fen lockframe;
     public static int user_id=0;
@@ -183,6 +184,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         jMenuItem1 = new javax.swing.JMenuItem();
         lpn_gbg = new javax.swing.JMenuItem();
         jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem25 = new javax.swing.JMenuItem();
         reports = new javax.swing.JMenu();
         report_daily_so = new javax.swing.JMenuItem();
         report_daily_pad = new javax.swing.JMenuItem();
@@ -201,6 +203,10 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         prod_ajust_sew = new javax.swing.JMenuItem();
         jMenuItem18 = new javax.swing.JMenuItem();
         jMenuItem21 = new javax.swing.JMenuItem();
+        jMenuItem23 = new javax.swing.JMenuItem();
+        jMenuItem24 = new javax.swing.JMenuItem();
+        packing_ajust = new javax.swing.JMenuItem();
+        second = new javax.swing.JMenuItem();
 
         profil.setText("profil");
         con_menu.add(profil);
@@ -723,6 +729,15 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
 
         UPLOAD.add(jMenu1);
 
+        jMenuItem25.setText("UPLOAD ORDER");
+        jMenuItem25.setName("uploadorder"); // NOI18N
+        jMenuItem25.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem25ActionPerformed(evt);
+            }
+        });
+        UPLOAD.add(jMenuItem25);
+
         jMenuBar1.add(UPLOAD);
 
         reports.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/rport_d.png"))); // NOI18N
@@ -872,6 +887,42 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             }
         });
         ajust.add(jMenuItem21);
+
+        jMenuItem23.setText("Second Post sewing");
+        jMenuItem23.setName("post_sewing_second"); // NOI18N
+        jMenuItem23.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem23ActionPerformed(evt);
+            }
+        });
+        ajust.add(jMenuItem23);
+
+        jMenuItem24.setText("post sewing ajustment");
+        jMenuItem24.setName("upgrade_post_sewing"); // NOI18N
+        jMenuItem24.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem24ActionPerformed(evt);
+            }
+        });
+        ajust.add(jMenuItem24);
+
+        packing_ajust.setText("Packing ajustment");
+        packing_ajust.setName("pack_ajust"); // NOI18N
+        packing_ajust.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                packing_ajustActionPerformed(evt);
+            }
+        });
+        ajust.add(packing_ajust);
+
+        second.setText("upload second");
+        second.setName("second_uploaded"); // NOI18N
+        second.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                secondActionPerformed(evt);
+            }
+        });
+        ajust.add(second);
 
         jMenuBar1.add(ajust);
 
@@ -1524,7 +1575,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             packed_mix=new packing_mix();
             packed_mix.setVisible(true);
             label_principal.add(packed_mix);
-            
+           
             System.out.println("new");
         }
         if(packed_mix.isIcon()){
@@ -1582,7 +1633,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     }//GEN-LAST:event_lpn_gbgActionPerformed
 
     private void prod_ajust_sewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prod_ajust_sewActionPerformed
-        // TODO add your handling code here:
+         // TODO add your handling code here:
         if(sewing_ajust==null|| sewing_ajust.isClosed()){
             sewing_ajust=new Sewing_prod_before_eight();
             sewing_ajust.setVisible(true);
@@ -2051,7 +2102,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     }//GEN-LAST:event_jMenuItem21ActionPerformed
 
     private void jMenuItem22ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem22ActionPerformed
-        // TODO add your handling code here:
+       // TODO add your handling code here:
         if(follow_up==null|| follow_up.isClosed()){
             follow_up=new report_alert();
             follow_up.setVisible(true);
@@ -2070,6 +2121,112 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         }
         follow_up.toFront();
     }//GEN-LAST:event_jMenuItem22ActionPerformed
+
+    private void jMenuItem23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem23ActionPerformed
+        // TODO add your handling code here:
+        if(second_post==null|| second_post.isClosed()){
+            second_post=new post_sewing_scan();
+            second_post.setVisible(true);
+            label_principal.add(second_post);
+            
+            System.out.println("new");
+        }
+        if(second_post.isIcon()){
+            try {
+                second_post.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        second_post.toFront();
+    }//GEN-LAST:event_jMenuItem23ActionPerformed
+
+    private void jMenuItem24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem24ActionPerformed
+        // TODO add your handling code here:
+        if(ajust_post==null|| ajust_post.isClosed()){
+            ajust_post=new update_post_sewing();
+            ajust_post.setVisible(true);
+            label_principal.add(ajust_post);
+            
+            System.out.println("new");
+        }
+        if(ajust_post.isIcon()){
+            try {
+                ajust_post.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        ajust_post.toFront();
+    }//GEN-LAST:event_jMenuItem24ActionPerformed
+
+    private void jMenuItem25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem25ActionPerformed
+        // TODO add your handling code here:
+        if(upload==null|| upload.isClosed()){
+            upload=new loadOtherOrder();
+            upload.setVisible(true);
+            label_principal.add(upload);
+            
+            System.out.println("new");
+        }
+        if(upload.isIcon()){
+            try {
+                upload.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        upload.toFront();
+    }//GEN-LAST:event_jMenuItem25ActionPerformed
+
+    private void packing_ajustActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_packing_ajustActionPerformed
+        // TODO add your handling code here:
+        if(packajust==null|| packajust.isClosed()){
+            packajust=new packing_mix_before_height();
+            packajust.setVisible(true);
+            label_principal.add(packajust);
+            
+            System.out.println("new");
+        }
+        if(packajust.isIcon()){
+            try {
+                packajust.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        packajust.toFront();
+        this.ajouterObservateur((Observateurs)packajust);
+    }//GEN-LAST:event_packing_ajustActionPerformed
+
+    private void secondActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secondActionPerformed
+        // TODO add your handling code here:
+        if(secondupload==null|| secondupload.isClosed()){
+            secondupload=new Upload_second();
+            secondupload.setVisible(true);
+            label_principal.add(secondupload);
+            
+            System.out.println("new");
+        }
+        if(secondupload.isIcon()){
+            try {
+                secondupload.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        secondupload.toFront();
+    }//GEN-LAST:event_secondActionPerformed
 
     private void init(){
         connecter=false;
@@ -2223,6 +2380,9 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenuItem jMenuItem20;
     private javax.swing.JMenuItem jMenuItem21;
     private javax.swing.JMenuItem jMenuItem22;
+    private javax.swing.JMenuItem jMenuItem23;
+    private javax.swing.JMenuItem jMenuItem24;
+    private javax.swing.JMenuItem jMenuItem25;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
@@ -2242,6 +2402,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenuItem lpn_gbg;
     private javax.swing.JMenuItem pack;
     private javax.swing.JMenuItem pack1;
+    private javax.swing.JMenuItem packing_ajust;
     private javax.swing.JMenuItem prod_ajust_sew;
     private javax.swing.JMenuItem profil;
     private javax.swing.JMenuItem psp;
@@ -2252,6 +2413,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenuItem report_daily_so;
     private javax.swing.JMenu reports;
     private javax.swing.JMenu reprt;
+    private javax.swing.JMenuItem second;
     private javax.swing.JMenu settup;
     private javax.swing.JMenuItem sew;
     private javax.swing.JMenuItem sewing_help;
@@ -2307,8 +2469,10 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
                 }
             }
             
-            if(sew.isVisible())
+            if(sew.isVisible()){
                 sew.setEnabled(false);
+                jMenuItem5.setEnabled(false);
+            }
             auth.setModal(false);
             auth.setVisible(false);
             lockframe.setModal(false);
@@ -2322,6 +2486,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         if(obs[0].equals("closed")){
             //System.out.println("close");
             prod_ajust_sew.setVisible(false);
+            packing_ajust.setVisible(false);
             try{
             if(sewing_ajust!=null || !sewing_ajust.isClosed()){
                 sewing_ajust.dispose();
@@ -2329,7 +2494,15 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             }catch(NullPointerException e){
                 //System.out.println("closed");
             }
+            try{
+            if(packajust!=null || !packajust.isClosed()){
+                packajust.dispose();
+            }
+            }catch(NullPointerException e){
+                //System.out.println("closed");
+            }
             sew.setEnabled(true);
+            jMenuItem5.setEnabled(true);
             this.revalidate();
         }
         

@@ -83,6 +83,7 @@ public class pressReport extends javax.swing.JInternalFrame {
         @Override
         protected Void doInBackground(){
             //progress.setString("0%");
+            visible(false);
             count.setText("Waiting...");
             first.setText("Waiting...");
             secondlabel.setText("Waiting...");
@@ -135,8 +136,7 @@ public class pressReport extends javax.swing.JInternalFrame {
         @Override
         protected void done() {
             super.done(); //To change body of generated methods, choose Tools | Templates.
-            for(Component c:header.getComponents())
-                c.setEnabled(true);
+            visible(true);
             
             export.setEnabled(true);
             progress.setVisible(false);
@@ -169,7 +169,12 @@ public class pressReport extends javax.swing.JInternalFrame {
         
     }
 
-   
+   private void visible(boolean status){
+        header.setEnabled(status);
+            for(Component c:header.getComponents()){
+                c.setEnabled(status);
+            }
+    }
     
     private void init(){
         

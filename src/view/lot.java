@@ -67,7 +67,7 @@ public class lot extends javax.swing.JDialog implements Observateurs{
     }
     
     private void savematchbook(Object... ob){
-        String requete="INSERT INTO matchbook (stickers,QTY,ordernum,travel_no) VALUES(?,?,?,?)";
+        String requete="INSERT INTO matchbook (stickers,QTY,type,ordernum,travel_no) VALUES(?,?,?,?,?)";
         if(!conn.Update(requete, 0, ob))
             System.err.println(conn.getErreur());
     }
@@ -279,13 +279,13 @@ public class lot extends javax.swing.JDialog implements Observateurs{
             if(Integer.parseInt(data[y][5].toString())%25>5)
                 line+=1;
             //line+=2;
-            int blank=3;
+            int blank=4;
             if(Integer.parseInt(data[y][5].toString())>200)
-                blank=5;
+                blank=6;
             if(Integer.parseInt(data[y][5].toString())>400)
-                blank=7;
+                blank=8;
             if(Integer.parseInt(data[y][5].toString())>700)
-                blank=9;
+                blank=10;
             int a=0;
             // Object[] dat=new Object[7];
             String type="first";
@@ -327,13 +327,13 @@ public class lot extends javax.swing.JDialog implements Observateurs{
                     System.out.println(sewtravel);
                     System.out.println(exists(code));
                     if(qty==0){
-                        if(i>=line+(blank-1))
+                        if(i>=line+(blank-2))
                             type="second";
                     }
                       System.out.println(type);  
                     if(!exists(code)){
                         if(match)
-                            savematchbook(code,qty,data[y][6],data[y][8]);
+                            savematchbook(code,qty,type,data[y][6],data[y][8]);
                         if(wash)
                             savewash(code,qty,type,data[y][6],data[y][8]);
                         if(press)
