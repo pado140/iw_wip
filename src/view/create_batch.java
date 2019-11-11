@@ -25,8 +25,9 @@ private final ConnectionDb conn = ConnectionDb.instance();
 private DefaultTableModel tbm,tbm_error ;
 private boolean create;
 private Set<String> listlpn;
-private String ErrorLpn;
+private String ErrorLpn,po,style,color,customer;
 private int idBatch;
+private String status;
     /**
      * Creates new form create_batch
      */
@@ -259,9 +260,12 @@ private int idBatch;
         count.setText("0");
         if(!create){
             create=true;
-        String req="insert into batches(status,[qty_box]) values (?,?)";
-        if(conn.Update(req, 1, "packed",0))
-        idBatch=conn.getLast();
+            idBatch=lastBatch();
+            if(!getStatus(lastBatch()).equalsIgnoreCase("created")){
+                String req="insert into batches(status,[qty_box]) values (?,?)";
+                if(conn.Update(req, 1, "created",0))
+                idBatch=conn.getLast();
+                }
         }
         batch_no.setText(String.valueOf(idBatch));
     }
@@ -275,6 +279,10 @@ private int idBatch;
         init();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private int canCreate(){
+        
+        return 0;
+    }
     private boolean canScan(Object[] ob,String lpn){
         ErrorLpn=null;
         try{
@@ -282,9 +290,18 @@ private int idBatch;
                 Object[] data=ob;
                 int stat=Integer.parseInt(data[1].toString());
                 System.out.println(stat);
-                if(stat==0)
+                if(stat==0){
+                    String co= data[5].toString().replace(".","-").split("-")[1]+"-"+data[4].toString().trim();
+                    String st=data[5].toString().replace(".","-").split("-")[0];
+                    if(!data[3].toString().trim().equalsIgnoreCase(po)|| !st.equalsIgnoreCase(style)
+                            || !co.equalsIgnoreCase(color)||!data[6].toString().equalsIgnoreCase(customer)){
+                        ErrorLpn="sku different.";
+                    JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
+                        + "- sku different.", "error scanning", JOptionPane.ERROR_MESSAGE);
+                    return false;
+                    }
                     return true;
-                else if(Integer.parseInt(data[2].toString())!=0){
+                }else if(Integer.parseInt(data[2].toString())!=0){
                     System.out.println(data[2]);
                     ErrorLpn="already shipped.";
                     JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
@@ -320,14 +337,26 @@ private int idBatch;
     } catch (SQLException ex) {
         Logger.getLogger(create_batch.class.getName()).log(Level.SEVERE, null, ex);
     }
-        return no+1;
+        return no;
     }
 
     private boolean set(String lpn){
         Object[] data=getLpn(lpn);
         int idlpn=0;
         boolean istrue=true;
-        if(getStatus(idBatch).equals("packed")){
+        if(getStatus(idBatch).equals("packed")||getStatus(idBatch).equals("created")){
+            if(getStatus(idBatch).equals("created")){
+                try{
+                po=data[3].toString().trim();
+                style=data[5].toString().replace(".","-").split("-")[0];
+                color=data[5].toString().replace(".","-").split("-")[1]+"-"+data[4].toString().trim();
+                customer=data[6].toString();
+                String req="update batches set status=?, style=?, po=?, color=? ,customer=? where id=?";
+                conn.Update(req, 1, "packed",style,po,color,customer,idBatch);
+                }catch(NullPointerException e){
+            
+        }
+            }
         if(canScan(data,lpn)){
             listlpn.add(lpn);
             idlpn=Integer.parseInt(data[0].toString());
@@ -345,7 +374,7 @@ private int idBatch;
         }
         }else{
             JOptionPane.showMessageDialog(this, "This batch is already Audited");
-                    }
+        }
         //String
         return istrue;
     }
@@ -385,7 +414,7 @@ private int idBatch;
     try {
         while(rs.next()){
             return new Object[]{
-            rs.getString("id"),rs.getString("status"),rs.getInt("shipment_id")};
+            rs.getString("id"),rs.getString("status"),rs.getInt("shipment_id"),rs.getString("ponum"),rs.getString("coldsp"),rs.getString("sku"),rs.getString("brand")};
         }
     } catch (SQLException ex) {
         Logger.getLogger(create_batch.class.getName()).log(Level.SEVERE, null, ex);

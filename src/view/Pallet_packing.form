@@ -171,7 +171,7 @@
                 <Component class="javax.swing.JTable" name="GRID_PACKING_LIST">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="8" rowCount="0">
+                      <Table columnCount="9" rowCount="0">
                         <Column editable="false" title="PO" type="java.lang.Object"/>
                         <Column editable="false" title="STYLE" type="java.lang.Object"/>
                         <Column editable="false" title="COLOR CODE" type="java.lang.Object"/>
@@ -180,6 +180,7 @@
                         <Column editable="false" title="QTY" type="java.lang.Object"/>
                         <Column editable="false" title="LPN" type="java.lang.Object"/>
                         <Column editable="false" title="PASS" type="java.lang.Boolean"/>
+                        <Column editable="false" title="stickers" type="java.lang.Object"/>
                       </Table>
                     </Property>
                     <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
@@ -220,6 +221,11 @@
                           <Renderer/>
                         </Column>
                         <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                          <Title/>
+                          <Editor/>
+                          <Renderer/>
+                        </Column>
+                        <Column maxWidth="0" minWidth="0" prefWidth="-1" resizable="true">
                           <Title/>
                           <Editor/>
                           <Renderer/>

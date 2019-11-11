@@ -7,20 +7,31 @@
 package view;
 
 import connection.ConnectionDb;
+import java.awt.Desktop;
 import java.awt.Graphics;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
+import view.report.BatchDetails;
 
 /**
  *
@@ -28,8 +39,9 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Pallet_packing extends javax.swing.JInternalFrame implements Printable{
 private final ConnectionDb conn = ConnectionDb.instance();
-   Map<String,Map<String,Object[]>> dataratio;
+   final Map<Integer,Object[]> datapallet=new HashMap<>();
    private ArrayList<String> li=new ArrayList<>();
+   private int total=0, boxes=0;
    private String pallet;
 
     /**
@@ -38,6 +50,7 @@ private final ConnectionDb conn = ConnectionDb.instance();
     public Pallet_packing() {
         
         initComponents();
+        
         GRID_PACKING_LIST.setRowHeight(30);
         GRID_PACKING_LIST.setFont(new java.awt.Font("calibri",java.awt.Font.ROMAN_BASELINE,15));
        
@@ -139,14 +152,14 @@ private final ConnectionDb conn = ConnectionDb.instance();
 
             },
             new String [] {
-                "PO", "STYLE", "COLOR CODE", "COLOR", "SIZE", "QTY", "LPN", "PASS"
+                "PO", "STYLE", "COLOR CODE", "COLOR", "SIZE", "QTY", "LPN", "PASS", "stickers"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -158,6 +171,10 @@ private final ConnectionDb conn = ConnectionDb.instance();
             }
         });
         jScrollPane1.setViewportView(GRID_PACKING_LIST);
+        if (GRID_PACKING_LIST.getColumnModel().getColumnCount() > 0) {
+            GRID_PACKING_LIST.getColumnModel().getColumn(8).setMinWidth(0);
+            GRID_PACKING_LIST.getColumnModel().getColumn(8).setMaxWidth(0);
+        }
 
         panel_grid.setDoubleBuffered(false);
         panel_grid.setName(""); // NOI18N
@@ -212,18 +229,7 @@ private final ConnectionDb conn = ConnectionDb.instance();
     }//GEN-LAST:event_jList1ValueChanged
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        /* PrinterJob pj = PrinterJob.getPrinterJob();
-        ComponentPrintable cp = new ComponentPrintable((JComponent)jScrollPane3);
-        PageFormat mPageFormat = null;
-        //mPageFormat.
-        pj.setPrintable(cp);
-        if (pj.printDialog()) {
-        try {
-        pj.print();
-        } catch (PrinterException e) {
-        System.out.println(e);
-        }
-        }*/
+        /* 
         javax.print.attribute.HashPrintRequestAttributeSet att = 
 new javax.print.attribute.HashPrintRequestAttributeSet();
         PrinterJob printerJob = PrinterJob.getPrinterJob();
@@ -246,7 +252,29 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
         }
         //new PrintPreview(GRID_PIECES.getPrintable(javax.swing.JTable.PrintMode.FIT_WIDTH, 
 //new MessageFormat("Capitals"), new MessageFormat("{0}")), printerJob.getPageFormat(att));
-    
+    */
+        if(!jList1.getSelectionModel().isSelectionEmpty()){
+            ArrayList<BatchDetails> batches=new ArrayList();
+            int pieces=0;
+            int boxs=0;
+            if(GRID_PACKING_LIST.getRowCount()>0){
+                for(int i=0;i<GRID_PACKING_LIST.getRowCount();i++){
+                    BatchDetails bd=new BatchDetails();
+                    bd.setSticker(GRID_PACKING_LIST.getValueAt(i, 8).toString());
+                    bd.setQty((GRID_PACKING_LIST.getValueAt(i, 5).toString()));
+                    bd.setSize(GRID_PACKING_LIST.getValueAt(i, 4).toString());
+                    batches.add(bd);
+                    boxs++;
+                    pieces+=Integer.parseInt(GRID_PACKING_LIST.getValueAt(i, 5).toString());
+                }
+                
+            }
+            jList1.getSelectedValue().toString();
+        int id=Integer.parseInt(pallet.substring("Batch no ".length()).trim());
+        Object[] batchdetails=datapallet.get(id);
+            printbatche(batchdetails[2].toString(),id,batchdetails[0].toString(),batchdetails[1].toString(),batchdetails[3].toString(),pieces,boxs,batches,
+                    batchdetails[4].toString().equalsIgnoreCase("packed")?"for Audit":"for reinspection");
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
@@ -274,13 +302,14 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
     }//GEN-LAST:event_jTextField1KeyReleased
 
     private void load_data(){
-        String requete="select distinct id from batches where status='packed'";
+        String requete="select * from batches";
         
         try{
             ResultSet rs=conn.select(requete);
             
             while(rs.next()){
-                li.add("Batch no "+rs.getInt(1));
+                li.add("Batch no "+rs.getInt("id"));
+                datapallet.put(rs.getInt("id"),new Object[]{rs.getString("po"),rs.getString("style"),rs.getString("color"),rs.getString("customer"),rs.getString("status")});
             }
         }catch(SQLException e){
             
@@ -305,12 +334,15 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
         ResultSet rs=conn.select(requete, id);
         DefaultTableModel tbm=(DefaultTableModel)GRID_PACKING_LIST.getModel();
         tbm.setNumRows(0);
+        total=0;boxes=0;
     try {
         while(rs.next()){
             tbm.addRow(new Object[]{rs.getString("ponum"),
             rs.getString("style"),
             rs.getString("sku").replace(".","-").split("-")[1],
-            rs.getString("coldsp"),rs.getString("size"),rs.getInt("qty"),rs.getString("lpn"),false});
+            rs.getString("coldsp"),rs.getString("size"),rs.getInt("qty"),rs.getString("lpn"),false,rs.getString("box_stickers")});
+            boxes++;
+            total+=rs.getInt("qty");
         }
     } catch (SQLException ex) {
         Logger.getLogger(Pallet_packing.class.getName()).log(Level.SEVERE, null, ex);
@@ -339,4 +371,66 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
        return 0;
     }
+    
+    private void printbatche(String color,int no,String po,String style,String client,int pieces,int boxes,ArrayList<BatchDetails> batchdetail,String type){
+        
+        try{ 
+            URL  master= this.getClass().getResource("report/bacth_report.jasper");
+                  Map param = new HashMap();
+                  param.put("client",client);
+                  param.put("pieces",pieces);
+                  param.put("color",color);
+                  param.put("boxes",boxes);
+                  param.put("batchno",no);
+                  param.put("po",po);
+                  param.put("style",style);
+                  param.put("type",type);
+                  JasperReport jasperReport = (JasperReport) JRLoader.loadObject(master);
+                  //JRBeanCollectionDataSource beanColDataSource =new JRBeanCollectionDataSource(listdata);
+                  JRBeanCollectionDataSource beanCutDataSource =new JRBeanCollectionDataSource(batchdetail);
+                  //param.put("cutData",beanCutDataSource);
+                  //String report=JasperFillManager.fillReportToFile(source.getAbsolutePath(),param,beanColDataSource);
+                  JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,param,beanCutDataSource);
+                  //JasperViewer.viewReport(jasperPrint);
+                  if(Files.exists(new File("P:\\BATCHES/").toPath())){
+                JasperExportManager.exportReportToPdfFile(jasperPrint, "P:\\BATCHES/batch no "+no+".pdf");
+                      
+                  
+                  Desktop dsk=Desktop.getDesktop();
+                  dsk.open(new File("P:\\BATCHES/batch no "+no+".pdf"));
+                
+                
+                  
+                  
+                  //dsk.print(new File("P:\\BATCHES/"+code+"-"+no+".pdf"));
+                 }else{
+                      
+                      JOptionPane.showMessageDialog(this, "please make sure that you can connect with the drive P:");
+                      
+                      if(!Files.exists(new File(System.getProperty("user.home").concat("/Documents/BATCHES")).toPath())){
+                          //f.createNewFile();
+                          File f=new File(System.getProperty("user.home").concat("/Documents/BATCHES"));
+                          //f.createNewFile();
+                          f.mkdirs();
+                          //Files.createDirectory(new File(System.getProperty("user.home").concat("/Documents/BATCHES/barcode")).toPath()); 
+                      }
+                      JasperExportManager.exportReportToPdfFile(jasperPrint, System.getProperty("user.home").concat("/Documents/BATCHES/")+"batch no "+no+".pdf");
+                  
+                  Desktop dsk=Desktop.getDesktop();
+                  dsk.open(new File(System.getProperty("user.home").concat("/Documents/BATCHES/")+"batch no "+no+".pdf"));
+                  }
+                  
+ 
+                }
+ 
+                catch (Exception e)
+                 {
+                     e.printStackTrace();
+                     System.out.println("Mensaje de Error:"+e.getMessage());
+                     JOptionPane.showMessageDialog(this, e.getMessage());
+                     
+                     //JOptionPane.showMessageDialog(this, e.());
+                 }
+    }
+    
 }

@@ -126,6 +126,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 int second=rs.getInt("second");
                 int secondpost=rs.getInt("second_ps")+rs.getInt("second_wash")+rs.getInt("second_press")+rs.getInt("second_matchbook");
                 int pack=rs.getInt("packed");
+                int pack_approved=rs.getInt("box_approved");
                 int shipped=rs.getInt("shipped");
                 int cutting=0;
                 int bal=rs.getInt("balance");
@@ -150,10 +151,10 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 pp-=se;
                 se-=mod;
                 mod-=(first+second+exception);
-                first-=(pack+secondpost);
+                first-=(pack_approved+secondpost);
                 pack-=shipped;
                 
-                Object[] data=new Object[28];
+                Object[] data=new Object[29];
                 data[1]=rs.getString("brand");
                 data[2]=po;
                 data[3]=rs.getString("style").trim();
@@ -178,8 +179,9 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 data[21]=0;
                 data[22]=exception;
                 data[23]=pack;
-                data[24]=shipped;
-                data[25]=bal;
+                data[24]=pack_approved;
+                data[25]=shipped;
+                data[26]=bal;
                          
                         
                         
@@ -194,8 +196,8 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                             
                         
                data[9]=rs.getDate("last_production");
-                data[26]=sku;
-                data[27]=status;
+                data[27]=sku;
+                data[28]=status;
                 data[0]=rs.getDate("shipdate");
                 ij++;
                 setProgress((int)Math.ceil(ij*100/line));
@@ -367,6 +369,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 formInternalFrameActivated(evt);
             }
             public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt) {
+                formInternalFrameClosed(evt);
             }
             public void internalFrameClosing(javax.swing.event.InternalFrameEvent evt) {
             }
@@ -516,17 +519,17 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "OTFQPS", "SCRAP", "EXCEPTION", "PACKING", "SHIPPED", "UNACCOUNTED FOR"
+                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "OTFQPS", "SCRAP", "EXCEPTION", "PACKING", "PASS AUDIT BOXES", "SHIPPED", "UNACCOUNTED FOR"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, true, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -791,6 +794,11 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         column_menu.show(jButton3, jButton3.getX(), jButton3.getY()+jButton3.getHeight());
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void formInternalFrameClosed(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameClosed
+        // TODO add your handling code here:
+        populate.cancel(true);
+    }//GEN-LAST:event_formInternalFrameClosed
 
     private void buscar(){
         int tot=0,line=0;

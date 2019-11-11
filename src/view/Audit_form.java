@@ -6,7 +6,6 @@
 package view;
 
 import connection.ConnectionDb;
-import java.awt.event.ItemEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -314,6 +313,9 @@ private int batch_id;
                     
                 
                 }
+            String requete="update batches set status='Audited' ";
+            requete+= !passall.isSelected()?",fail=fail+1 ":"";
+             conn.Update(requete+"where id=?", 0, batch_id);
             JOptionPane.showMessageDialog(this, "save successfully");
             init();
         }
@@ -339,12 +341,15 @@ private int batch_id;
         if(check){
            status="pass";
            conn.Update(requete1, 0,2,lpid);
-        }else
-        {
-            conn.Update(requete1, 0,0,lpid);
+        }else{
+           conn.Update(requete1, 0,0,lpid);
         }
         conn.Update(requete, 0,status, lbid);
-        conn.Update("update batches set status='Audited' where id=?", 0, batch_id);
+        conn.Update("update packing set is_approved=?,modified=getDate() where box_stickers=(select box_stickers from box_contain where id=?)", 0,status.equals("fail")?0:1, lpid);
+        conn.Update("update packing_approved set is_approved=?,modified=getDate() where box_stickers=(select box_stickers from box_contain where id=?)", 0,status.equals("fail")?0:1, lpid);
+       
+        
+       
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

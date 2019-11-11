@@ -107,7 +107,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
       
       int xsize = (int) tk.getScreenSize().getWidth() ;
       int ysize = (int) tk.getScreenSize().getHeight() - 40;
-      
+     
       this.setSize(xsize, ysize);
       label_principal.setSize(xsize, ysize);
     }

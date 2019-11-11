@@ -3,27 +3,34 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/packing.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Pallet_packing.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/At_soabar.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Details.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/admin/util/iconRenderer.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/CREATE_BOX.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/iw_wip/threadexemple.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Generate_tag.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Sewing_prod.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Work_status_open.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Split.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/packing_mix.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/Load_data/loadWest.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/lot.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/separation_dyelot.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Principal.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Upload_second.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Sewing_prod_before_eight.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/report/newReport.jrxml</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Module_summary.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/daemon.java</file>
-            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/task_progress.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/Load_data/loadOtherOrder.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/report_alert.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/packing.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Details.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Generate_tag.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/veri.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Split.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/create_batch.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/scan_pass_box.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Upload_second.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Audit_form.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/Sewing_prod_before_eight.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/daemon.java</file>
+            <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/task_progress.java</file>
             <file>file:/C:/Users/Padovano/Documents/NetBeansProjects/iw_wip/src/view/TO_WIP.java</file>
         </group>
     </open-files>

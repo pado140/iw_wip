@@ -10,26 +10,20 @@ import connection.ConnectionDb;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
@@ -39,7 +33,6 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
@@ -430,6 +423,9 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
                 if(!used){
                     if(valid){
                         bar=balance(lot,QTY_CUT);
+                        if(type.equalsIgnoreCase("ps")){
+                            bar=balanceps(lot, 0);
+                        }
                         if(qtyscan>bar){
                             
                             tbm1.setValueAt("Quantity must inferior or equals to:"+bar, line, 2);
@@ -517,6 +513,24 @@ private int entry(String travel){
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
         }
         return id;
+    }
+
+private int first(String travel){
+        String requete="select [qty_sewn] qty from sewn_by_module where lot_stickers=?";
+        ResultSet rs=conn.select(requete,travel);
+        int id=0;
+        try {
+            while(rs.next()){
+                id=rs.getInt("qty");
+                 }   
+        } catch (SQLException ex) {
+            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return id;
+    }
+
+private int balanceps(String travel,int val){
+        return first(travel);
     }
     
     private int balance(String trave,int val){

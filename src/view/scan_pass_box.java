@@ -31,7 +31,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Padovano
  */
-public class packing_mix extends javax.swing.JInternalFrame {
+public class scan_pass_box extends javax.swing.JInternalFrame {
 private ConnectionDb conn = ConnectionDb.instance();
 private Map<String,Integer>list_second;
 private DefaultTableModel tbm,tbm1;
@@ -40,7 +40,7 @@ private JFileChooser file;
     /**
      * Creates new form packing
      */
-    public packing_mix() {
+    public scan_pass_box() {
         initComponents();
         
         file=new JFileChooser("C:/",FileSystemView.getFileSystemView());
@@ -64,8 +64,6 @@ private JFileChooser file;
         jTextField1 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
-        isdefault = new javax.swing.JCheckBox();
-        tablelist = new javax.swing.JComboBox();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -78,7 +76,7 @@ private JFileChooser file;
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
-        setTitle("Packed");
+        setTitle("Box Approved / ready to ship");
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -91,7 +89,7 @@ private JFileChooser file;
             }
         });
 
-        jLabel1.setText("Scan stickers");
+        jLabel1.setText("Scan lpn");
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/export.png"))); // NOI18N
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -100,30 +98,16 @@ private JFileChooser file;
             }
         });
 
-        isdefault.setText("Default Table");
-        isdefault.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                isdefaultActionPerformed(evt);
-            }
-        });
-
-        tablelist.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Select table--", "Packing 1", "Packing 2", "Packing 3" }));
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(31, 31, 31)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(64, 64, 64)
-                        .addComponent(tablelist, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(isdefault))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 277, Short.MAX_VALUE)
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -137,11 +121,7 @@ private JFileChooser file;
                 .addGap(41, 41, 41)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(tablelist, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(isdefault)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -324,15 +304,6 @@ private JFileChooser file;
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
-    private void isdefaultActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_isdefaultActionPerformed
-        // TODO add your handling code here:
-        if(isdefault.isSelected()){
-            tablelist.setEnabled(false);
-        }else{
-            tablelist.setEnabled(true);
-        }
-    }//GEN-LAST:event_isdefaultActionPerformed
-
     private void mostrar(){
     tbm.setRowCount(0);
     tbm1.setRowCount(0);
@@ -356,18 +327,8 @@ private JFileChooser file;
 }
     
     private void act(){
-        String table="Both";
-       if(!isdefault.isSelected()&&tablelist.getSelectedIndex()==0){
-           JOptionPane.showInternalMessageDialog(this, "please select a table!!!", "choose table", JOptionPane.WARNING_MESSAGE);
-            return;
-       }
-       if(tablelist.getSelectedIndex()>0)
-           table=tablelist.getSelectedItem().toString();
-           
-//        new Thread(){
-//            public void run(){
                 String text=jTextField1.getText().trim();
-                T ac=new T(text,table);
+                T ac=new T(text);
                 Thread t=new Thread(ac);
                 t.start();
             //}
@@ -470,7 +431,6 @@ private JFileChooser file;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;
     private javax.swing.JTable Log;
-    private javax.swing.JCheckBox isdefault;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
@@ -480,16 +440,14 @@ private JFileChooser file;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JComboBox tablelist;
     // End of variables declaration//GEN-END:variables
 class T implements Runnable{
 
     private String text,packtable;
     private int lineSelected;
     
-    public T(String text,String pack){
+    public T(String text){
         this.text=text;
-        packtable=pack;
         tbm1.addRow(new Object[]{text,"Pending","waiting"});
         lineSelected=tbm1.getRowCount()-1;
     }
