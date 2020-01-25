@@ -14,14 +14,19 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -38,7 +43,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -49,13 +57,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class Work_status_open extends javax.swing.JInternalFrame {
 
     private ConnectionDb conn = ConnectionDb.instance();
-    private Map<String , Integer> prod;
+    private Map<String , Integer> prod,shiptime;
     private Map<String, String> ref=null;
     private Map<String, Integer> sewn,packed,plan,second,ship,soa,padprint,sew,sewing;
     private Set<Object[]> listeData,temp;
     private Map<String,Map<String,Map<String,Map<String,Integer>>>> cut_pro=new HashMap<>();
     private PopulateTable populate;
     private DefaultTableModel tbm;
+    DataFormatter formatdata;
     /**
      * Creates new form Work_status_
      */
@@ -91,7 +100,8 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             data_cut();
             initPlan();
             
-            //load();
+            
+            load();
             progress.setIndeterminate(false);
         state.setText("loading...");    
         listeData=new HashSet<>();
@@ -124,12 +134,15 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 int mod=rs.getInt("at_mod");
                 int first=rs.getInt("sewn");
                 int second=rs.getInt("second");
-                int secondpost=rs.getInt("second_ps")+rs.getInt("second_wash")+rs.getInt("second_press")+rs.getInt("second_matchbook");
+                int secondpost=rs.getInt("second_ps")+rs.getInt("second_wash")+rs.getInt("second_press")+rs.getInt("second_matchbook")+rs.getInt("lost");
                 int pack=rs.getInt("packed");
-                int pack_approved=rs.getInt("box_approved");
+                int pack_approved=rs.getInt("passaudit");
                 int shipped=rs.getInt("shipped");
                 int cutting=0;
                 int bal=rs.getInt("balance");
+                int batch=rs.getInt("last_qty");
+                int reinspect=rs.getInt("reinspect");
+                int scrap=rs.getInt("scrap");
                 exception=rs.getInt("exception");
                 try{
                     planqty=plan.get(order);
@@ -144,17 +157,19 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 }
                 if(prodqty>0){
                 cutting=planqty-prodqty;
-                planqty-=(prodqty+cutting);
+                planqty-=(prodqty+cutting); 
                 }
                 prodqty-=sobar;
                 sobar-=pp;
                 pp-=se;
                 se-=mod;
                 mod-=(first+second+exception);
-                first-=(pack_approved+secondpost);
-                pack-=shipped;
-                
-                Object[] data=new Object[29];
+                first-=(pack);
+                pack-=batch==0?secondpost:batch; 
+                batch-=(reinspect+pack_approved);  
+                reinspect-=reinspect!=0?secondpost:0;
+                pack_approved-=shipped;
+                Object[] data=new Object[33];
                 data[1]=rs.getString("brand");
                 data[2]=po;
                 data[3]=rs.getString("style").trim();
@@ -175,15 +190,29 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 data[17]=mod;
                 data[18]=first;
                 data[19]=second;
-                data[20]=secondpost;
-                data[21]=0;
-                data[22]=exception;
-                data[23]=pack;
-                data[24]=pack_approved;
-                data[25]=shipped;
-                data[26]=bal;
-                         
-                        
+                data[20]=scrap;
+                data[21]=exception;
+                data[22]=pack;
+                data[23]=batch;
+                data[24]=reinspect;
+                data[25]=secondpost;
+                data[26]=pack_approved;
+                data[27]=0;
+                data[28]=0;
+                data[29]=shipped;
+                data[30]=bal;
+                int datatime=4;
+                if(rs.getInt("qty")<=2500){
+                    datatime=1;
+                }else{
+                    if(rs.getInt("qty")<=20000)
+                        datatime=3;
+                    if(rs.getInt("qty")<=5000)
+                        datatime=2;
+                }
+                datatime-=shiptime.getOrDefault(po+"-"+sku, 0);
+                data[28]=datatime<0?1:datatime;        
+                data[27]=shiptime.getOrDefault(po+"-"+sku, 0);        
                         
                             cut+=prodqty;
                             aso+=sobar;
@@ -196,8 +225,8 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                             
                         
                data[9]=rs.getDate("last_production");
-                data[27]=sku;
-                data[28]=status;
+                data[31]=sku;
+                data[32]=status;
                 data[0]=rs.getDate("shipdate");
                 ij++;
                 setProgress((int)Math.ceil(ij*100/line));
@@ -255,7 +284,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
      */
     public Work_status_open() {
         initComponents();
-        
+        formatdata=new DataFormatter();
         init();
         
     }
@@ -303,6 +332,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             }
         });
         populate.execute();
+        
     }
 
     /**
@@ -519,17 +549,17 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "OTFQPS", "SCRAP", "EXCEPTION", "PACKING", "PASS AUDIT BOXES", "SHIPPED", "UNACCOUNTED FOR"
+                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "SCRAP", "EXCEPTION", "PACKING", "BATCH", "REINSPECTION", "OTFQPS", "PASS AUDIT BOXES", "SHIMENT MADE", "SHIPMENT REMAINING", "SHIPPED", "UNACCOUNTED FOR"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, true, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -845,7 +875,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             Cell cellMar=rows.createCell(0);
             for(int j=0;j<table.getColumnCount();j++){
                 Cell cells=rows.createCell(j);
-                
+               
                 try{
                     cells.setCellValue(table.getValueAt(i, j).toString()); 
                     if(table.getValueAt(i, j) instanceof Double)
@@ -986,7 +1016,70 @@ public class Work_status_open extends javax.swing.JInternalFrame {
     
     private boolean changeStatus(String ordnum){
         String requete="update shoporder set status_147='5' where ordnum_147=?";
-        return conn.Update(requete, 0, ordnum);
+        boolean check=conn.Update(requete,0, ordnum);
+    String requete1="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('closed',?,?,3,?,?,?,?)";
+                        check=conn.Update(requete1, 0, new Object[]{ordnum,0,"closed sku",ordnum,0,Principal.user_id});
+                        return check;
+    }
+    
+    private void load(){
+        try{
+        shiptime=new HashMap();
+        File file=null;
+        if(!Files.exists(new File("K:/DATABASES IW/OPEN/AUGUSTA OPEN PO/COUNT TIMES PO-SKU SHIPPED.xlsx").toPath())){
+            System.out.println("false");
+        }else{
+            file=new File("K:/DATABASES IW/OPEN/AUGUSTA OPEN PO/COUNT TIMES PO-SKU SHIPPED.xlsx");
+        FileInputStream fis= new FileInputStream(file);
+        Sheet sheet=null;
+        Workbook book1= new XSSFWorkbook(fis);
+            
+        sheet = book1.getSheetAt(0);
+        Iterator<Row> itr = sheet.iterator();
+        List<Object> titre=new ArrayList<>();
+            Row tit=itr.next();
+            Iterator<Cell> cellIte=tit.cellIterator();
+            
+                boolean blank=false;
+            while (cellIte.hasNext()&& !blank) {
+                Object o=null;
+                Cell cell = cellIte.next();
+                o=formatdata.formatCellValue(cell);
+                try{
+                    if(o.toString().trim().isEmpty())
+                        blank=true;
+                }catch(NullPointerException e){
+                    blank=true;
+                }
+                System.out.println("titre:"+o);
+                titre.add(o.toString().trim().toUpperCase());
+            }
+            System.out.println("titre created");
+               boolean isblank=false;        
+            while (itr.hasNext()) {
+                Object o=new Object();
+                Row row = itr.next();
+                Cell ce=row.getCell(0);
+          
+                o=formatdata.formatCellValue(ce);
+                if(!o.toString().trim().isEmpty()){
+                        Cell cell = row.getCell(1);
+                        Object data1=new Object();
+                        data1=formatdata.formatCellValue(cell);
+                           
+                            System.out.println(o+"=>"+data1);
+                            shiptime.put(o.toString().trim(), Integer.parseInt(data1.toString()));
+                }else{
+                    isblank=true;
+                    break;
+                }
+            }
+            fis.close();
+        }   
+        } catch (Exception ie) {
+            ie.printStackTrace(); 
+        }
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

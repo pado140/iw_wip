@@ -101,7 +101,7 @@ private boolean initiated;
                color=rs.getString("coldsp").trim();
                Code=sku.substring(sku.indexOf(".")+1,sku.lastIndexOf("."));
              
-                   Object[] datas=new Object[11];
+                   Object[] datas=new Object[10];
                    datas[0]=rs.getString("brand");
                    datas[1]=rs.getString("ponum").trim();
                    datas[2]=rs.getString("style");
@@ -111,8 +111,7 @@ private boolean initiated;
                    datas[6]=rs.getInt("val");
                    datas[7]=rs.getString("created").replace("/", "-").trim();
                    datas[8]=rs.getInt("nb");
-                   datas[9]="BLD "+rs.getInt("workcenter");
-                   datas[10]=rs.getString("tablepacking");
+                   datas[9]=rs.getString("tablepacking");
                    qty_f+=rs.getInt("val");
                    qty_b+=rs.getInt("nb");
                   liste.add(datas);
@@ -278,8 +277,6 @@ private boolean initiated;
         sizesearch = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         customer_search = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
-        location_search = new javax.swing.JTextField();
         table_search = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
         refresh = new javax.swing.JButton();
@@ -309,17 +306,17 @@ private boolean initiated;
 
         GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "CUSTOMER", "PO", "STYLE", "COLOR CODE", "COLOR", "SIZE", "PACKED", "DATE", "BOX COUNT", "LOCATION", "TABLE"
+                "CUSTOMER", "PO", "STYLE", "COLOR CODE", "COLOR", "SIZE", "PACKED", "DATE", "BOX COUNT", "TABLE"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -477,14 +474,6 @@ private boolean initiated;
             }
         });
 
-        jLabel8.setText("BUILDING:");
-
-        location_search.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                location_searchKeyReleased(evt);
-            }
-        });
-
         table_search.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 table_searchActionPerformed(evt);
@@ -530,11 +519,7 @@ private boolean initiated;
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(customer_search, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(location_search, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(29, 29, 29)
+                .addGap(136, 136, 136)
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(headerLayout.createSequentialGroup()
                         .addComponent(datesearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -548,7 +533,7 @@ private boolean initiated;
                     .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(headerLayout.createSequentialGroup()
                         .addComponent(table_search, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 106, Short.MAX_VALUE)
                         .addComponent(refresh)))
                 .addGap(10, 10, 10)
                 .addComponent(export, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -578,11 +563,7 @@ private boolean initiated;
                                 .addGroup(headerLayout.createSequentialGroup()
                                     .addComponent(jLabel7)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(customer_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(headerLayout.createSequentialGroup()
-                                    .addComponent(jLabel8)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(location_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(customer_search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(headerLayout.createSequentialGroup()
                                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -680,11 +661,6 @@ private boolean initiated;
         buscados();
     }//GEN-LAST:event_customer_searchKeyReleased
 
-    private void location_searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_location_searchKeyReleased
-        // TODO add your handling code here:
-        buscados();
-    }//GEN-LAST:event_location_searchKeyReleased
-
     private void table_searchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_table_searchKeyReleased
         // TODO add your handling code here:
         buscados();
@@ -757,7 +733,6 @@ private boolean initiated;
         String color=colorsearch.getText().trim().toLowerCase();
         String size=sizesearch.getText().trim().toLowerCase();
         String client=customer_search.getText().trim().toLowerCase();
-        String bld=location_search.getText().trim().toLowerCase();
         String tablepack=table_search.getText().trim().toLowerCase();
         System.out.println("date:"+datesearch.getDate());
         for(Object[] ob:liste){
@@ -775,8 +750,7 @@ private boolean initiated;
                     ob[4].toString().trim().toLowerCase().contains(color))&&
                     ob[5].toString().trim().toLowerCase().contains(size)&&
                     ob[0].toString().trim().toLowerCase().contains(client)&&
-                    ob[9].toString().trim().toLowerCase().contains(bld)&&
-                    ob[10].toString().trim().toLowerCase().contains(tablepack)){
+                    ob[9].toString().trim().toLowerCase().contains(tablepack)){
                 try {
                     Date dd=formatter.parse(ob[7].toString());
                     if(dd.after(d)&&dd.before(to.getDate()))
@@ -797,9 +771,8 @@ private boolean initiated;
                     ob[4].toString().trim().toLowerCase().contains(color))&&
                     ob[5].toString().trim().toLowerCase().contains(size)&&
                     ob[0].toString().trim().toLowerCase().contains(client)&&
-                    ob[9].toString().trim().toLowerCase().contains(bld)&&
-                    ob[7].toString().equals(formatter.format(datesearch.getDate()))&&
-                    ob[10].toString().trim().toLowerCase().contains(tablepack)){
+                    ob[9].toString().trim().toLowerCase().contains(tablepack)&&
+                    ob[7].toString().equals(formatter.format(datesearch.getDate()))){
                     
                 tbm.addRow(ob);
                         line++;
@@ -815,8 +788,7 @@ private boolean initiated;
                     ob[4].toString().trim().toLowerCase().contains(color))&&
                     ob[5].toString().trim().toLowerCase().contains(size)&&
                     ob[0].toString().trim().toLowerCase().contains(client)&&
-                    ob[9].toString().trim().toLowerCase().contains(bld)&&
-                    ob[10].toString().trim().toLowerCase().contains(tablepack)){
+                    ob[9].toString().trim().toLowerCase().contains(tablepack)){
                     
                 tbm.addRow(ob);
                 line++;
@@ -849,12 +821,10 @@ private boolean initiated;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextField location_search;
     private javax.swing.JTextField posearch;
     private javax.swing.JProgressBar progress;
     private javax.swing.JButton refresh;

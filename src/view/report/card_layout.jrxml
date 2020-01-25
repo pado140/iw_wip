@@ -6,6 +6,7 @@
 	<parameter name="tickets" class="java.lang.Integer"/>
 	<parameter name="data" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
 	<parameter name="bundle_no" class="java.lang.String"/>
+	<parameter name="dyelot" class="java.lang.Integer"/>
 	<field name="po" class="java.lang.String"/>
 	<field name="style" class="java.lang.String"/>
 	<field name="qty" class="java.lang.Integer"/>
@@ -187,32 +188,60 @@
 				<text><![CDATA[QTY:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="130" y="62" width="40" height="12" uuid="6f57b1d3-6ba1-4229-ba93-fe79d7da90ff"/>
+				<reportElement x="39" y="62" width="40" height="12" uuid="6f57b1d3-6ba1-4229-ba93-fe79d7da90ff"/>
 				<textElement>
 					<font size="7" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Marker No:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="170" y="62" width="44" height="12" uuid="1c2ab776-8fae-480a-882c-676802e779e6"/>
+				<reportElement x="79" y="62" width="41" height="12" uuid="1c2ab776-8fae-480a-882c-676802e779e6"/>
 				<textElement>
 					<font size="7" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{bundle_no}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="490" y="62" width="42" height="12" uuid="1c2ab776-8fae-480a-882c-676802e779e6"/>
+				<reportElement x="398" y="62" width="42" height="12" uuid="1c2ab776-8fae-480a-882c-676802e779e6"/>
 				<textElement>
 					<font size="7" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{bundle_no}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="451" y="62" width="39" height="12" uuid="6f57b1d3-6ba1-4229-ba93-fe79d7da90ff"/>
+				<reportElement x="359" y="62" width="39" height="12" uuid="6f57b1d3-6ba1-4229-ba93-fe79d7da90ff"/>
 				<textElement>
 					<font size="7" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Marker No:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="171" y="62" width="37" height="12" uuid="3d0e16d3-8de1-42c5-a027-bfb4b1c56073"/>
+				<textElement>
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{dyelot}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="491" y="62" width="38" height="12" uuid="5da8d636-b6e7-492d-87f7-d9babb5b2a26"/>
+				<textElement>
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{dyelot}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="139" y="62" width="32" height="12" uuid="fa21332d-8bb3-42c6-ae1f-306dad6b6984"/>
+				<textElement>
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dye lot #:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="459" y="62" width="32" height="12" uuid="71ad65fa-bfe5-468e-a674-240aed6c96d2"/>
+				<textElement>
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dye lot #:]]></text>
 			</staticText>
 		</band>
 	</detail>

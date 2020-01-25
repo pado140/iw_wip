@@ -116,7 +116,7 @@ private final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
             }
         });
 
-        tablelist.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Select table--", "Packing 1", "Packing 2", "Packing 3" }));
+        tablelist.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Select table--", "Packing 29-1", "Packing 29-2", "Packing 29-3", "Packing 29-4", "Packing 30-1", "Packing 30-2", "Packing 30-3", "Packing 30-4" }));
 
         date.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         date.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -388,8 +388,9 @@ private final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
            JOptionPane.showInternalMessageDialog(this, "please select a table!!!", "choose table", JOptionPane.WARNING_MESSAGE);
             return;
        }
-       if(tablelist.getSelectedIndex()>0)
-           table=tablelist.getSelectedItem().toString();
+       if(!isdefault.isSelected())
+            if(tablelist.getSelectedIndex()>0)
+                table=tablelist.getSelectedItem().toString();
         inactive=0;
 //        new Thread(){
 //            public void run(){
@@ -401,8 +402,8 @@ private final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 //        }.start();
     }
     private boolean alreadyPacked(String cr){
-        String requete="select count(lpnScan) n from packed_lpn where lpnScan=?";
-        ResultSet rs=conn.select(requete,cr);
+        String requete="select count(lpnScan) n from packed_lpn where lpnScan=? or BOX_STICKERS=?";
+        ResultSet rs=conn.select(requete,cr,cr);
         boolean check=false;
         try {
             while(rs.next()){
@@ -484,8 +485,8 @@ private final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     }
 
     private boolean exists(String lpn){
-        String requete ="SELECT count(*) n from lpn_scan where lpnScan=?";
-        ResultSet rs=conn.select(requete,lpn);
+        String requete ="SELECT count(*) n from lpn_scan where lpnScan=? or BOX_STICKERS=?";
+        ResultSet rs=conn.select(requete,lpn,lpn);
     try {
         rs.first();
         return rs.getInt("n") != 0;

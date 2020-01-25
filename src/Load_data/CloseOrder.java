@@ -28,6 +28,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import view.Principal;
 
 
 public class CloseOrder extends javax.swing.JInternalFrame implements Observe{
@@ -138,8 +139,10 @@ public class CloseOrder extends javax.swing.JInternalFrame implements Observe{
 
 public boolean ExecuteCom(String ob){
     String requete="update shopOrder set status_147='5' where ordnum_147=?";
-    
-    return conn.Update(requete,0, ob);
+    boolean check=conn.Update(requete,0, ob);
+    String requete1="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('closed',?,?,3,?,?,?,?)";
+                        check=conn.Update(requete1, 0, new Object[]{ob,0,"closed sku",ob,0,Principal.user_id});
+                        return check;
 }    
     
     

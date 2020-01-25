@@ -8,21 +8,28 @@ package view;
 import connection.ConnectionDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+import observateurs.Observateurs;
 
 /**
  *
  * @author Padovano
  */
-public class Audit_form extends javax.swing.JInternalFrame {
+public class Audit_form extends javax.swing.JInternalFrame implements Observateurs{
 private final ConnectionDb conn = ConnectionDb.instance();
 private Map<Object,Integer> list;
+private Object[] auditor;
+private Object[] operation;
+private Object[] defect;
 private int batch_id;
+private DefaultTableModel tbm1;
     /**
      * Creates new form Audit_form
      */
@@ -35,20 +42,41 @@ private int batch_id;
         batch.setModel(new javax.swing.DefaultComboBoxModel(loadBatches()));
         DefaultTableModel tbm = (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
+        tbm1 = (DefaultTableModel) defect_table.getModel();
+        tbm1.setRowCount(0);
         jButton1.setEnabled(false);
         passall.setEnabled(false);
+        auditor=null;
+            AUDIT_DATE.setDate(null);
+            PULLED.setText("");
+            REVIEWED.setText("");
+            RESULT.setText("");
+            AUDITOR.setText("N/A");
+//        loadData();
+//        Auditors.keySet().parallelStream().forEach(auditor->{AUDITOR.addItem(auditor);});
+//        Operations.keySet().parallelStream().forEach(auditor->{OPERATION.addItem(auditor);});
+//        Defects.keySet().parallelStream().forEach(auditor->{DEFECT.addItem(auditor);});
+        
+        Stream.of(details.getComponents()).forEach(c->{
+            if(c instanceof JPanel){
+                Stream.of(((JPanel)c).getComponents()).forEach(c1->{c1.setEnabled(false);});
+            }
+            c.setEnabled(false);
+        });
     }
     
     private void loadData(int critere){
-        
+        int piecesboxes=0,boxesbatches=0;
         DefaultTableModel tbm = (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
-        String requete="select * from lpn_in_batch where batch_id=?";
+        String requete="select * from lpn_in_batch where batch_id=? and status_lpn like'%open%'";
         ResultSet rs=conn.select(requete, critere);
     try {
         while(rs.next()){
             tbm.addRow(new Object[]{rs.getString("ponum"),rs.getString("style"),rs.getString("sku").replace(".", "-").split("-")[1],
-            rs.getString("coldsp"),rs.getString("size"),rs.getInt("qty"),rs.getString("description"),rs.getString("lpn"),false,rs.getInt("lpn_id"),rs.getInt("id")});
+            rs.getString("coldsp"),rs.getString("size"),rs.getInt("last_qty"),rs.getString("description"),rs.getString("box_stickers"),rs.getString("lpn"),false,rs.getInt("lpn_id"),rs.getInt("id")});
+            boxesbatches++;
+            piecesboxes+=rs.getInt("last_qty");
         }
     } catch (SQLException ex) {
         Logger.getLogger(Audit_form.class.getName()).log(Level.SEVERE, null, ex);
@@ -60,12 +88,14 @@ private int batch_id;
         jButton1.setEnabled(false);
         passall.setEnabled(false);
     }
+    boxes.setText(boxesbatches+" box"+(boxesbatches>1?"es":""));
+    pieces.setText(piecesboxes+" piece"+(piecesboxes>1?"s":""));
     }
     
     private Object[] loadBatches(){
-        list=new HashMap<>();
+        list=new LinkedHashMap<>();
         Object[] ob;
-        String requete="select * from batches where status='packed'";
+        String requete="select * from batches where status in('packed','repacked')";
         ResultSet rs=conn.select(requete);
     try {
         list.put("--selected--",0);
@@ -96,6 +126,52 @@ private int batch_id;
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
+        details = new javax.swing.JPanel();
+        AUDIT_DATE = new com.toedter.calendar.JDateChooser();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        PULLED = new javax.swing.JFormattedTextField();
+        jLabel4 = new javax.swing.JLabel();
+        REVIEWED = new javax.swing.JFormattedTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        POLYBAG = new javax.swing.JCheckBox();
+        THREAD = new javax.swing.JCheckBox();
+        FOLDING = new javax.swing.JCheckBox();
+        POLABEL = new javax.swing.JTextField();
+        STICKER = new javax.swing.JTextField();
+        SHIPPINGMARKS = new javax.swing.JTextField();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel14 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        defect_table = new javax.swing.JTable();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        QTY_DEFECT = new javax.swing.JSpinner();
+        jLabel17 = new javax.swing.JLabel();
+        ADD = new javax.swing.JButton();
+        DEFECT = new javax.swing.JTextField();
+        jButton3 = new javax.swing.JButton();
+        OPERATION = new javax.swing.JTextField();
+        jButton4 = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        RESULT = new javax.swing.JTextArea();
+        jLabel18 = new javax.swing.JLabel();
+        AUDITOR = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel19 = new javax.swing.JLabel();
+        boxes = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        pieces = new javax.swing.JLabel();
 
         setClosable(true);
         setIconifiable(true);
@@ -158,11 +234,9 @@ private int batch_id;
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(batch, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 355, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(194, 194, 194))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(80, 80, 80)
                 .addComponent(passall)
                 .addGap(43, 43, 43))
         );
@@ -173,28 +247,27 @@ private int batch_id;
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(batch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(passall)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(passall))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "PO", "STYLE", "COLOR_CODE", "COLOR", "SIZE", "QTY", "DESCRIPTION", "LPN", "PASS/FAIL", "lpn_id", "id"
+                "PO", "STYLE", "COLOR_CODE", "COLOR", "SIZE", "QTY", "DESCRIPTION", "BOX STICKERS", "LPN", "PASS", "lpn_id", "id"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, true, false, false
+                false, false, false, false, false, false, false, false, false, true, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -219,12 +292,12 @@ private int batch_id;
             grid_data.getColumnModel().getColumn(4).setResizable(false);
             grid_data.getColumnModel().getColumn(5).setResizable(false);
             grid_data.getColumnModel().getColumn(6).setResizable(false);
-            grid_data.getColumnModel().getColumn(7).setResizable(false);
             grid_data.getColumnModel().getColumn(8).setResizable(false);
-            grid_data.getColumnModel().getColumn(9).setMinWidth(0);
-            grid_data.getColumnModel().getColumn(9).setMaxWidth(0);
+            grid_data.getColumnModel().getColumn(9).setResizable(false);
             grid_data.getColumnModel().getColumn(10).setMinWidth(0);
             grid_data.getColumnModel().getColumn(10).setMaxWidth(0);
+            grid_data.getColumnModel().getColumn(11).setMinWidth(0);
+            grid_data.getColumnModel().getColumn(11).setMaxWidth(0);
         }
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -235,7 +308,367 @@ private int batch_id;
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        details.setBorder(javax.swing.BorderFactory.createTitledBorder("details"));
+
+        AUDIT_DATE.setDateFormatString("MM/dd/yyyy");
+
+        jLabel2.setText("Date Audit:");
+
+        jLabel3.setText("Auditor:");
+
+        PULLED.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+
+        jLabel4.setText("Cartons pulled:");
+
+        REVIEWED.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+
+        jLabel5.setText("Pieces Reviewed:");
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText("OUTGOING GENERAL DETAILS");
+        jLabel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jLabel7.setText("POLYBAG(WARNING)");
+
+        jLabel8.setText("PO LABEL / PAD PRINT");
+
+        jLabel9.setText("STICKER");
+
+        jLabel10.setText("THREAD");
+
+        jLabel11.setText("FOLDING");
+
+        jLabel12.setText("SHIPPING MARKS");
+
+        jLabel13.setText("(STYLE/PO/LINE)");
+
+        POLYBAG.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                POLYBAGActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel9)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(35, 35, 35)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(POLYBAG, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+                    .addComponent(THREAD, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(FOLDING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(SHIPPINGMARKS)
+                    .addComponent(STICKER)
+                    .addComponent(POLABEL))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel7)
+                            .addComponent(POLYBAG, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(POLABEL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel11))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGap(53, 53, 53)
+                        .addComponent(STICKER, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(THREAD)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(FOLDING)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(jLabel12)
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel13)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addComponent(SHIPPINGMARKS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+        );
+
+        jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        jLabel14.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel14.setText("OUTGOING QUALITY DETAILS");
+        jLabel14.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        defect_table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "DEFECT CODE", "DEFO/DEFECT", "QTY", "OPERATION", "defect_id", "operation_id"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(defect_table);
+        if (defect_table.getColumnModel().getColumnCount() > 0) {
+            defect_table.getColumnModel().getColumn(0).setMinWidth(100);
+            defect_table.getColumnModel().getColumn(0).setMaxWidth(100);
+            defect_table.getColumnModel().getColumn(2).setMinWidth(50);
+            defect_table.getColumnModel().getColumn(2).setMaxWidth(50);
+            defect_table.getColumnModel().getColumn(3).setMinWidth(200);
+            defect_table.getColumnModel().getColumn(3).setMaxWidth(200);
+            defect_table.getColumnModel().getColumn(4).setMinWidth(0);
+            defect_table.getColumnModel().getColumn(4).setMaxWidth(0);
+            defect_table.getColumnModel().getColumn(5).setMinWidth(0);
+            defect_table.getColumnModel().getColumn(5).setMaxWidth(0);
+        }
+
+        jLabel15.setText("DEFECT CODE:");
+
+        jLabel16.setText("QTY:");
+
+        jLabel17.setText("OPERATION:");
+
+        ADD.setText("ADD");
+        ADD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ADDActionPerformed(evt);
+            }
+        });
+
+        DEFECT.setEditable(false);
+        DEFECT.setToolTipText("");
+
+        jButton3.setText("jButton3");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        OPERATION.setEditable(false);
+
+        jButton4.setText("jButton3");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jLabel15)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel16)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(QTY_DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel17)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(OPERATION, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ADD)
+                .addContainerGap())
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 886, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 6, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                        .addComponent(OPERATION, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton4))
+                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                        .addComponent(jLabel16)
+                        .addComponent(QTY_DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel17)
+                        .addComponent(ADD)
+                        .addComponent(DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton3)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        RESULT.setColumns(20);
+        RESULT.setRows(3);
+        jScrollPane3.setViewportView(RESULT);
+
+        jLabel18.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel18.setLabelFor(RESULT);
+        jLabel18.setText("RESULT DETAILS");
+
+        AUDITOR.setEditable(false);
+        AUDITOR.setText("N/A");
+        AUDITOR.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AUDITORActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("jButton2");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout detailsLayout = new javax.swing.GroupLayout(details);
+        details.setLayout(detailsLayout);
+        detailsLayout.setHorizontalGroup(
+            detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(detailsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane3)
+                    .addGroup(detailsLayout.createSequentialGroup()
+                        .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(detailsLayout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(AUDIT_DATE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(81, 81, 81)
+                                .addComponent(jLabel3))
+                            .addComponent(jLabel18, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(18, 18, 18)
+                        .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(detailsLayout.createSequentialGroup()
+                                .addComponent(AUDITOR, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, 0)
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(75, 75, 75)
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(PULLED, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(49, 49, 49)
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(REVIEWED, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(25, 25, 25))
+        );
+        detailsLayout.setVerticalGroup(
+            detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(detailsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(AUDITOR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(detailsLayout.createSequentialGroup()
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel18)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(detailsLayout.createSequentialGroup()
+                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(detailsLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(jLabel3))
+                    .addGroup(detailsLayout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(PULLED, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(detailsLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(jLabel4))
+                    .addGroup(detailsLayout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(REVIEWED, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(detailsLayout.createSequentialGroup()
+                        .addGap(15, 15, 15)
+                        .addComponent(jLabel5))
+                    .addGroup(detailsLayout.createSequentialGroup()
+                        .addGap(11, 11, 11)
+                        .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel2)
+                            .addComponent(AUDIT_DATE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(337, 337, 337))
+        );
+
+        jLabel19.setText("Total Boxes:");
+
+        boxes.setText("0 Box");
+
+        jLabel21.setText("Total Pieces:");
+
+        pieces.setText("0 Piece");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(boxes, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel21)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(pieces, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(boxes, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel21, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pieces, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -244,13 +677,20 @@ private int batch_id;
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(details, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(details, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0))
         );
 
         pack();
@@ -261,6 +701,21 @@ private int batch_id;
         passall.setSelected(false);
         batch_id=list.get(evt.getItem());
         loadData(list.get(evt.getItem()));
+        if(batch_id!=0){
+            Stream.of(details.getComponents()).forEach(c->{
+            if(c instanceof JPanel){
+                Stream.of(((JPanel)c).getComponents()).forEach(c1->{c1.setEnabled(true);});
+            }
+            c.setEnabled(true);
+        });
+        }else{
+            Stream.of(details.getComponents()).forEach(c->{
+            if(c instanceof JPanel){
+                Stream.of(((JPanel)c).getComponents()).forEach(c1->{c1.setEnabled(false);});
+            }
+            c.setEnabled(false);
+        });
+        }
     }//GEN-LAST:event_batchItemStateChanged
 
     private void passallItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_passallItemStateChanged
@@ -271,9 +726,9 @@ private int batch_id;
     private void grid_dataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_grid_dataMouseClicked
         // TODO add your handling code here:
         boolean check=true;
-        if(grid_data.getSelectedColumn()==grid_data.getColumnCount()-3){
+        if(grid_data.getSelectedColumn()==grid_data.getColumn("PASS").getModelIndex()){
             for(int i=0;i<grid_data.getRowCount();i++){
-                if((Boolean)grid_data.getValueAt( i, grid_data.getColumnCount()-3)==false){
+                if((Boolean)grid_data.getValueAt( i, grid_data.getColumn("PASS").getModelIndex())==false){
                     check=false;
                 }
                 }
@@ -291,35 +746,91 @@ private int batch_id;
         // TODO add your handling code here:
         if(passall.isSelected()){
             for(int i=0;i<grid_data.getRowCount();i++){
-                grid_data.setValueAt(true, i, grid_data.getColumnCount()-3);
+                grid_data.setValueAt(true, i, grid_data.getColumn("PASS").getModelIndex());
             }
         }else{
             for(int i=0;i<grid_data.getRowCount();i++){
-                grid_data.setValueAt(false, i, grid_data.getColumnCount()-3);
+                grid_data.setValueAt(false, i, grid_data.getColumn("PASS").getModelIndex());
                 }
         }
     }//GEN-LAST:event_passallActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        
+        if(canSave()){
         int confirmation=JOptionPane.showConfirmDialog(this, "Are you sure, those informations are corrected?", "Confirm",
                 JOptionPane.YES_NO_OPTION);
         if(confirmation==JOptionPane.YES_OPTION){
-            for(int i=0;i<grid_data.getRowCount();i++){
-                Audit(Integer.parseInt(grid_data.getValueAt( i, grid_data.getColumnCount()-1).toString()),
-                        Integer.parseInt(grid_data.getValueAt( i, grid_data.getColumnCount()-2).toString()),
-                        (Boolean)grid_data.getValueAt( i, grid_data.getColumnCount()-3));
-                    
+            try {
+                conn.getConnection().setAutoCommit(false);
                 
-                }
-            String requete="update batches set status='Audited' ";
-            requete+= !passall.isSelected()?",fail=fail+1 ":"";
-             conn.Update(requete+"where id=?", 0, batch_id);
-            JOptionPane.showMessageDialog(this, "save successfully");
-            init();
-        }
+                String requete="update batches set status='Audited',modified=getDate() ";
+                requete+= !passall.isSelected()?",fail=fail+1 ":",pass=1 ";
+                conn.Update(requete+"where id=?", 0, batch_id);
+                conn.Update("insert into batch_transac (batch_id,status,user_id) values(?,?,?)", 0,batch_id,!passall.isSelected()?"fail":"pass",Principal.user_id);
+                String requete2="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('Audit',?,0,7,?,NULL,NULL,?)";
+                conn.Update(requete2, 0, new Object[]{batch_id,"audit batch",Principal.user_id});
+                conn.Update("insert into audit (batch_id,user_id,result,details,polybag_warn,polabel,sticker,thread,folding,shipping,cartons,pieces,auditor_id,date) values("
+                        + "?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 1, batch_id,Principal.user_id,passall.isSelected(),RESULT.getText(),POLYBAG.isSelected(),POLABEL.getText(),STICKER.getText(),
+                        THREAD.isSelected(),FOLDING.isSelected(),SHIPPINGMARKS.getText(),PULLED.getText(),REVIEWED.getText(),auditor[1],AUDIT_DATE.getDate());
+                    int auditid=conn.getLast();
+                    for(int j=0;j<defect_table.getRowCount();j++){
+                        if(defect_table.getValueAt(j, 5)==null){
+                            conn.Update("insert into defect_audit (defect_id,audit_id,qty) values (?,?,?)",
+                                0,defect_table.getValueAt(j, 4), auditid,defect_table.getValueAt(j, 2));
+                        }else{
+                        conn.Update("insert into defect_audit (defect_id,audit_id,qty,[operation_audit_id]) values (?,?,?,?)",
+                                0,defect_table.getValueAt(j, 4), auditid,defect_table.getValueAt(j, 2),
+                                        defect_table.getValueAt(j, 5));
+                        }
+                    }
+                for(int i=0;i<grid_data.getRowCount();i++){
+                    int lpid=Integer.parseInt(grid_data.getValueAt( i, grid_data.getColumn("lpn_id").getModelIndex()).toString());
+                    int lbid=Integer.parseInt(grid_data.getValueAt( i, grid_data.getColumn("id").getModelIndex()).toString());
+                    int qty=Integer.parseInt(grid_data.getValueAt( i, grid_data.getColumn("QTY").getModelIndex()).toString());
+                    String box_sticker=grid_data.getValueAt( i, grid_data.getColumn("BOX STICKERS").getModelIndex()).toString().trim();
+                    String requete3="update batches_lpn set status=? where id=?";
+        String status="fail";
         
+        String requete1="update box_contain set status=? where id=?";
+        
+        if((Boolean)grid_data.getValueAt( i, grid_data.getColumn("PASS").getModelIndex())){
+           status="pass";
+           conn.Update(requete1, 0,2,lpid);
+        }else{
+           conn.Update(requete1, 0,0,lpid);
+        }
+        //int lbid,int lpid,boolean check,String box_sticker,int qty,int audit_id
+        conn.Update(requete3, 0,status, lbid);
+        conn.Update("update packing set is_approved=?,modified=getDate() where box_stickers=?", 0,status.equals("fail")?0:1, box_sticker);
+        conn.Update("update packing_approved set is_approved=?,modified=getDate() where box_stickers=?", 0,status.equals("fail")?0:1, box_sticker);
+        conn.Update("insert into lpn_in_batch_transac(idbatch,idlpn,box_stickers,qty,status,action,user_id) values(?,?,?,?,?,?,?)", 0,batch_id, lpid,box_sticker,qty,status,"Audited",Principal.user_id);
+        conn.Update("insert into audit_box(batch_id,lpn_id,box_stickers,qty,audit_id,status,user_id) values(?,?,?,?,?,?,?)", 0,batch_id, lpid,box_sticker,qty,auditid,status,Principal.user_id);
+        conn.Update("insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('Audit',?,?,7,?,?,?,?)", 0, new Object[]{batch_id,box_sticker.substring(0, box_sticker.length()-3),"Audit box",box_sticker,qty,Principal.user_id});
+                   
+                }
+                conn.getConnection().commit();
+                
+                JOptionPane.showMessageDialog(this, "save successfully");
+                init();
+                
+            } catch (SQLException ex) {
+                try {
+                    conn.getConnection().rollback();
+                } catch (SQLException ex1) {
+                    Logger.getLogger(Audit_form.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+                Logger.getLogger(Audit_form.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        }else{
+            JOptionPane.showMessageDialog(this, "please fill out all required fields");
+        }
+    try {
+        conn.getConnection().setAutoCommit(true);
+    } catch (SQLException ex) {
+        Logger.getLogger(Audit_form.class.getName()).log(Level.SEVERE, null, ex);
+    }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void formInternalFrameActivated(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameActivated
@@ -332,7 +843,87 @@ private int batch_id;
         init();
     }//GEN-LAST:event_formInternalFrameDeiconified
 
-    private void Audit(int lbid,int lpid,boolean check){
+    private void POLYBAGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_POLYBAGActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_POLYBAGActionPerformed
+
+    private void ADDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ADDActionPerformed
+        // TODO add your handling code here:
+        if(defect!=null && Integer.parseInt(QTY_DEFECT.getValue().toString())>0 ){
+            Object[] data=new Object[]{defect[1],defect[2]+"/"+defect[4],QTY_DEFECT.getValue(),null,defect[0],null};
+            if(operation!=null){
+                data[3]=operation[0];
+                data[5]=operation[1];
+            }
+            tbm1.addRow(data);
+            defect=null;
+            operation=null;
+            DEFECT.setText(null);
+            OPERATION.setText(null);
+            QTY_DEFECT.setValue(0);
+        }
+        else if(Integer.parseInt(QTY_DEFECT.getValue().toString())<=0){
+            JOptionPane.showMessageDialog(this, "The quantity must greater than 0");
+        }
+        
+    }//GEN-LAST:event_ADDActionPerformed
+
+    private void AUDITORActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AUDITORActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_AUDITORActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        AuditorForm af=new AuditorForm(null, true);
+        af.ajouterObservateur(this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                af.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        af.dispose(); 
+                    }
+                });
+                af.setVisible(true);
+            }
+        });
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        OperationFormSelect af=new OperationFormSelect(null, true);
+        af.ajouterObservateur(this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                af.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        af.dispose(); 
+                    }
+                });
+                af.setVisible(true);
+            }
+        });
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        DefectForm af=new DefectForm(null, true);
+        af.ajouterObservateur(this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                af.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        af.dispose(); 
+                    }
+                });
+                af.setVisible(true);
+            }
+        });
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void Audit(int lbid,int lpid,boolean check,String box_sticker,int qty,int audit_id){
         String requete="update batches_lpn set status=? where id=?";
         String status="fail";
         
@@ -344,22 +935,98 @@ private int batch_id;
         }else{
            conn.Update(requete1, 0,0,lpid);
         }
+        
         conn.Update(requete, 0,status, lbid);
-        conn.Update("update packing set is_approved=?,modified=getDate() where box_stickers=(select box_stickers from box_contain where id=?)", 0,status.equals("fail")?0:1, lpid);
-        conn.Update("update packing_approved set is_approved=?,modified=getDate() where box_stickers=(select box_stickers from box_contain where id=?)", 0,status.equals("fail")?0:1, lpid);
+        conn.Update("update packing set is_approved=?,modified=getDate() where box_stickers=?", 0,status.equals("fail")?0:1, box_sticker);
+        conn.Update("update packing_approved set is_approved=?,modified=getDate() where box_stickers=?", 0,status.equals("fail")?0:1, box_sticker);
+        conn.Update("insert into lpn_in_batch_transac(idbatch,idlpn,box_stickers,qty,status,action,user_id) values(?,?,?,?,?,?,?)", 0,batch_id, lpid,box_sticker,qty,status,"Audited",Principal.user_id);
+        conn.Update("insert into audit_box(batch_id,lpn_id,box_stickers,qty,audit_id,status,user_id) values(?,?,?,?,?,?,?)", 0,batch_id, lpid,box_sticker,qty,audit_id,status,Principal.user_id);
+        String requete2="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('Audit',?,?,7,?,?,?,?)";
+        conn.Update(requete2, 0, new Object[]{batch_id,box_sticker.substring(0, box_sticker.length()-3),"Audit box",box_sticker,qty,Principal.user_id});
        
         
        
     }
+    private boolean canSave(){
+        if(auditor!=null&&AUDIT_DATE.getDate()!=null&&
+                !PULLED.getText().isEmpty()&&!REVIEWED.getText().isEmpty()){
+            
+            return true;
+        }
+        return false;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ADD;
+    private javax.swing.JTextField AUDITOR;
+    private com.toedter.calendar.JDateChooser AUDIT_DATE;
+    private javax.swing.JTextField DEFECT;
+    private javax.swing.JCheckBox FOLDING;
+    private javax.swing.JTextField OPERATION;
+    private javax.swing.JTextField POLABEL;
+    private javax.swing.JCheckBox POLYBAG;
+    private javax.swing.JFormattedTextField PULLED;
+    private javax.swing.JSpinner QTY_DEFECT;
+    private javax.swing.JTextArea RESULT;
+    private javax.swing.JFormattedTextField REVIEWED;
+    private javax.swing.JTextField SHIPPINGMARKS;
+    private javax.swing.JTextField STICKER;
+    private javax.swing.JCheckBox THREAD;
     private javax.swing.JComboBox batch;
+    private javax.swing.JLabel boxes;
+    private javax.swing.JTable defect_table;
+    private javax.swing.JPanel details;
     private javax.swing.JTable grid_data;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JCheckBox passall;
+    private javax.swing.JLabel pieces;
     // End of variables declaration//GEN-END:variables
+    private final Map<String,Object[]> Auditors=new LinkedHashMap(),Operations=new LinkedHashMap(),Defects=new LinkedHashMap();
+    
+    @Override
+    public void executer(Object... obs) {
+        if(obs[0].equals("auditor_select")){
+            auditor=(Object[])obs[1];
+             AUDITOR.setText(auditor[0].toString());
+        }
+        if(obs[0].equals("defect_seleted")){
+            defect=(Object[])obs[1];
+            DEFECT.setText(defect[1].toString()+"-"+defect[2]);
+        }
+        if(obs[0].equals("operation_select")){
+            operation=(Object[])obs[1];
+            OPERATION.setText(operation[0].toString());
+        }
+    }
 }

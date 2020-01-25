@@ -287,14 +287,27 @@ private int lot=0,qty=0,sewn=0;
                String error="";
                for(int i=0;i<target.getRowCount();i++){
                    Object[] data=value(target,i);
+                   int oldqty=Integer.parseInt(data[7].toString());
+                   int newqty=Integer.parseInt(data[4].toString());
                    if(!data[6].toString().equals("Invalid")&&!data[4].equals(data[7])){
-                       if(conn.Update(requete1, 0, data[7],data[4],data[0])){
-                           conn.Update(requete2, 0, data[1],data[7],"Update qty to",data[3],data[4],Principal.user_id);
-                       }else{
-                       error+=conn.getErreur()+"\n";
-                   }
-                   }
-               }
+                        if((sewn-oldqty+newqty)>qty){
+                            JOptionPane.showMessageDialog(this, "you exceed the amount planned for this travel card");
+                            return;
+                        }else{
+                            if((sewn-oldqty+newqty)<sewn){
+                                if(JOptionPane.showConfirmDialog(this, "Are you sure you want to reduce the amount of production?", 
+                                       "Downgrade production", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)==JOptionPane.NO_OPTION)
+                                     return;
+                                }
+                            if(conn.Update(requete1, 0, data[7],data[4],data[0])){
+                                conn.Update(requete2, 0, data[1],data[7],"Update qty to",data[3],data[4],Principal.user_id);
+                            }else{
+                                error+=conn.getErreur()+"\n";
+                            }
+                        }
+                    }
+                }
+                   
                if(error.isEmpty()){
                    JOptionPane.showMessageDialog(this, "Succesfully saved");
                    init();
@@ -515,7 +528,7 @@ private int lot=0,qty=0,sewn=0;
         ResultSet rs=conn.select(requete, code);
         try {
             rs.last();
-        data=new Object[rs.getRow()][8];
+        data=new Object[rs.getRow()][9];
         rs.beforeFirst();
         int i=0;
             while(rs.next()){
@@ -527,14 +540,16 @@ private int lot=0,qty=0,sewn=0;
                 data[i][5]=rs.getString("type_sew");
                data[i][6]=rs.getInt("STATUS")==1?"Scanned":rs.getInt("STATUS")==2?"Invalid":"empty";
                data[i][7]=rs.getInt("qty_per_lot");
+               data[i][8]=rs.getBoolean("blank");
                order=rs.getString("order_num");
                travel=rs.getString("lot_stickers");
                stravel=rs.getString("s_traveller");
                i++;
                lot++;
-               qty+=rs.getInt("qty_per_lot");
                sewn+=rs.getInt("STATUS")==1?rs.getInt("qty_per_lot"):0;
                 }
+            
+               qty=entry(code);
             //lot=i;
                 //((DefaultTableModel)grid_data.getModel())
         } catch (SQLException ex) {
@@ -544,12 +559,12 @@ private int lot=0,qty=0,sewn=0;
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             data,
                 new String [] {
-                "id", "Order Number", "SEWING TRAVELLER", "STICKER", "LOT", "TYPE", "STATUS","values"
+                "id", "Order Number", "SEWING TRAVELLER", "STICKER", "LOT", "TYPE", "STATUS","values","IS BLANK"
             }
             ){
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 //if(Principal_iw.can_edit==true){
-                     if(data[rowIndex][6].equals("Invalid"))
+                     if(data[rowIndex][6].equals("Invalid") || data[rowIndex][8].equals(false))
                             return false;
                     return true;
                 

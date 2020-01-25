@@ -174,6 +174,15 @@ public class ConnectionDb {
     public int getLast(){
         return lastinsert;
     }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
+    
     
     
 }

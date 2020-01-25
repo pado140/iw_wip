@@ -320,7 +320,7 @@ fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 public boolean saveCom(Object[] o){
     String requete="insert into Order_Master( LINNUM_10,PRTNUM_10,CURDUE_10,"
             + "ORGDUE_10,CURQTY_10,ORGQTY_10,DUEQTY_10,CUSORD_10,PLANID_10,"
-            + "ORDREF_10,COMCDE_10,UDFREF_10,CLASS_10) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            + "ORDREF_10,COMCDE_10,UDFREF_10,CLASS_10,SCHFLG_10) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,'R')";
     
     Object[] obj=new Object[]{o[16],};
     
@@ -734,7 +734,7 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
            ",COMCDE_10,ORDPTP_10,JOBEXP_10,JOBCST_10,TAXCDE_10,TAX1_10,GLREF_10,CURR_10,UDFKEY_10,UDFREF_10,DISC_10,RECCOST_10"+
            ",MPNMFG_10,DEXPFLG_10,PLSTPRNT_10,ROUTPRNT_10,REQUES_10,ALTBOM_10,ALTRTG_10,CLASS_10,JOB_10,SUBSHP_10,XDFDTE_10) "+
             "VALUES (?,?,?,?,?,'N','N','MS','"+ord+"0000','',?,'',?,?,?,?,'',?,'','N','3','FG1-FP1',?,?,'',?,0,'N','B','',"+
-           "?,1,'',?,'','','N','','',0,'N','','','Y','N',0,0,0,0,0,'',?,'',NULL,'SKU','M','Y',0,'',0,'','','',?,0,0,'','N'"+
+           "?,1,'',?,'R','','N','','',0,'N','','','Y','N',0,0,0,0,0,'',?,'',NULL,'SKU','M','Y',0,'',0,'','','',?,0,0,'','N'"+
             ",'N','N','','','','','',0,?)";
       return conn.Update(query,1, ord,line,del,partid,po_date,shipdate,qty,qty,qty,po_date,po_date,po,brand,lbs,poPrice,po.split("_")[0],po_date,udf,X_factory);
       

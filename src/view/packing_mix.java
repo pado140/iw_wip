@@ -107,7 +107,7 @@ private JFileChooser file;
             }
         });
 
-        tablelist.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Select table--", "Packing 1", "Packing 2", "Packing 3" }));
+        tablelist.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Select table--", "Packing 29-1", "Packing 29-2", "Packing 29-3", "Packing 29-4", "Packing 30-1", "Packing 30-2", "Packing 30-3", "Packing 30-4" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -398,14 +398,16 @@ private JFileChooser file;
         int qtypack=0;
         int packed=0,qty=0;
         String po="",sku="";
+        String status="";
     
     try {
         while(rs.next()){
-            Object[] ob=new Object[4];
+            Object[] ob=new Object[5];
             String order=rs.getString("work_order");
             sku=rs.getString("sku");
             po=rs.getString("po");
             qty=rs.getInt("qty");
+            status=rs.getString("state").trim();
             packed=rs.getInt("packed");
             qtypack=rs.getInt("sewn")-packed;
             String style=rs.getString("style").trim();
@@ -415,7 +417,7 @@ private JFileChooser file;
             int second=0;
             if(!(match||wash||press) ){
                 second=rs.getInt("second_ps");
-                qtypack=rs.getInt("sewn")-(rs.getInt("packed")+second);
+                qtypack=rs.getInt("sewn")-(rs.getInt("packed"));
             }
             else{
                 second=rs.getInt("second_matchbook")+rs.getInt("second_press")+rs.getInt("second_wash");
@@ -427,6 +429,7 @@ private JFileChooser file;
                     ob[1]=qtypack;
                     ob[2]=po;
                     ob[3]=sku;
+                    ob[4]=status;
                     val.add(ob);
             }
     } catch (SQLException ex) {
@@ -445,6 +448,11 @@ private JFileChooser file;
         for(Object[] ob:val){
             if((Integer)ob[0]>(Integer)ob[1]){
                 Erreur+="the po:"+ob[2].toString().trim()+" and the sku:"+ob[3].toString().trim()+" can't scan \n";
+                return false;
+            }
+            if(ob[4].equals("5"))
+                {
+                Erreur+="the po:"+ob[2].toString().trim()+" and the sku:"+ob[3].toString().trim()+" is already closed \n";
                 return false;
             }
         }

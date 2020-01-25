@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;;
+import java.util.logging.Logger;import java.util.stream.Collectors;
+;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -42,6 +43,7 @@ private final ConnectionDb conn = ConnectionDb.instance();
    final Map<Integer,Object[]> datapallet=new HashMap<>();
    private ArrayList<String> li=new ArrayList<>();
    private int total=0, boxes=0;
+   private int count=1;
    private String pallet;
 
     /**
@@ -171,10 +173,6 @@ private final ConnectionDb conn = ConnectionDb.instance();
             }
         });
         jScrollPane1.setViewportView(GRID_PACKING_LIST);
-        if (GRID_PACKING_LIST.getColumnModel().getColumnCount() > 0) {
-            GRID_PACKING_LIST.getColumnModel().getColumn(8).setMinWidth(0);
-            GRID_PACKING_LIST.getColumnModel().getColumn(8).setMaxWidth(0);
-        }
 
         panel_grid.setDoubleBuffered(false);
         panel_grid.setName(""); // NOI18N
@@ -261,7 +259,8 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
                 for(int i=0;i<GRID_PACKING_LIST.getRowCount();i++){
                     BatchDetails bd=new BatchDetails();
                     bd.setSticker(GRID_PACKING_LIST.getValueAt(i, 8).toString());
-                    bd.setQty((GRID_PACKING_LIST.getValueAt(i, 5).toString()));
+                    
+                    bd.setQty((Integer.parseInt(GRID_PACKING_LIST.getValueAt(i, 5).toString())));
                     bd.setSize(GRID_PACKING_LIST.getValueAt(i, 4).toString());
                     batches.add(bd);
                     boxs++;
@@ -269,11 +268,25 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
                 }
                 
             }
+            Map<String,String>Sizes=new HashMap();
+            Map<String,Integer>values=new HashMap();
+            Map<String,Integer>piece=new HashMap();
+            count=1;
+            Map<String,Long> BoxesBySizes=batches.parallelStream().collect(Collectors.groupingBy(BatchDetails::getSize,Collectors.counting()));
+            Map<String,Integer> PiecesBySizes=batches.parallelStream().collect(Collectors.groupingBy(BatchDetails::getSize,Collectors.summingInt(BatchDetails::getQty)));
+            BoxesBySizes.forEach((k,v)->{
+                Sizes.put("size"+count,k);
+                values.put("val"+count,v.intValue());
+                piece.put("pieces"+count,PiecesBySizes.get(k));
+                count++;
+                
+            });
+            
             jList1.getSelectedValue().toString();
         int id=Integer.parseInt(pallet.substring("Batch no ".length()).trim());
         Object[] batchdetails=datapallet.get(id);
             printbatche(batchdetails[2].toString(),id,batchdetails[0].toString(),batchdetails[1].toString(),batchdetails[3].toString(),pieces,boxs,batches,
-                    batchdetails[4].toString().equalsIgnoreCase("packed")?"for Audit":"for reinspection");
+                    batchdetails[4].toString().equalsIgnoreCase("packed")?"for Audit":"for re-Audit",Sizes,values,piece);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -302,8 +315,9 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
     }//GEN-LAST:event_jTextField1KeyReleased
 
     private void load_data(){
-        String requete="select * from batches";
-        
+        String requete="select * from batches where status like'%packed%'";
+        li.clear();
+        datapallet.clear();
         try{
             ResultSet rs=conn.select(requete);
             
@@ -326,11 +340,11 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
             public int getSize() { return strings.length; }
            @Override
             public Object getElementAt(int i) { return strings[i]; }
-        });
+         });
     }
    
     private void fill_table_pieces(int id){
-        String requete="select * from lpn_in_batch where batch_id=?";
+        String requete="select * from lpn_in_batch where batch_id=? and status_lpn like'%open%'";
         ResultSet rs=conn.select(requete, id);
         DefaultTableModel tbm=(DefaultTableModel)GRID_PACKING_LIST.getModel();
         tbm.setNumRows(0);
@@ -340,9 +354,9 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
             tbm.addRow(new Object[]{rs.getString("ponum"),
             rs.getString("style"),
             rs.getString("sku").replace(".","-").split("-")[1],
-            rs.getString("coldsp"),rs.getString("size"),rs.getInt("qty"),rs.getString("lpn"),false,rs.getString("box_stickers")});
+            rs.getString("coldsp"),rs.getString("size"),rs.getInt("last_qty"),rs.getString("lpn"),false,rs.getString("box_stickers")});
             boxes++;
-            total+=rs.getInt("qty");
+            total+=rs.getInt("last_qty");
         }
     } catch (SQLException ex) {
         Logger.getLogger(Pallet_packing.class.getName()).log(Level.SEVERE, null, ex);
@@ -372,7 +386,8 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
        return 0;
     }
     
-    private void printbatche(String color,int no,String po,String style,String client,int pieces,int boxes,ArrayList<BatchDetails> batchdetail,String type){
+    private void printbatche(String color,int no,String po,String style,String client,int pieces,int boxes,ArrayList<BatchDetails> batchdetail,String type,Map<String,String>sizes,Map<String,Integer> val
+    ,Map<String,Integer> piece){
         
         try{ 
             URL  master= this.getClass().getResource("report/bacth_report.jasper");
@@ -385,6 +400,9 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
                   param.put("po",po);
                   param.put("style",style);
                   param.put("type",type);
+                  param.putAll(sizes);
+                  param.putAll(val);
+                  param.putAll(piece);
                   JasperReport jasperReport = (JasperReport) JRLoader.loadObject(master);
                   //JRBeanCollectionDataSource beanColDataSource =new JRBeanCollectionDataSource(listdata);
                   JRBeanCollectionDataSource beanCutDataSource =new JRBeanCollectionDataSource(batchdetail);
@@ -392,12 +410,20 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
                   //String report=JasperFillManager.fillReportToFile(source.getAbsolutePath(),param,beanColDataSource);
                   JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,param,beanCutDataSource);
                   //JasperViewer.viewReport(jasperPrint);
-                  if(Files.exists(new File("P:\\BATCHES/").toPath())){
-                JasperExportManager.exportReportToPdfFile(jasperPrint, "P:\\BATCHES/batch no "+no+".pdf");
+                  String key=""+no;
+                  if(type.contains("re-Audit"))
+                      key+="(reAudit)";
+                      
+                  if(Files.exists(new File("K:\\BATCHES/").toPath())){
+                      if(!Files.exists(new File("K:\\BATCHES/batch no "+key+".pdf").toPath()))
+                            JasperExportManager.exportReportToPdfFile(jasperPrint, "K:\\BATCHES/batch no "+key+".pdf");
+                      else
+                          JOptionPane.showInternalMessageDialog(this, "File already exist");
                       
                   
                   Desktop dsk=Desktop.getDesktop();
-                  dsk.open(new File("P:\\BATCHES/batch no "+no+".pdf"));
+                  dsk.open(new File("K:\\BATCHES/batch no "+key+".pdf"));
+                  dsk.print(new File("K:\\BATCHES/batch no "+key+".pdf"));
                 
                 
                   
@@ -405,7 +431,7 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
                   //dsk.print(new File("P:\\BATCHES/"+code+"-"+no+".pdf"));
                  }else{
                       
-                      JOptionPane.showMessageDialog(this, "please make sure that you can connect with the drive P:");
+                      JOptionPane.showMessageDialog(this, "please make sure that you can connect with the drive K:");
                       
                       if(!Files.exists(new File(System.getProperty("user.home").concat("/Documents/BATCHES")).toPath())){
                           //f.createNewFile();
@@ -414,10 +440,11 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
                           f.mkdirs();
                           //Files.createDirectory(new File(System.getProperty("user.home").concat("/Documents/BATCHES/barcode")).toPath()); 
                       }
-                      JasperExportManager.exportReportToPdfFile(jasperPrint, System.getProperty("user.home").concat("/Documents/BATCHES/")+"batch no "+no+".pdf");
+                      JasperExportManager.exportReportToPdfFile(jasperPrint, System.getProperty("user.home").concat("/Documents/BATCHES/")+"batch no "+key+".pdf");
                   
                   Desktop dsk=Desktop.getDesktop();
-                  dsk.open(new File(System.getProperty("user.home").concat("/Documents/BATCHES/")+"batch no "+no+".pdf"));
+                  dsk.open(new File(System.getProperty("user.home").concat("/Documents/BATCHES/")+"batch no "+key+".pdf"));
+                  dsk.print(new File(System.getProperty("user.home").concat("/Documents/BATCHES/")+"batch no "+key+".pdf"));
                   }
                   
  

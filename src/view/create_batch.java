@@ -9,9 +9,12 @@ import connection.ConnectionDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.scene.Cursor;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -28,11 +31,17 @@ private Set<String> listlpn;
 private String ErrorLpn,po,style,color,customer;
 private int idBatch;
 private String status;
+
+private Map<Object,Integer> list;
     /**
      * Creates new form create_batch
      */
     public create_batch() {
         initComponents();
+        
+        listlpn=new HashSet<>();
+        clearbatch.setEnabled(false);
+        //clearbatch.setCursor(Cursor.HAND);
         //init();
         batch_no.setText(String.valueOf(lastBatch()));
     }
@@ -54,6 +63,8 @@ private String status;
         jLabel3 = new javax.swing.JLabel();
         count = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        clearbatch = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
@@ -105,6 +116,23 @@ private String status;
             }
         });
 
+        jButton2.setText("select Batch");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        clearbatch.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
+        clearbatch.setText("clear batch");
+        clearbatch.setBorderPainted(false);
+        clearbatch.setContentAreaFilled(false);
+        clearbatch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clearbatchActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -124,32 +152,43 @@ private String status;
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(count)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 177, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 128, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(50, 50, 50)
+                .addComponent(clearbatch, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(49, 49, 49)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(batch_no, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(count, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(batch_no, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(38, 38, 38)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(count, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                .addContainerGap()
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(38, 38, 38)
+                .addComponent(clearbatch)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
@@ -160,7 +199,7 @@ private String status;
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "LPN", "PO", "STYLE", "DESCRIPTION", "COLOR CODE", "COLOR", "SIZE", "QTY"
+                "LPN/STICKER", "PO", "STYLE", "DESCRIPTION", "COLOR CODE", "COLOR", "SIZE", "QTY"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -217,7 +256,7 @@ private String status;
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 888, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -228,7 +267,7 @@ private String status;
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 349, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 3, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -249,7 +288,6 @@ private String status;
     }//GEN-LAST:event_jTextField1KeyReleased
 
     private void init(){
-        listlpn=new HashSet<>();
         create=false;
         tbm= (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
@@ -265,9 +303,12 @@ private String status;
                 String req="insert into batches(status,[qty_box]) values (?,?)";
                 if(conn.Update(req, 1, "created",0))
                 idBatch=conn.getLast();
+                conn.Update("insert into batch_transac (batch_id,status,user_id) values(?,?,?)", 0,idBatch,"created",Principal.user_id);
                 }
         }
+        status=getStatus(idBatch);
         batch_no.setText(String.valueOf(idBatch));
+        clearbatch.setEnabled(true);
     }
     private void formInternalFrameOpened(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameOpened
         // TODO add your handling code here:
@@ -279,6 +320,61 @@ private String status;
         init();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private Object[] loadBatches(){
+        list=new LinkedHashMap<>();
+        Object[] ob;
+        String requete="select * from batches where status in('packed','repacked')";
+        ResultSet rs=conn.select(requete);
+    try {
+        list.put("--selected--",0);
+        while(rs.next()){
+            list.put("Bacth No "+rs.getInt("id"),rs.getInt("id"));
+        }
+    } catch (SQLException ex) {
+        Logger.getLogger(Audit_form.class.getName()).log(Level.SEVERE, null, ex);
+    }
+        ob=new Object[list.size()];
+        ob=list.keySet().toArray(ob);
+        return ob;
+    }
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        Object[] data=loadBatches();
+        Object value=JOptionPane.showInputDialog(this, "Please select a batch no", "Select Batch", JOptionPane.INFORMATION_MESSAGE, null, data,data[0]);
+        try{
+            if(!value.equals("--selected--")){
+                idBatch=list.get(value.toString());
+            String val=String.valueOf(idBatch);
+            batch_no.setText(val);
+            mostrar();
+            jTextField1.setEnabled(true);
+            clearbatch.setEnabled(true);
+            status=getStatus(idBatch);
+            }
+        }catch(NullPointerException e){
+        }
+        
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void clearbatchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearbatchActionPerformed
+        // TODO add your handling code here:
+        String requete="delete from batches_lpn where batch_id=?";
+        boolean check=conn.Update(requete, 0, idBatch);
+        
+        for(String s:listlpn){
+            conn.Update("update box_contain set status=0 where box_stickers=? or lpn=?", 0, s,s);
+            System.out.println(s);
+        }
+        String req="update batches set status=?, style=?, po=?, color=? ,customer=? where id=?";
+        if(check){
+            conn.Update("insert into batch_transac (batch_id,status,user_id) values(?,?,?)", 0,idBatch,"clear",Principal.user_id);
+                conn.Update(req, 1, "created","NULL","NULL","NULL","NULL",idBatch);
+                String requete2="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('Clear',?,0,8,?,NULL,NULL,?)";
+                conn.Update(requete2, 0, new Object[]{idBatch,"clear batch",Principal.user_id});
+                mostrar();
+        }
+    }//GEN-LAST:event_clearbatchActionPerformed
+
     private int canCreate(){
         
         return 0;
@@ -289,27 +385,68 @@ private String status;
             if(!listlpn.contains(lpn)){
                 Object[] data=ob;
                 int stat=Integer.parseInt(data[1].toString());
+                int batchno=Integer.parseInt(data[9].toString());
                 System.out.println(stat);
-                if(stat==0){
+                if(Integer.parseInt(data[2].toString())!=0){
+                        System.out.println(data[2]);
+                        ErrorLpn="already shipped.";
+                        JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
+                        + "- already shipped.", "error scanning", JOptionPane.ERROR_MESSAGE);
+                        return false;
+                    }
+                if(batchno==0){
+                    if(status.equals("created")){
+                        try{
+                        po=data[3].toString().trim();
+                        style=data[5].toString().replace(".","-").split("-")[0];
+                        color=data[5].toString().replace(".","-").split("-")[1]+"-"+data[4].toString().trim();
+                        customer=data[6].toString();
+                        String req="update batches set status=?, style=?, po=?, color=? ,customer=? where id=?";
+                        conn.Update(req, 1, "packed",style,po,color,customer,idBatch);
+                        status=getStatus(idBatch);
+                        }catch(NullPointerException e){
+
+                            }
+                        }
+                    
                     String co= data[5].toString().replace(".","-").split("-")[1]+"-"+data[4].toString().trim();
                     String st=data[5].toString().replace(".","-").split("-")[0];
                     if(!data[3].toString().trim().equalsIgnoreCase(po)|| !st.equalsIgnoreCase(style)
-                            || !co.equalsIgnoreCase(color)||!data[6].toString().equalsIgnoreCase(customer)){
+                            ||!data[6].toString().equalsIgnoreCase(customer)){
+                        
                         ErrorLpn="sku different.";
                     JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
                         + "- sku different.", "error scanning", JOptionPane.ERROR_MESSAGE);
                     return false;
                     }
+                        System.out.println("color:"+co+"\t vs "+color);
+                        
+            
+                        if(!color.equalsIgnoreCase(co)){
+                            color="MIX";
+                            System.out.println(color);
+                            String req="update batches set color=?  where id=?";
+                            conn.Update(req, 1,color,idBatch);
+                        }
                     return true;
-                }else if(Integer.parseInt(data[2].toString())!=0){
+                }else if(stat==0){
                     System.out.println(data[2]);
-                    ErrorLpn="already shipped.";
+                    ErrorLpn="already fail on batchNo. "+batchno;
                     JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
-                        + "- already shipped.", "error scanning", JOptionPane.ERROR_MESSAGE);
+                        + "- already fail audit.", "error scanning", JOptionPane.ERROR_MESSAGE);
+                }else if(stat==2){
+                    ErrorLpn="already pass Audit on batchNo. "+batchno;
+                    JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
+                        + "- already fail audit.", "error scanning", JOptionPane.ERROR_MESSAGE);
+                }else if(stat==3){
+                    System.out.println(data[2]);
+                    ErrorLpn="already fail on batchNo. "+batchno;
+                    JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
+                        + "- already fail audit.", "error scanning", JOptionPane.ERROR_MESSAGE);
                 }else{
                  JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
                     + "- already scan on another batch.", "error scanning", JOptionPane.ERROR_MESSAGE); 
-                 ErrorLpn="already scan on another batch.";
+                 ErrorLpn="already scan on batchNo. "+data[9];
                 }
             }else{
              JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
@@ -343,27 +480,24 @@ private String status;
     private boolean set(String lpn){
         Object[] data=getLpn(lpn);
         int idlpn=0;
+        int qty=0;
+        String stickers;
         boolean istrue=true;
         if(getStatus(idBatch).equals("packed")||getStatus(idBatch).equals("created")){
-            if(getStatus(idBatch).equals("created")){
-                try{
-                po=data[3].toString().trim();
-                style=data[5].toString().replace(".","-").split("-")[0];
-                color=data[5].toString().replace(".","-").split("-")[1]+"-"+data[4].toString().trim();
-                customer=data[6].toString();
-                String req="update batches set status=?, style=?, po=?, color=? ,customer=? where id=?";
-                conn.Update(req, 1, "packed",style,po,color,customer,idBatch);
-                }catch(NullPointerException e){
             
-        }
-            }
         if(canScan(data,lpn)){
+            
             listlpn.add(lpn);
             idlpn=Integer.parseInt(data[0].toString());
+            qty=Integer.parseInt(data[8].toString());
+            stickers=data[7].toString();
         
         if(istrue){
-        String requete="insert into batches_lpn(batch_id,lpn_id,status) values(?,?,?)";
-        istrue=conn.Update(requete, 0,idBatch, idlpn,"open");
+        String requete="insert into batches_lpn(batch_id,lpn_id,status,box_stickers,qty,old_qty) values(?,?,?,?,?,?)";
+        istrue=conn.Update(requete, 0,idBatch, idlpn,"open",stickers,qty,qty);
+        conn.Update("insert into lpn_in_batch_transac(idbatch,idlpn,box_stickers,qty,status,action,user_id) values(?,?,?,?,?,?,?)", 0,idBatch, idlpn,stickers,qty,"open","scan",Principal.user_id);
+        String requete2="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('Fill Batch',?,0,7,?,?,?,?)";
+        conn.Update(requete2, 0, new Object[]{idBatch,"Add box into batch",stickers,qty,Principal.user_id});
         }
         if(istrue){
         String requete="update box_contain set status=1 where id=?";
@@ -382,23 +516,26 @@ private String status;
     private void mostrar(){
         tbm= (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
+        listlpn.clear();
+        getBatch(Integer.parseInt(batch_no.getText()));
         String requete="select * from lpn_in_batch where batch_id=? ";
         ResultSet rs=conn.select(requete,Integer.parseInt(batch_no.getText()));
     try {
         while(rs.next()){
             tbm.addRow(new Object[]{
-            rs.getString("lpn"),rs.getString("ponum"),rs.getString("style"),rs.getString("description"),
+            rs.getString("BOX_STICKERS"),rs.getString("ponum"),rs.getString("style"),rs.getString("description"),
                 rs.getString("sku").replace('.', '-').split("-")[1],
             rs.getString("coldsp"),rs.getString("size"),rs.getInt("qty")});
+            listlpn.add(rs.getString("BOX_STICKERS"));
         }
     } catch (SQLException ex) {
         Logger.getLogger(create_batch.class.getName()).log(Level.SEVERE, null, ex);
     }
+    count.setText(""+listlpn.size());
     }
     
     private String getStatus(int id){
         String requete="select status from batches where id=?";
-        
         ResultSet rs=conn.select(requete, id);
     try {
         while (rs.next())
@@ -408,13 +545,29 @@ private String status;
     }
         return null;
     }
+    
+    private void getBatch(int id){
+        String requete="select * from batches where id=?";
+        ResultSet rs=conn.select(requete, id);
+    try {
+        while (rs.next()){
+            po=rs.getString("po").trim();
+            style=rs.getString("style").trim();
+            color=rs.getString("color").trim();;
+            customer=rs.getString("customer").trim();;
+        }
+    } catch (SQLException | NullPointerException ex) {
+        Logger.getLogger(create_batch.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    }
     private Object[] getLpn(String lpn){
         String requete="select * from lpn_packed where lpn=? or box_stickers=?";
         ResultSet rs=conn.select(requete,jTextField1.getText().trim(),jTextField1.getText().trim());
     try {
         while(rs.next()){
             return new Object[]{
-            rs.getString("id"),rs.getString("status"),rs.getInt("shipment_id"),rs.getString("ponum"),rs.getString("coldsp"),rs.getString("sku"),rs.getString("brand")};
+            rs.getString("id"),rs.getString("status"),rs.getInt("shipment_id"),rs.getString("ponum"),rs.getString("coldsp"),rs.getString("sku"),rs.getString("brand"),rs.getString("box_stickers"),rs.getInt("qty"),
+            rs.getInt("batch_id")};
         }
     } catch (SQLException ex) {
         Logger.getLogger(create_batch.class.getName()).log(Level.SEVERE, null, ex);
@@ -423,10 +576,12 @@ private String status;
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel batch_no;
+    private javax.swing.JButton clearbatch;
     private javax.swing.JLabel count;
     private javax.swing.JTable grid_data;
     private javax.swing.JTable grid_error;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

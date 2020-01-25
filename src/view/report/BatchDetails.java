@@ -10,7 +10,8 @@ package view.report;
  * @author Padovano
  */
 public class BatchDetails {
-    private String size,sticker, qty;
+    private String size,sticker;
+    private int qty;
 
     public BatchDetails() {
     }
@@ -31,11 +32,11 @@ public class BatchDetails {
         this.sticker = sticker;
     }
 
-    public String getQty() {
+    public int getQty() {
         return qty;
     }
 
-    public void setQty(String qty) {
+    public void setQty(int qty) {
         this.qty = qty;
     }
     

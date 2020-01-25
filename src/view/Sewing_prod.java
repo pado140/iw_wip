@@ -212,7 +212,9 @@ private void get(String sew){
                 //dat=rs.getDate("modified");
             }   } catch (SQLException ex) {
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Error please, try again");
         }
+        System.out.println("closed:"+closed);
         if(!closed){
             if(exist){
                 if(!used){
@@ -284,7 +286,8 @@ private void get(String sew){
 
 
                     String requete1="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('sewing',?,?,3,?,?,?,?)";
-                        conn.Update(requete1, 0, new Object[]{sewing_t,QTY_CUT,"sewing",item,qty,Principal.user_id});
+                        if(!conn.Update(requete1, 0, new Object[]{sewing_t,QTY_CUT,"sewing",item,qty,Principal.user_id}))
+                                JOptionPane.showMessageDialog(this, "Error please, try again");
                     }else{
                         JOptionPane.showMessageDialog(this, "This sticker you scan is invalid", "Alert", JOptionPane.ERROR_MESSAGE);
                     }
@@ -340,7 +343,7 @@ private void get(String sew){
     }
     
     private boolean setqty(int qty,String sew){
-        String requete="update sewing_production set QTY_PER_LOT=? where slot=?";
+        String requete="update sewing_production set qty_updated=0 ,QTY_PER_LOT=? ,date_updated=getDate() where slot=?";
         return conn.Update(requete, 0, new Object[]{qty,sew});
     }
     
@@ -366,7 +369,7 @@ private void get(String sew){
         return conn.Update(requete, 0, id);
     }
     private Date lastInsertBlank(String s_traveller){
-        String requete="select max(modified) modified from sewing_production where lot_stickers=? and STATUS=2 and type='first'";
+        String requete="select max(modified) modified from sewing_production where lot_stickers=? and STATUS=2 and type_sew='first'";
         ResultSet rs=conn.select(requete,s_traveller);
         Date dat=null;
         try {
@@ -380,7 +383,7 @@ private void get(String sew){
     }
     
     private Date lastInsertSecond(String s_traveller){
-        String requete="select max(modified) modified from sewing_production where lot_stickers=? and STATUS=1 and type='second'";
+        String requete="select max(modified) modified from sewing_production where lot_stickers=? and STATUS=1 and type_sew='second'";
         ResultSet rs=conn.select(requete,s_traveller);
         Date dat=null;
         try {

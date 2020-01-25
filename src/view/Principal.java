@@ -53,7 +53,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             ,at_pp,dreport,CONSO,at_soabar,lpnHol,lpnEd,lpnChs,ORD_WEST,workStyle,sewing,daily_soa,daily_pad,updatepo,oponly,delDaily,close,user,ord_gbg,
             update_production,lpn_gb,batch,packin_list_batch,audit,lpngbg_convert,sewing_ajust,update_workcenter,unscan,update_mod,tag,fab,lpn_update,
             upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack,stylenew,washreport,pressreport,matchreport,close_travel,follow_up,second_post,ajust_post,
-            upload,packajust,secondupload;
+            upload,packajust,secondupload,reaudit,ajustboxqty,auditReport;
     public Connection_user auth;
     private lock_fen lockframe;
     public static int user_id=0;
@@ -61,7 +61,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private String username;
     private daemon damon;
     private JPanel Glass;
-    private boolean active, connecter;
+    private boolean active, connecter; 
     private int unactive_sec=0,wlabel,wheight,ppmenu;
     private Map<String,Component> menulist;
     private Image img;
@@ -81,7 +81,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         menulist=new HashMap<>();
         initComponents();
         img=new javax.swing.ImageIcon(getClass().getResource("/view/icon/wiplogo1.png")).getImage();
-        this.setIconImage(img);
+        this.setIconImage(img); 
         System.out.println(getMenuBar());
         auth=new Connection_user(this, true);
         auth.setLocationRelativeTo(this);
@@ -90,7 +90,6 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         this.ajouterObservateur(lockframe);
         Executors.newWorkStealingPool();
         Executors.callable(t);
-        
         t.start();
         init();
         fullscreen();
@@ -148,6 +147,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         jMenuItem15 = new javax.swing.JMenuItem();
         jMenuItem17 = new javax.swing.JMenuItem();
         jMenuItem16 = new javax.swing.JMenuItem();
+        jMenuItem26 = new javax.swing.JMenuItem();
         jMenuItem22 = new javax.swing.JMenuItem();
         MisMenu = new javax.swing.JMenu();
         user_manager = new javax.swing.JMenuItem();
@@ -195,6 +195,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         PRESSDREPORT = new javax.swing.JMenuItem();
         MATCHBOOKREPORT = new javax.swing.JMenuItem();
         pack = new javax.swing.JMenuItem();
+        jMenuItem27 = new javax.swing.JMenuItem();
         ajust = new javax.swing.JMenu();
         update_sewing_transfer = new javax.swing.JMenuItem();
         update_mod_transfer = new javax.swing.JMenuItem();
@@ -207,6 +208,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         jMenuItem24 = new javax.swing.JMenuItem();
         packing_ajust = new javax.swing.JMenuItem();
         second = new javax.swing.JMenuItem();
+        ajusbox = new javax.swing.JMenuItem();
 
         profil.setText("profil");
         con_menu.add(profil);
@@ -457,6 +459,14 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             }
         });
         jMenu2.add(jMenuItem16);
+
+        jMenuItem26.setText("Reaudit");
+        jMenuItem26.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem26ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem26);
 
         WIPMenu.add(jMenu2);
 
@@ -826,6 +836,15 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         });
         reports.add(pack);
 
+        jMenuItem27.setText("Audit report");
+        jMenuItem27.setName("audit_report"); // NOI18N
+        jMenuItem27.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem27ActionPerformed(evt);
+            }
+        });
+        reports.add(jMenuItem27);
+
         jMenuBar1.add(reports);
 
         ajust.setText("Ajustment");
@@ -923,6 +942,15 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             }
         });
         ajust.add(second);
+
+        ajusbox.setText("Ajust box in pallet qty");
+        ajusbox.setName("qty_box_pallet"); // NOI18N
+        ajusbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ajusboxActionPerformed(evt);
+            }
+        });
+        ajust.add(ajusbox);
 
         jMenuBar1.add(ajust);
 
@@ -2228,6 +2256,69 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         secondupload.toFront();
     }//GEN-LAST:event_secondActionPerformed
 
+    private void jMenuItem26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem26ActionPerformed
+        // TODO add your handling code here:
+        if(reaudit==null|| reaudit.isClosed()){
+            reaudit=new Reaudit();
+            reaudit.setVisible(true);
+            label_principal.add(reaudit);
+            
+            System.out.println("new");
+        }
+        if(reaudit.isIcon()){
+            try {
+                reaudit.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        reaudit.toFront();
+    }//GEN-LAST:event_jMenuItem26ActionPerformed
+
+    private void ajusboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ajusboxActionPerformed
+        // TODO add your handling code here:
+        if(ajustboxqty==null|| ajustboxqty.isClosed()){
+            ajustboxqty=new transferaudit();
+            ajustboxqty.setVisible(true);
+            label_principal.add(ajustboxqty);
+            
+            System.out.println("new");
+        }
+        if(ajustboxqty.isIcon()){
+            try {
+                ajustboxqty.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        ajustboxqty.toFront();
+    }//GEN-LAST:event_ajusboxActionPerformed
+
+    private void jMenuItem27ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem27ActionPerformed
+        // TODO add your handling code here:
+        if(auditReport==null|| auditReport.isClosed()){
+            auditReport=new AuditReport();
+            auditReport.setVisible(true);
+            label_principal.add(auditReport);
+            
+            System.out.println("new");
+        }
+        if(auditReport.isIcon()){
+            try {
+                auditReport.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        auditReport.toFront();
+    }//GEN-LAST:event_jMenuItem27ActionPerformed
+
     private void init(){
         connecter=false;
         if(time==null)
@@ -2348,6 +2439,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenu UPLOAD;
     private javax.swing.JMenuItem WASHDREPORT;
     private javax.swing.JMenu WIPMenu;
+    private javax.swing.JMenuItem ajusbox;
     private javax.swing.JMenu ajust;
     private javax.swing.JMenu asg_upload_manager;
     private javax.swing.JMenuItem bundle;
@@ -2383,6 +2475,8 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenuItem jMenuItem23;
     private javax.swing.JMenuItem jMenuItem24;
     private javax.swing.JMenuItem jMenuItem25;
+    private javax.swing.JMenuItem jMenuItem26;
+    private javax.swing.JMenuItem jMenuItem27;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
@@ -2483,6 +2577,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             
             
         }
+        
         if(obs[0].equals("closed")){
             //System.out.println("close");
             prod_ajust_sew.setVisible(false);
@@ -2502,6 +2597,20 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
                 //System.out.println("closed");
             }
             sew.setEnabled(true);
+            jMenuItem5.setEnabled(true);
+            this.revalidate();
+        }
+        
+        if(obs[0].equals("closed packing")){
+            //System.out.println("close");
+            packing_ajust.setVisible(false);
+            try{
+            if(packajust!=null || !packajust.isClosed()){
+                packajust.dispose();
+            }
+            }catch(NullPointerException e){
+                //System.out.println("closed");
+            }
             jMenuItem5.setEnabled(true);
             this.revalidate();
         }

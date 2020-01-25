@@ -15,6 +15,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -238,7 +240,8 @@ public class separation_dyelot extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(this, "the qty of plys and the qty plys of dyelot is not match");
                 return;
         }
-        print( id, marker_no, data);
+        //print( id, marker_no, data);
+        print_per_page(id, marker_no, data);
     }//GEN-LAST:event_genActionPerformed
 
     private void jTable1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jTable1PropertyChange
@@ -342,10 +345,12 @@ public class separation_dyelot extends javax.swing.JDialog {
         } catch (SQLException ex) {
             Logger.getLogger(Ready_to_sew.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         try{ 
             URL  master= this.getClass().getResource("report/card_layout.jasper");
             
                   param.put("tickets",5);
+                  
                   
                   
                   for(int i=0;i<da.size();i++)
@@ -374,6 +379,120 @@ public class separation_dyelot extends javax.swing.JDialog {
                      System.out.println("Mensaje de Error:"+e.getMessage());
                      JOptionPane.showMessageDialog(this, e.getMessage());
                  }
+    }
+    
+    
+    private void print_per_page(int id,int cut_no,int... dyelot){
+       String po="";
+        String requete= "select * from all_cut where cut_id=?";
+        ResultSet rs=conn.select(requete, id);
+        List<Map<String,String>> datacut=new ArrayList();
+        try {
+            while(rs.next()){
+                Map<String,String> critere=new LinkedHashMap();
+                String sku=rs.getString("sku");
+                String col=sku.substring(sku.indexOf(".")+1, sku.lastIndexOf("."));
+                
+                critere.put("col", col);
+                critere.put("ratio", ""+rs.getInt("mrtio"));
+                critere.put("po",rs.getString("po"));
+                critere.put("brand",rs.getString("brand"));
+                critere.put("cut_no",rs.getString("cut no").trim());
+                critere.put("color",rs.getString("COLOR"));
+                critere.put("size",rs.getString("size"));
+                critere.put("style",rs.getString("style"));
+                datacut.add(critere);
+            }
+                rs.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Ready_to_sew.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            
+        Map param = new HashMap();
+                  param.put("bundle_no",""+cut_no);
+                  int dye=1;
+        for(int pl:dyelot){
+            int count=1;
+            ArrayList<data_layout> da=new ArrayList<>();
+            for(Map<String,String> data:datacut){
+                int ratio=Integer.parseInt(data.get("ratio"));
+                for(int i=0;i<ratio;i++){
+                    if(pl>75){
+                        int nb=(int)Math.ceil(pl/75);
+                        if(pl%75>0)
+                            nb+=1;
+                        for(int j=0;j<nb;j++){
+                            data_layout d=new data_layout();
+                                po=data.get("po");
+                                if(data.get("brand").trim().equals("EDG")){
+                                      po=po+"("+data.get("cut_no")+")";
+                                  }
+                                d.setPo(po);
+                                d.setColor(data.get("col")+"-"+data.get("color"));
+                                d.setSize(data.get("size"));
+                                d.setStyle(data.get("style"));
+                                d.setQty(75);
+                                if(pl%75>0){
+                                    if(j==nb-1)
+                                        d.setQty(pl%75);
+                                }
+                                
+                                d.setNb(dyelot.length*ratio*nb);
+
+                                d.setTicket_num(count);
+                                da.add(d);
+                                count++;
+                            }
+                        }else{
+                            data_layout d=new data_layout();
+                            po=data.get("po");
+                            if(data.get("brand").trim().equals("EDG")){
+                                po=po+"("+data.get("cut_no")+")";
+                            }
+                            d.setPo(po);
+                            d.setColor(data.get("col")+"-"+data.get("color"));
+                            d.setSize(data.get("size"));
+                            d.setStyle(data.get("style"));
+                            d.setQty(75);
+                            if(pl%75>0)
+                                d.setQty(pl%75);
+                            d.setNb(dyelot.length*ratio);
+                            d.setTicket_num(count);
+                            da.add(d);
+                            count++;
+                        }
+                    
+                    }
+                }
+                
+        try{ 
+            URL  master= this.getClass().getResource("report/card_layout.jasper");
+                    param.put("dyelot",dye);
+                  param.put("tickets",5);
+                  
+                  
+                  for(int i=0;i<da.size();i++)
+                      System.out.println("da:"+da.get(i).getPo());
+                  JasperReport jasperReport = (JasperReport) JRLoader.loadObject(master);
+                  JRBeanCollectionDataSource beanCutDataSource =new JRBeanCollectionDataSource(da);
+                  JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,param,beanCutDataSource);
+                  
+                      JasperExportManager.exportReportToPdfFile(jasperPrint, System.getProperty("user.home").concat("/Documents/new travel card/")+po+"("+id+"-"+cut_no+")-dyelot("+dye+").pdf");
+                  
+                  Desktop dsk=Desktop.getDesktop();
+                  dsk.open(new File(System.getProperty("user.home").concat("/Documents/new travel card/")+po+"("+id+"-"+cut_no+")-dyelot("+dye+").pdf"));
+                  
+ 
+                }
+ 
+                catch (Exception e)
+                 {
+                     e.printStackTrace();
+                     System.out.println("Mensaje de Error:"+e.getMessage());
+                     JOptionPane.showMessageDialog(this, e.getMessage());
+                 }
+        dye++;
+        }
     }
     
     
