@@ -6,6 +6,7 @@
 package view;
 
 import connection.ConnectionDb;
+import java.awt.CardLayout;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
@@ -16,12 +17,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import observateurs.Observateurs;
+import observateurs.Observe;
 
 /**
  *
  * @author Padovano
  */
-public class Reaudit extends javax.swing.JInternalFrame {
+public class Reaudit extends javax.swing.JInternalFrame implements Observateurs,Observe{
 private final ConnectionDb conn = ConnectionDb.instance();
 private DefaultTableModel tbm,tbm_error ;
 private Map<Object,Integer> list;
@@ -64,7 +67,7 @@ private String ErrorLpn,po,style,color,customer;
         Logger.getLogger(Audit_form.class.getName()).log(Level.SEVERE, null, ex);
     }
     jTextField1.setEnabled(editablefield);
-    
+    count.setText("0/"+listlpn.size());
     }
     private boolean canScan(Object[] ob,String sticker){
         ErrorLpn=null;
@@ -72,7 +75,7 @@ private String ErrorLpn,po,style,color,customer;
         if(lpn.contains("-"))
             lpn=lpn.split("-")[0];
         try{
-            if(listlpn.contains(lpn)){
+            if(listlpn.contains(lpn)||listlpn.contains(sticker)){
                 if(listonbatch.contains(lpn))
                 {
                     ErrorLpn="Duplicate sticker.";
@@ -83,7 +86,7 @@ private String ErrorLpn,po,style,color,customer;
                 Object[] data=ob;
                 int stat=Integer.parseInt(data[1].toString());
                 System.out.println(stat);
-                if(stat==0){
+                if(stat!=2){
                     return true;
                 }else if(Integer.parseInt(data[2].toString())!=0){
                     System.out.println(data[2]);
@@ -91,9 +94,10 @@ private String ErrorLpn,po,style,color,customer;
                     JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
                         + "- already shipped.", "error scanning", JOptionPane.ERROR_MESSAGE);
                 }else{
-                 JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
-                    + "- already scan on another batch.", "error scanning", JOptionPane.ERROR_MESSAGE); 
-                 ErrorLpn="already scan on another batch.";
+                    return true;
+//                 JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
+//                    + "- already scan on another batch.", "error scanning", JOptionPane.ERROR_MESSAGE); 
+//                 ErrorLpn="already scan on another batch.";
                 }
             }else{
              JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
@@ -115,7 +119,7 @@ private String ErrorLpn,po,style,color,customer;
     try {
         list.put("--selected--",0);
         while(rs.next()){
-            list.put("Bacth No "+rs.getInt("id"),rs.getInt("id"));
+            list.put("Batch No "+rs.getInt("id"),rs.getInt("id"));
         }
     } catch (SQLException ex) {
         Logger.getLogger(Audit_form.class.getName()).log(Level.SEVERE, null, ex);
@@ -134,15 +138,16 @@ private String ErrorLpn,po,style,color,customer;
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
+        count = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
         batch = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
         batch_no = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        count = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jTextField1 = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         grid_data = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
@@ -173,7 +178,24 @@ private String ErrorLpn,po,style,color,customer;
             }
         });
 
-        jLabel1.setText("Select Batch:");
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel3.setText("Batch No.");
+
+        jLabel4.setText("Box:");
+
+        jButton1.setText("Save");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("...");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         batch.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         batch.addItemListener(new java.awt.event.ItemListener() {
@@ -192,91 +214,92 @@ private String ErrorLpn,po,style,color,customer;
         });
         jTextField1.setEnabled(false);
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel3.setText("Batch No.");
-
-        jLabel4.setText("Box:");
-
-        jButton1.setText("Save");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        jLabel1.setText("Select Batch No:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
+                .addGap(14, 14, 14)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(216, 216, 216)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(batch_no, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(batch, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(76, 76, 76)
+                        .addGap(0, 0, 0)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel4)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 376, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(count)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1)
-                        .addGap(31, 31, 31))))
+                        .addComponent(batch_no, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(count, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(240, 240, 240)
+                .addComponent(jButton1)
+                .addGap(14, 14, 14))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(batch_no, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(25, 25, 25)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(batch_no, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(batch, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(batch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(count, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(23, 23, 23)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(count, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "LPN", "PO", "STYLE", "DESCRIPTION", "COLOR CODE", "COLOR", "SIZE", "QTY"
+                "LPN", "PO", "STYLE", "DESCRIPTION", "COLOR CODE", "COLOR", "SIZE", "QTY", "REPLACEMENT"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        grid_data.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(grid_data);
 
         grid_error.setModel(new javax.swing.table.DefaultTableModel(
@@ -318,7 +341,7 @@ private String ErrorLpn,po,style,color,customer;
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 954, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -337,8 +360,10 @@ private String ErrorLpn,po,style,color,customer;
 
     private void batchItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_batchItemStateChanged
         // TODO add your handling code here:
+        System.out.println("change");
         batch_id=list.get(evt.getItem());
         loadData(list.get(evt.getItem()));
+        
     }//GEN-LAST:event_batchItemStateChanged
 
     private void formInternalFrameActivated(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameActivated
@@ -371,7 +396,7 @@ private String ErrorLpn,po,style,color,customer;
         for(Object[] ob:dataToSave){
             System.out.println(ob[1]);
             istrue=save(ob);
-        }
+        } 
         String requete1="update batches set status='repacked' where id=?";
         istrue=conn.Update(requete1, 0,batch_id);
         conn.Update("insert into batch_transac (batch_id,status,user_id) values(?,?,?)", 0,batch_id,"repacked",Principal.user_id);
@@ -381,6 +406,14 @@ private String ErrorLpn,po,style,color,customer;
         init();
         
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        batchSelect bs=new batchSelect(null, false);
+        bs.ajouterObservateur(this);
+        this.ajouterObservateur(bs);
+        alerter("batches",loadBatches());
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     private boolean save(Object[] data){
         boolean istrue=true;
@@ -402,6 +435,7 @@ private String ErrorLpn,po,style,color,customer;
         Object[] data=getLpn(sticker);
         boolean istrue=true;
         boolean isDash=false;
+        try{
         String lpn=data[7].toString();
         if(canScan(data,lpn)){
             listonbatch.add(lpn);
@@ -413,6 +447,9 @@ private String ErrorLpn,po,style,color,customer;
             data[4].toString(),data[5].toString().replace('.', '-').split("-")[2],data[8]});
         }else{
             tbm_error.addRow(new Object[]{lpn,ErrorLpn});
+        }
+        }catch(NullPointerException e){
+            tbm_error.addRow(new Object[]{sticker,"this box sticker was not scan yet on any batch"});
         }
         
         //String
@@ -427,6 +464,7 @@ private String ErrorLpn,po,style,color,customer;
             return new Object[]{
             rs.getString("id"),rs.getString("status"),rs.getInt("shipment_id"),rs.getString("ponum"),rs.getString("coldsp"),rs.getString("sku"),rs.getString("brand")
                     ,rs.getString("box_stickers").trim(),rs.getInt("last_qty"),rs.getInt("batch_id"),rs.getInt("lpn_id"),rs.getString("ordnum")};
+            //listlpn.add(rs.getString("box_stickers").trim());
         }
     } catch (SQLException ex) {
         Logger.getLogger(create_batch.class.getName()).log(Level.SEVERE, null, ex);
@@ -442,6 +480,7 @@ private String ErrorLpn,po,style,color,customer;
     private javax.swing.JTable grid_data;
     private javax.swing.JTable grid_error;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -452,4 +491,28 @@ private String ErrorLpn,po,style,color,customer;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
+    private CardLayout cardlayout=new CardLayout();
+    @Override
+    public void executer(Object... obs) {
+        
+        if(obs[0].toString().equals("batches-return")){
+            String batche=obs[1].toString();
+            batch.setSelectedItem(batche);
+        }
+    }
+    
+    @Override
+    public void ajouterObservateur(Observateurs ob) {
+        obs.add(ob);
+    }
+
+    @Override
+    public void retirerObservateur(Observateurs ob) {
+        obs.remove(ob);
+    }
+
+    @Override
+    public void alerter(Object... ob) {
+        obs.forEach(o->{o.executer(ob);});
+    }
 }

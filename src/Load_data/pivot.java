@@ -506,6 +506,7 @@ public class pivot extends javax.swing.JDialog implements Observateurs{
             
             ord1=Order_Exist(po,partid);
                 if(ord1==null){
+                    System.out.println(po+" "+ord1+" "+partid+" "+date.toString()+" "+qty+" "+plan.getSelectedItem().toString()+ " " +classe+ " " +sku1+" "+classe);
                     ordernum++;
                     ord1=String.valueOf(ordernum);
                     //String key=Integer.parseInt(wh)>0?"":wh;

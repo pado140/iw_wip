@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -74,6 +75,7 @@ private final ConnectionDb conn = ConnectionDb.instance();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -109,10 +111,17 @@ private final ConnectionDb conn = ConnectionDb.instance();
         });
         jScrollPane2.setViewportView(jList1);
 
-        jButton1.setText("Print");
+        jButton1.setText("Print lpn");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Print sticker");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
             }
         });
 
@@ -130,8 +139,11 @@ private final ConnectionDb conn = ConnectionDb.instance();
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton2)
+                        .addGap(137, 137, 137))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jButton1)
-                        .addGap(64, 64, 64))))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -141,8 +153,9 @@ private final ConnectionDb conn = ConnectionDb.instance();
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 467, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addContainerGap())
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1))
         );
 
         jScrollPane4.setBackground(new java.awt.Color(255, 255, 255));
@@ -258,6 +271,72 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
             if(GRID_PACKING_LIST.getRowCount()>0){
                 for(int i=0;i<GRID_PACKING_LIST.getRowCount();i++){
                     BatchDetails bd=new BatchDetails();
+                    bd.setSticker(GRID_PACKING_LIST.getValueAt(i, 6).toString());
+                    
+                    bd.setQty((Integer.parseInt(GRID_PACKING_LIST.getValueAt(i, 5).toString())));
+                    bd.setSize(GRID_PACKING_LIST.getValueAt(i, 4).toString());
+                    batches.add(bd);
+                    boxs++;
+                    pieces+=Integer.parseInt(GRID_PACKING_LIST.getValueAt(i, 5).toString());
+                }
+                
+            }
+            Map<String,String>Sizes=new HashMap();
+            Map<String,Integer>values=new HashMap();
+            Map<String,Integer>piece=new HashMap();
+            count=1;
+            Map<String,Long> BoxesBySizes=batches.parallelStream().collect(Collectors.groupingBy(BatchDetails::getSize,Collectors.counting()));
+            Map<String,Integer> PiecesBySizes=batches.parallelStream().collect(Collectors.groupingBy(BatchDetails::getSize,Collectors.summingInt(BatchDetails::getQty)));
+            BoxesBySizes.forEach((k,v)->{
+                Sizes.put("size"+count,k);
+                values.put("val"+count,v.intValue());
+                piece.put("pieces"+count,PiecesBySizes.get(k));
+                count++;
+                
+            });
+            
+            jList1.getSelectedValue().toString();
+        int id=Integer.parseInt(pallet.substring("Batch no ".length()).trim());
+        Object[] batchdetails=datapallet.get(id);
+            printbatche(batchdetails[2].toString(),id,batchdetails[0].toString(),batchdetails[1].toString(),batchdetails[3].toString(),pieces,boxs,batches,
+                    batchdetails[4].toString().equalsIgnoreCase("packed")?"for Audit":"for re-Audit",Sizes,values,piece,batchdetails[5].toString(),
+                    batchdetails[4].toString().equalsIgnoreCase("packed")?(Date)batchdetails[6]:(Date)batchdetails[7]);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+        // TODO add your handling code here:
+        ArrayList l2=new ArrayList();
+        
+        for(int i=0;i<li.size();i++){
+            
+            if(li.get(i).contains(jTextField1.getText().trim())){
+                l2.add(li.get(i));
+            }
+        }
+        jList1.setModel(new javax.swing.AbstractListModel() {
+           Object[] strings = l2.toArray();
+           @Override
+            public int getSize() { return strings.length; }
+           @Override
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+    }//GEN-LAST:event_jTextField1KeyReleased
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        if(!jList1.getSelectionModel().isSelectionEmpty()){
+            ArrayList<BatchDetails> batches=new ArrayList();
+            int pieces=0;
+            int boxs=0;
+            if(GRID_PACKING_LIST.getRowCount()>0){
+                for(int i=0;i<GRID_PACKING_LIST.getRowCount();i++){
+                    BatchDetails bd=new BatchDetails();
                     bd.setSticker(GRID_PACKING_LIST.getValueAt(i, 8).toString());
                     
                     bd.setQty((Integer.parseInt(GRID_PACKING_LIST.getValueAt(i, 5).toString())));
@@ -286,33 +365,10 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
         int id=Integer.parseInt(pallet.substring("Batch no ".length()).trim());
         Object[] batchdetails=datapallet.get(id);
             printbatche(batchdetails[2].toString(),id,batchdetails[0].toString(),batchdetails[1].toString(),batchdetails[3].toString(),pieces,boxs,batches,
-                    batchdetails[4].toString().equalsIgnoreCase("packed")?"for Audit":"for re-Audit",Sizes,values,piece);
+                    batchdetails[4].toString().equalsIgnoreCase("packed")?"for Audit":"for re-Audit",Sizes,values,piece,batchdetails[5].toString(),
+                    batchdetails[4].toString().equalsIgnoreCase("packed")?(Date)batchdetails[6]:(Date)batchdetails[7]);
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-        
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
-    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
-        // TODO add your handling code here:
-        ArrayList l2=new ArrayList();
-        
-        for(int i=0;i<li.size();i++){
-            
-            if(li.get(i).contains(jTextField1.getText().trim())){
-                l2.add(li.get(i));
-            }
-        }
-        jList1.setModel(new javax.swing.AbstractListModel() {
-           Object[] strings = l2.toArray();
-           @Override
-            public int getSize() { return strings.length; }
-           @Override
-            public Object getElementAt(int i) { return strings[i]; }
-        });
-    }//GEN-LAST:event_jTextField1KeyReleased
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void load_data(){
         String requete="select * from batches where status like'%packed%'";
@@ -323,7 +379,8 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
             
             while(rs.next()){
                 li.add("Batch no "+rs.getInt("id"));
-                datapallet.put(rs.getInt("id"),new Object[]{rs.getString("po"),rs.getString("style"),rs.getString("color"),rs.getString("customer"),rs.getString("status")});
+                datapallet.put(rs.getInt("id"),new Object[]{rs.getString("po"),rs.getString("style"),rs.getString("color"),rs.getString("customer"),rs.getString("status"),rs.getInt("fail")
+                        ,rs.getDate("created"),rs.getDate("modified")});
             }
         }catch(SQLException e){
             
@@ -371,6 +428,7 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_PACKING_LIST;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JList jList1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -387,7 +445,7 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
     }
     
     private void printbatche(String color,int no,String po,String style,String client,int pieces,int boxes,ArrayList<BatchDetails> batchdetail,String type,Map<String,String>sizes,Map<String,Integer> val
-    ,Map<String,Integer> piece){
+    ,Map<String,Integer> piece,String time,Date create){
         
         try{ 
             URL  master= this.getClass().getResource("report/bacth_report.jasper");
@@ -400,6 +458,7 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
                   param.put("po",po);
                   param.put("style",style);
                   param.put("type",type);
+                  param.put("create",create);
                   param.putAll(sizes);
                   param.putAll(val);
                   param.putAll(piece);
@@ -412,7 +471,7 @@ new MessageFormat("Packing list for pallet:"+pallet), new MessageFormat("{0}")),
                   //JasperViewer.viewReport(jasperPrint);
                   String key=""+no;
                   if(type.contains("re-Audit"))
-                      key+="(reAudit)";
+                      key+="(reAudit)"+(time.equals(0)?"":time);
                       
                   if(Files.exists(new File("K:\\BATCHES/").toPath())){
                       if(!Files.exists(new File("K:\\BATCHES/batch no "+key+".pdf").toPath()))

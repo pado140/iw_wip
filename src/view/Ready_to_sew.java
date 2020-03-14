@@ -48,7 +48,8 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
     public Ready_to_sew() {
         initComponents();
         liste=new HashSet<>();
-    listData();
+        getData();
+    //listData();
     }
 
     private Map<String ,Integer> saoBar(){
@@ -235,6 +236,73 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
         
     }
     
+    private void getData(){
+        
+        DefaultTableModel tbm = (DefaultTableModel) GRID_DATA.getModel();
+        tbm.setRowCount(0);
+        String pofilter=po_filter.getText().trim();
+        String style=style_filter.getText().trim();
+        String colorC=color_code_filter.getText().trim();
+        String color=color_filter.getText().trim();
+        String sizefilter=size_filter.getText().trim();
+        if(!(pofilter.isEmpty()&&style.isEmpty()&&colorC.isEmpty()&&color.isEmpty()&&sizefilter.isEmpty())){
+        liste=new HashSet<>();
+        data_cut();
+        initPlan();
+        
+        Map<String,Integer> soabar=this.saoBar();
+        String requete="select * from orderplan WHERE STATUS_147<>'5'";
+        ResultSet rs = conn.select(requete);
+        int soa;
+        try {
+            while(rs.next()){
+                String sku=rs.getString("sku").trim();
+               
+                String size=sku.replace('.','-').split("-")[2];
+                String desc=rs.getString("description").trim(),
+                        po=rs.getString("po").trim();
+                if(!rs.getString("brand").equals("CHS")&& !rs.getString("brand").equals("GBG")){
+                if(desc.toLowerCase().contains("yth")||desc.toLowerCase().contains("youth")||
+                        desc.toLowerCase().contains("girls")||desc.toLowerCase().contains("boys"))
+                size="Y"+size;
+                }
+                String status="ready to cut";
+                try{
+                    soa=0;
+                    try{
+                        soa=soabar.get(po.trim()+"."+sku.trim());
+                    }catch(NullPointerException e){
+                        soa=0;
+                    }
+                    if(prod.get(po.trim()+"."+sku.trim())>=0&&po.toLowerCase().contains(pofilter.toLowerCase()) &&
+                            rs.getString("style").trim().toLowerCase().contains(style.toLowerCase())
+                    && rs.getString("color_code").trim().toLowerCase().contains(colorC.toLowerCase())
+                    && rs.getString("color").trim().toLowerCase().contains(color.toLowerCase()) && size.toLowerCase().contains(sizefilter.toLowerCase())){
+                        System.out.println("cut-soa="+(prod.get(po.trim()+"."+sku.trim())-soa));
+                            if(prod.get(po.trim()+"."+sku.trim())-soa>0){
+                            tbm.addRow(new Object[]{po,rs.getString("style").trim(),rs.getString("PROTO").trim(),desc.trim(),rs.getString("color_code").trim(),rs.getString("color").trim(),
+                    size.trim(),prod.get(po.trim()+"."+sku.trim())-soa,rs.getString("ORDNUM_147")});
+                          liste.add(new Object[]{po,rs.getString("style").trim(),rs.getString("PROTO").trim(),desc.trim(),rs.getString("color_code").trim(),rs.getString("color").trim(),
+                    size.trim(),prod.get(po.trim()+"."+sku.trim())-soa,rs.getString("ORDNUM_147")}); 
+                            }
+                    }
+                    
+                }catch(NullPointerException e){
+                    
+                }
+                
+                
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Work_status.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if(tbm.getRowCount()==0){
+            JOptionPane.showMessageDialog(this, "No records found!");
+        }
+        }      
+        
+    }
+    
     private void buscados(){
         String po=po_filter.getText().trim();
         String style=style_filter.getText().trim();
@@ -275,6 +343,7 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         GRID_DATA = new javax.swing.JTable();
@@ -358,6 +427,13 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
 
         jLabel5.setText("SIZE:");
 
+        jButton1.setText("Search");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -374,7 +450,7 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(style_filter, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
-                .addGap(155, 155, 155)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(color_code_filter, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
@@ -386,7 +462,9 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
                     .addComponent(size_filter, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addGap(25, 25, 25))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -406,6 +484,10 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
                     .addComponent(color_filter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(size_filter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
@@ -445,7 +527,7 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -495,7 +577,8 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
         }
         transferData(data);
         //listData();
-        listData();
+        //listData();
+        getData();
     }//GEN-LAST:event_transferActionPerformed
 
     private void formInternalFrameActivated(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameActivated
@@ -515,22 +598,22 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
 
     private void style_filterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_style_filterKeyReleased
         // TODO add your handling code here:
-        buscados();
+        //buscados();
     }//GEN-LAST:event_style_filterKeyReleased
 
     private void color_code_filterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_color_code_filterKeyReleased
         // TODO add your handling code here:
-        buscados();
+        //buscados();
     }//GEN-LAST:event_color_code_filterKeyReleased
 
     private void color_filterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_color_filterKeyReleased
         // TODO add your handling code here:
-        buscados();
+        //buscados();
     }//GEN-LAST:event_color_filterKeyReleased
 
     private void size_filterKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_size_filterKeyReleased
         // TODO add your handling code here:
-        buscados();
+        //buscados();
     }//GEN-LAST:event_size_filterKeyReleased
 
     private void gen_tagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gen_tagActionPerformed
@@ -547,6 +630,11 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
         print(color,size,qty,code,po,style,getSew(code));
     }//GEN-LAST:event_gen_tagActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        getData();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable GRID_DATA;
@@ -554,6 +642,7 @@ public class Ready_to_sew extends javax.swing.JInternalFrame implements Observe{
     private javax.swing.JTextField color_code_filter;
     private javax.swing.JTextField color_filter;
     private javax.swing.JMenuItem gen_tag;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

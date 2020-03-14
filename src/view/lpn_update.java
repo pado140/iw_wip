@@ -5,11 +5,13 @@
  */
 package view;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import connection.ConnectionDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.table.DefaultTableModel;
 
@@ -20,7 +22,7 @@ import javax.swing.table.DefaultTableModel;
 public class lpn_update extends javax.swing.JInternalFrame {
 
     private ConnectionDb conn = ConnectionDb.instance();
-    private String box_stickers,ordnum;
+    private String box_stickers="",ordnum="";
     private int initVal=0;
     /**
      * Creates new form lpn_update
@@ -227,6 +229,13 @@ public class lpn_update extends javax.swing.JInternalFrame {
             System.out.println(evt.getKeyCode()==10);
             fillData();
                 //jTextField1.setText("");
+        }else{
+            if(initVal==0&&
+                ordnum!=null &&
+                box_stickers!=null)
+                initVal=0;
+                ordnum="";
+                box_stickers="";
         }
     }//GEN-LAST:event_jTextField1KeyReleased
 
@@ -284,16 +293,39 @@ public class lpn_update extends javax.swing.JInternalFrame {
 
     private void btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActionPerformed
         // TODO add your handling code here:
-        if(evt.getActionCommand().equals("Save")){
-            saveVal();
-        }else{
-            updateVal();
+        if(initVal>0 &&!ordnum.isEmpty()&&!box_stickers.isEmpty()){
+            boolean check=false;
+            if(evt.getActionCommand().equals("Save")){
+                if(!box_stickers.contains("-"))
+                    check=saveVal();
+                else
+                {
+                    JOptionPane.showMessageDialog(this, "you cannot update an lpn dash create a new one");
+                    return;
+                }
+                
+            }else{
+                check=updateVal();
+            }
+            if(check)
+                JOptionPane.showMessageDialog(this, "Success");
+            else{
+                JOptionPane.showMessageDialog(this, this.conn.getErreur());
+            }
+            initVal=0;
+            ordnum="";
+            box_stickers="";
+            ((DefaultTableModel)grid_data.getModel()).setNumRows(0);
+            lpn_val.setText("");
+        }
+        else{
+            JOptionPane.showMessageDialog(this, "selected an lpn first or press enter after typing the lpn");
         }
     }//GEN-LAST:event_btnActionPerformed
 
     private void fillData(){
-        String requete="select ponum,style,sku,coldsp,size,lpn,box_stickers, ordnum_147,qty from lpn where lpn = ?";
-        ResultSet rs=conn.select(requete, jTextField1.getText().trim());
+        String requete="select ponum,style,sku,coldsp,size,lpn,box_stickers, ordnum_147,qty from lpn where lpn = ? or box_stickers=?";
+        ResultSet rs=conn.select(requete, jTextField1.getText().trim(),jTextField1.getText().trim());
         DefaultTableModel tbm = (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
         try {
@@ -325,7 +357,7 @@ public class lpn_update extends javax.swing.JInternalFrame {
     private boolean saveVal(){
         
         int last_num=nbLpn(ordnum.trim());
-        String new_stickers=ordnum.trim()+qty.getValue()+last_num;
+        String new_stickers=box_stickers+"-"+qty.getValue();
         String requete="INSERT INTO BOX_CONTAIN(ORDNUM,LPN,BOX_STICKERS,QTY) VALUES (?,?,?,?)";
         conn.savecst("{call create_box(?,?,?,?,?,?,?)}",ordnum.trim(),lpn_val.getText(),"",qty.getValue(),qty.getValue(),new_stickers,"");
         return conn.Update(requete, 1,ordnum.trim(),lpn_val.getText(), new_stickers,qty.getValue());

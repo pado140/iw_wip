@@ -25,6 +25,7 @@ public class Generate_tag extends javax.swing.JInternalFrame {
 
     private ConnectionDb conn = ConnectionDb.instance();
     private Set<Object[]> liste;
+    private boolean isgenerated=false,isclosed=false;
     /**
      * Creates new form Generate_tag
      */
@@ -62,6 +63,23 @@ public class Generate_tag extends javax.swing.JInternalFrame {
 
         setClosable(true);
         setIconifiable(true);
+        addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
+            public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
+                formInternalFrameActivated(evt);
+            }
+            public void internalFrameClosed(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameClosing(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeactivated(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameDeiconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameIconified(javax.swing.event.InternalFrameEvent evt) {
+            }
+            public void internalFrameOpened(javax.swing.event.InternalFrameEvent evt) {
+            }
+        });
 
         jTextField1.setText("jTextField1");
         jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -90,20 +108,20 @@ public class Generate_tag extends javax.swing.JInternalFrame {
         grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "id", "Client", "PO", "Markename", "PLYS", "cut_id", "marker"
+                "id", "Client", "PO", "Markename", "PLYS", "cut_id", "marker", "isClosed", "isgenerated"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Integer.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Integer.class, java.lang.Boolean.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -114,6 +132,7 @@ public class Generate_tag extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
+        grid_data.getTableHeader().setReorderingAllowed(false);
         grid_data.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 grid_dataMouseReleased(evt);
@@ -133,6 +152,10 @@ public class Generate_tag extends javax.swing.JInternalFrame {
             grid_data.getColumnModel().getColumn(5).setMaxWidth(0);
             grid_data.getColumnModel().getColumn(6).setMinWidth(0);
             grid_data.getColumnModel().getColumn(6).setMaxWidth(0);
+            grid_data.getColumnModel().getColumn(7).setMinWidth(0);
+            grid_data.getColumnModel().getColumn(7).setMaxWidth(0);
+            grid_data.getColumnModel().getColumn(8).setMinWidth(0);
+            grid_data.getColumnModel().getColumn(8).setMaxWidth(0);
         }
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -171,17 +194,31 @@ public class Generate_tag extends javax.swing.JInternalFrame {
                 JOptionPane.showInternalMessageDialog(this, "please select a row");
                 return;
             }
-                
-            popupmenu.show(grid_data,evt.getX(),evt.getY());
+                popupmenu.show(grid_data,evt.getX(),evt.getY());
+            
+        }
+        if(evt.getButton()==MouseEvent.BUTTON1){
+            System.out.println(evt.getButton());
+            isclosed=(Boolean)grid_data.getValueAt(grid_data.getSelectedRow(), 8);
+            isgenerated=(Boolean)grid_data.getValueAt(grid_data.getSelectedRow(), 7);
+            if(isclosed){
+                JOptionPane.showInternalMessageDialog(this, "This Marker is Closed","Try to generated closed marker",JOptionPane.ERROR_MESSAGE);                
+            }
+            if(isgenerated){
+                JOptionPane.showInternalMessageDialog(this, "This Marker is already Generated Tags","Try to generated Generated marker",JOptionPane.ERROR_MESSAGE);
+            }
+            if(isclosed||isgenerated)
+                grid_data.getSelectionModel().clearSelection();
         }
     }//GEN-LAST:event_grid_dataMouseReleased
 
     private void separationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_separationActionPerformed
         // TODO add your handling code here:
         separation_dyelot dyelot=new separation_dyelot(new JFrame(), false,(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 5),(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 4)
-                ,(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 6));
+                ,(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 6),grid_data.getValueAt(grid_data.getSelectedRow(), 3).toString(),this);
         dyelot.setModal(true);
         dyelot.setVisible(true);
+        
     }//GEN-LAST:event_separationActionPerformed
 
     private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
@@ -195,7 +232,12 @@ public class Generate_tag extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_jTextField1KeyReleased
 
-    private void mostrardatos(){
+    private void formInternalFrameActivated(javax.swing.event.InternalFrameEvent evt) {//GEN-FIRST:event_formInternalFrameActivated
+        // TODO add your handling code here:
+        //mostrardatos();
+    }//GEN-LAST:event_formInternalFrameActivated
+
+    public void mostrardatos(){
         liste.clear();
                DefaultTableModel tbm = (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
@@ -204,7 +246,7 @@ public class Generate_tag extends javax.swing.JInternalFrame {
                ResultSet rs = conn.select(query);
                
                while (rs.next()){ 
-                       Object[] ob=new Object[7];
+                       Object[] ob=new Object[9];
                        ob[0]=rs.getInt("mrk_id");
                        ob[1]=rs.getString("brand");
                        ob[2]=rs.getString("po");
@@ -212,6 +254,8 @@ public class Generate_tag extends javax.swing.JInternalFrame {
                        ob[4]=rs.getInt("mrkpused");
                        ob[5]=rs.getInt("cut_id");
                        ob[6]=rs.getInt("marker");
+                       ob[7]=rs.getBoolean("generated");
+                       ob[8]=rs.getString("status_10").trim().equals("5");
                        liste.add(ob);
                        tbm.addRow(ob);
                }

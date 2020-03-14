@@ -230,7 +230,7 @@ private void get(String sew){
 
                         }else
                             mod=lastInsertSecond(lot);
-                        if(mod!=null){
+                        if(mod!=null && type.equals("first")){
                             String date_mod=1900+mod.getYear()+"-";
                             date_mod+=mod.getMonth()+"-";
                             date_mod+=mod.getDate();

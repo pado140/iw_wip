@@ -101,7 +101,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             initPlan();
             
             
-            load();
+            //load();
             progress.setIndeterminate(false);
         state.setText("loading...");    
         listeData=new HashSet<>();
@@ -143,6 +143,9 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 int batch=rs.getInt("last_qty");
                 int reinspect=rs.getInt("reinspect");
                 int scrap=rs.getInt("scrap");
+                int ready=rs.getInt("readyQty");
+                int orderQty=rs.getInt("qty");
+                Date lastready=rs.getDate("lastScanReady");
                 exception=rs.getInt("exception");
                 try{
                     planqty=plan.get(order);
@@ -169,7 +172,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 batch-=(reinspect+pack_approved);  
                 reinspect-=reinspect!=0?secondpost:0;
                 pack_approved-=shipped;
-                Object[] data=new Object[33];
+                Object[] data=new Object[34];
                 data[1]=rs.getString("brand");
                 data[2]=po;
                 data[3]=rs.getString("style").trim();
@@ -196,23 +199,13 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 data[23]=batch;
                 data[24]=reinspect;
                 data[25]=secondpost;
-                data[26]=pack_approved;
-                data[27]=0;
-                data[28]=0;
-                data[29]=shipped;
-                data[30]=bal;
-                int datatime=4;
-                if(rs.getInt("qty")<=2500){
-                    datatime=1;
-                }else{
-                    if(rs.getInt("qty")<=20000)
-                        datatime=3;
-                    if(rs.getInt("qty")<=5000)
-                        datatime=2;
-                }
-                datatime-=shiptime.getOrDefault(po+"-"+sku, 0);
-                data[28]=datatime<0?1:datatime;        
-                data[27]=shiptime.getOrDefault(po+"-"+sku, 0);        
+                data[26]=pack_approved-ready;
+                data[27]=ready;
+                data[28]=lastready;
+                data[29]=ready>=orderQty*0.95?"Ok to ship":(int)((orderQty*0.95)-ready)+" remaining to ship";
+                data[30]=shipped;
+                data[31]=bal;
+                        
                         
                             cut+=prodqty;
                             aso+=sobar;
@@ -225,8 +218,8 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                             
                         
                data[9]=rs.getDate("last_production");
-                data[31]=sku;
-                data[32]=status;
+                data[32]=sku;
+                data[33]=status;
                 data[0]=rs.getDate("shipdate");
                 ij++;
                 setProgress((int)Math.ceil(ij*100/line));
@@ -549,17 +542,17 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "SCRAP", "EXCEPTION", "PACKING", "BATCH", "REINSPECTION", "OTFQPS", "PASS AUDIT BOXES", "SHIMENT MADE", "SHIPMENT REMAINING", "SHIPPED", "UNACCOUNTED FOR"
+                "X_FACTORY", "CUSTOMER", "PO NUM", "STYLE", "CODE COLOR", "COLOR", "SIZE", "SKU", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "READY TO CUT", "CUTTING", "CUT", "AT SOBAR", "PAD PRINT", "AT SEWING", "SEW START", "FIRST", "SECOND", "SCRAP", "EXCEPTION", "PACKING", "BATCH", "REINSPECTION", "OTFQPS", "PASS AUDIT BOXES", "READY TO SHIP", "LAST SCAN BOXES", "OK TO SHIP", "SHIPPED", "UNACCOUNTED FOR"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -677,7 +670,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 457, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 461, Short.MAX_VALUE)
                 .addGap(3, 3, 3)
                 .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );

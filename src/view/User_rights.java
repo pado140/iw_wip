@@ -183,7 +183,7 @@ public class User_rights extends javax.swing.JDialog implements Observateurs{
 
     private void defautActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_defautActionPerformed
         // TODO add your handling code here:
-        String requete="select * from actions_key";
+        String requete="select * from actions_key where status=1";
         ResultSet rs=conn.select(requete);
         tbm=(DefaultTableModel)grid_data.getModel();
         tbm.setRowCount(0);
@@ -191,7 +191,7 @@ public class User_rights extends javax.swing.JDialog implements Observateurs{
             while(rs.next()){
                 Object data[]=new Object[3];
                 data[0]=rs.getInt("id");
-                data[1]=rs.getString("action")+"."+rs.getString("field");
+                data[1]=rs.getString("action")+"."+rs.getString("description");
                 
                     data[2]=false;
                 tbm.addRow(data);
@@ -244,7 +244,7 @@ public class User_rights extends javax.swing.JDialog implements Observateurs{
     }
     
     private void load(){
-        String requete="select * from actions_key";
+        String requete="select * from actions_key where status=1";
         ResultSet rs=conn.select(requete);
         tbm=(DefaultTableModel)grid_data.getModel();
         tbm.setRowCount(0);
@@ -252,7 +252,7 @@ public class User_rights extends javax.swing.JDialog implements Observateurs{
             while(rs.next()){
                 Object data[]=new Object[3];
                 data[0]=rs.getInt("id");
-                data[1]=rs.getString("action")+"."+rs.getString("field");
+                data[1]=rs.getString("action")+"."+rs.getString("description");
                 
                 try{
                Boolean check=rights.get(rs.getInt("id"));

@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" columnCount="3" printOrder="Horizontal" pageWidth="612" pageHeight="792" columnWidth="190" leftMargin="20" rightMargin="20" topMargin="10" bottomMargin="10" uuid="215e8d30-e466-425c-88f5-1396d19e8cbf">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="111"/>
+	<property name="ireport.y" value="0"/>
 	<style name="table">
 		<box>
 			<pen lineWidth="1.0" lineColor="#000000"/>
@@ -68,6 +68,7 @@
 	<parameter name="pieces10" class="java.lang.Integer"/>
 	<parameter name="pieces11" class="java.lang.Integer"/>
 	<parameter name="pieces12" class="java.lang.Integer"/>
+	<parameter name="create" class="java.util.Date"/>
 	<field name="sticker" class="java.lang.String"/>
 	<field name="size" class="java.lang.String"/>
 	<field name="qty" class="java.lang.Integer"/>
@@ -418,6 +419,22 @@ P	  P
 			<line>
 				<reportElement x="0" y="151" width="572" height="1" uuid="3c6d9ec4-9d84-494f-9974-d807538ba69d"/>
 			</line>
+			<staticText>
+				<reportElement x="2" y="28" width="61" height="20" uuid="ebe4e672-6c01-49ec-9fe8-af8c87941bca"/>
+				<text><![CDATA[Created on:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="53" y="28" width="107" height="16" uuid="f35f534b-952c-4111-b8c8-fa805de5da34"/>
+				<textFieldExpression><![CDATA[$P{create}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="403" y="26" width="53" height="20" uuid="5e6512f9-d46a-47cb-86a8-b0af27547870"/>
+				<text><![CDATA[Printed on:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy HH.mm.ss">
+				<reportElement x="456" y="26" width="99" height="18" uuid="7d138a6d-b7d8-4f8e-a743-993989858246"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
 		</band>
 	</pageHeader>
 	<columnHeader>
@@ -427,14 +444,14 @@ P	  P
 				<reportElement x="0" y="0" width="185" height="20" uuid="c9b5bef6-5e49-4075-964e-38a0482fe7ce"/>
 			</rectangle>
 			<staticText>
-				<reportElement x="0" y="0" width="80" height="20" uuid="202d67d9-f97e-4129-a270-cd3eb6f1e9d5"/>
+				<reportElement x="0" y="0" width="98" height="20" uuid="202d67d9-f97e-4129-a270-cd3eb6f1e9d5"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[Box Sticker]]></text>
+				<text><![CDATA[Box Sticker/LPN]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="83" y="0" width="68" height="20" uuid="4ce6ed1f-7a92-4be7-b30e-fb4050b2db62"/>
+				<reportElement x="100" y="0" width="51" height="20" uuid="4ce6ed1f-7a92-4be7-b30e-fb4050b2db62"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font isBold="true"/>
 				</textElement>
@@ -448,7 +465,7 @@ P	  P
 				<text><![CDATA[Qty]]></text>
 			</staticText>
 			<line direction="BottomUp">
-				<reportElement x="81" y="0" width="1" height="20" uuid="47469f3e-04d0-4cd9-8077-ccf754158a63"/>
+				<reportElement x="98" y="0" width="1" height="20" uuid="47469f3e-04d0-4cd9-8077-ccf754158a63"/>
 			</line>
 			<line direction="BottomUp">
 				<reportElement x="151" y="0" width="1" height="20" uuid="5f0ce2a0-c0e6-44df-b8a8-e81091ea9fb7"/>
@@ -461,12 +478,12 @@ P	  P
 				<reportElement x="0" y="0" width="185" height="20" uuid="c30db831-4425-47df-bcaa-5a65885b057e"/>
 			</rectangle>
 			<textField>
-				<reportElement x="1" y="0" width="79" height="20" uuid="9940abce-2343-4903-86c9-8a3d253ab158"/>
+				<reportElement x="1" y="0" width="97" height="20" uuid="9940abce-2343-4903-86c9-8a3d253ab158"/>
 				<textElement textAlignment="Center" verticalAlignment="Bottom"/>
 				<textFieldExpression><![CDATA[$F{sticker}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="83" y="0" width="68" height="20" uuid="8adaa34e-58ce-4035-bec6-e45c933c4ec4"/>
+				<reportElement x="100" y="0" width="51" height="20" uuid="8adaa34e-58ce-4035-bec6-e45c933c4ec4"/>
 				<textElement textAlignment="Center" verticalAlignment="Bottom"/>
 				<textFieldExpression><![CDATA[$F{size}]]></textFieldExpression>
 			</textField>
@@ -476,7 +493,7 @@ P	  P
 				<textFieldExpression><![CDATA[$F{qty}]]></textFieldExpression>
 			</textField>
 			<line direction="BottomUp">
-				<reportElement x="81" y="0" width="1" height="20" uuid="2b2fb80b-0465-462a-ab13-e4d6342a887a"/>
+				<reportElement x="98" y="0" width="1" height="20" uuid="2b2fb80b-0465-462a-ab13-e4d6342a887a"/>
 			</line>
 			<line direction="BottomUp">
 				<reportElement x="151" y="0" width="1" height="20" uuid="3bbf914d-46bb-4ddd-99d9-57cfead8a4bc"/>
@@ -543,7 +560,7 @@ P	  P
 				<text><![CDATA[POLYBAG(WARNING)]]></text>
 			</staticText>
 			<rectangle>
-				<reportElement x="142" y="137" width="70" height="12" uuid="926062e0-f575-4467-8d5e-3129d4bf2514"/>
+				<reportElement x="142" y="137" width="9" height="9" uuid="926062e0-f575-4467-8d5e-3129d4bf2514"/>
 				<graphicElement>
 					<pen lineWidth="0.75"/>
 				</graphicElement>
@@ -590,7 +607,7 @@ P	  P
 				</graphicElement>
 			</rectangle>
 			<rectangle>
-				<reportElement x="142" y="153" width="70" height="12" uuid="b9987d95-557d-445d-a4e6-5e73e330f560"/>
+				<reportElement x="142" y="153" width="9" height="9" uuid="b9987d95-557d-445d-a4e6-5e73e330f560"/>
 				<graphicElement>
 					<pen lineWidth="0.75"/>
 				</graphicElement>
@@ -608,7 +625,7 @@ P	  P
 				</graphicElement>
 			</rectangle>
 			<rectangle>
-				<reportElement x="142" y="206" width="70" height="12" uuid="b6810f6a-79d8-4530-98c7-464bf8802d27"/>
+				<reportElement x="142" y="206" width="9" height="9" uuid="b6810f6a-79d8-4530-98c7-464bf8802d27"/>
 				<graphicElement>
 					<pen lineWidth="0.75"/>
 				</graphicElement>

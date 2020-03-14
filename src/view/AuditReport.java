@@ -11,16 +11,23 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DateFormatter;
 
 /**
  *
@@ -32,12 +39,13 @@ public class AuditReport extends javax.swing.JInternalFrame {
     private DefaultTableModel tbm;
     private Set<Object[]> listeData;
     private Map<String,Integer[]> sizes;
+    private boolean ready=false;
     /**
      * Creates new form Work_status_
      */
     
     class PopulateTable extends SwingWorker<Void,Object[]>{
-        int tot=0,line=0;
+        int tot=0,line=0,f=0,p=0;
         int box=0,pie=0;
         
         
@@ -54,7 +62,7 @@ public class AuditReport extends javax.swing.JInternalFrame {
             auditT.setText("Waiting...");
             auditP.setText("Waiting...");
             auditF.setText("Waiting...");
-            
+            ready=false;
             
             //load();
             progress.setIndeterminate(false);
@@ -83,6 +91,10 @@ public class AuditReport extends javax.swing.JInternalFrame {
                 String cust=rs.getString("customer");
                 String po=rs.getString("po");
                 Object[] data=new Object[]{auditid,batchno,auditorname,date,boxes,qty,result,details,username,created,cust,po};
+                if(rs.getBoolean("result"))
+                    p+=qty;
+                else
+                    f+=qty;
                 cc++;
                 setProgress((int)Math.ceil(cc*100/line));
                 listeData.add(data);
@@ -111,10 +123,12 @@ public class AuditReport extends javax.swing.JInternalFrame {
             progress.setVisible(false);
             count.setText(line+" rows");
             auditT.setText(tot+" pieces");
-            auditP.setText(tot+" pieces");
+            auditP.setText(p+" pieces");
             auditB.setText(box+" boxes");
-            auditF.setText(tot+" pieces");
+            auditF.setText(f+" pieces");
             state.setText("Ready");
+            
+           ready=true;
             grid_data.getSelectionModel().setSelectionInterval(0, 0);
             details(grid_data.getValueAt(0, 0),grid_data.getValueAt(0, 1),
                 grid_data.getValueAt(0, 2).toString(),grid_data.getValueAt(0, 8).toString(),
@@ -170,6 +184,7 @@ public class AuditReport extends javax.swing.JInternalFrame {
             }
         });
         populate.execute();
+        ready=true;
     }
 
     /**
@@ -182,19 +197,17 @@ public class AuditReport extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         header = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
+        report_no = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        batch_no = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
+        auditor_name = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
-        jTextField6 = new javax.swing.JTextField();
-        jLabel13 = new javax.swing.JLabel();
+        FROM = new com.toedter.calendar.JDateChooser();
+        TO = new com.toedter.calendar.JDateChooser();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
@@ -240,35 +253,29 @@ public class AuditReport extends javax.swing.JInternalFrame {
         setResizable(true);
         setTitle("Report Outgoing Audit");
 
-        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+        report_no.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField1KeyReleased(evt);
+                report_noKeyReleased(evt);
             }
         });
 
-        jLabel1.setText("PO FILTER");
+        jLabel1.setText("REPORT NO");
 
-        jLabel2.setText("STYLE FILTER");
+        jLabel2.setText("BATCH NO");
 
-        jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
+        batch_no.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField2KeyReleased(evt);
+                batch_noKeyReleased(evt);
             }
         });
 
-        jLabel3.setText("SIZE FILTER");
+        jLabel3.setText("DATE FROM");
 
-        jLabel4.setText("COLOR FILTER");
+        jLabel4.setText("AUDITOR");
 
-        jTextField3.addKeyListener(new java.awt.event.KeyAdapter() {
+        auditor_name.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField3KeyReleased(evt);
-            }
-        });
-
-        jTextField4.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField4KeyReleased(evt);
+                auditor_nameKeyReleased(evt);
             }
         });
 
@@ -279,21 +286,19 @@ public class AuditReport extends javax.swing.JInternalFrame {
             }
         });
 
-        jLabel5.setText("CLIENT FILTER");
+        jLabel5.setText("DATE TO");
 
-        jTextField5.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField5KeyReleased(evt);
+        FROM.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                FROMPropertyChange(evt);
             }
         });
 
-        jTextField6.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                jTextField6KeyReleased(evt);
+        TO.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                TOPropertyChange(evt);
             }
         });
-
-        jLabel13.setText("SKU Filter");
 
         javax.swing.GroupLayout headerLayout = new javax.swing.GroupLayout(header);
         header.setLayout(headerLayout);
@@ -303,31 +308,26 @@ public class AuditReport extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(report_no, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(32, 32, 32)
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(batch_no, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(62, 62, 62)
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(auditor_name, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(67, 67, 67)
                 .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(FROM, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(40, 40, 40)
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(headerLayout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(84, 84, 84)
                         .addComponent(jLabel5)
-                        .addGap(119, 119, 119)
-                        .addComponent(jLabel13)
-                        .addGap(222, 222, 222)
+                        .addGap(387, 387, 387)
                         .addComponent(jButton1))
-                    .addGroup(headerLayout.createSequentialGroup()
-                        .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(30, 30, 30)
-                        .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(TO, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         headerLayout.setVerticalGroup(
@@ -340,19 +340,18 @@ public class AuditReport extends javax.swing.JInternalFrame {
                         .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel5)
-                        .addComponent(jLabel13))
+                        .addComponent(jLabel5))
                     .addGroup(headerLayout.createSequentialGroup()
                         .addGap(3, 3, 3)
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(headerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(report_no, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(batch_no, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(auditor_name, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(FROM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(TO, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         jSplitPane1.setDividerLocation(800);
@@ -581,6 +580,7 @@ public class AuditReport extends javax.swing.JInternalFrame {
 
         jSplitPane1.setRightComponent(jPanel1);
 
+        grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null, null, null, null, null},
@@ -736,40 +736,26 @@ public class AuditReport extends javax.swing.JInternalFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+    private void report_noKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_report_noKeyReleased
         // TODO add your handling code here:
         buscar();
-    }//GEN-LAST:event_jTextField1KeyReleased
+    }//GEN-LAST:event_report_noKeyReleased
 
-    private void jTextField2KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField2KeyReleased
+    private void batch_noKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_batch_noKeyReleased
         // TODO add your handling code here:
         buscar();
-    }//GEN-LAST:event_jTextField2KeyReleased
+    }//GEN-LAST:event_batch_noKeyReleased
 
-    private void jTextField3KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField3KeyReleased
+    private void auditor_nameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_auditor_nameKeyReleased
         // TODO add your handling code here:
+        if(ready)
         buscar();
-    }//GEN-LAST:event_jTextField3KeyReleased
-
-    private void jTextField4KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField4KeyReleased
-        // TODO add your handling code here:
-        buscar();
-    }//GEN-LAST:event_jTextField4KeyReleased
+    }//GEN-LAST:event_auditor_nameKeyReleased
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         init();
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jTextField5KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField5KeyReleased
-        // TODO add your handling code here:
-        buscar();
-    }//GEN-LAST:event_jTextField5KeyReleased
-
-    private void jTextField6KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField6KeyReleased
-        // TODO add your handling code here:
-        buscar();
-    }//GEN-LAST:event_jTextField6KeyReleased
 
     private void progressPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_progressPropertyChange
         // TODO add your handling code here:
@@ -787,8 +773,88 @@ public class AuditReport extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_grid_dataPropertyChange
 
+    private void FROMPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_FROMPropertyChange
+        // TODO add your handling code here:
+        if(ready && listeData!=null)
+        buscar();
+    }//GEN-LAST:event_FROMPropertyChange
+
+    private void TOPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_TOPropertyChange
+        // TODO add your handling code here:
+        if(ready && listeData!=null)
+        buscar();
+    }//GEN-LAST:event_TOPropertyChange
+
     private void buscar(){
-        
+        tbm.setNumRows(0);
+        int tot=0,line=0,f=0,p=0;
+        int box=0,pie=0;
+        for(Object[] dataRow : listeData){
+                String rep=dataRow[0].toString().toLowerCase();
+                String bat=dataRow[1].toString().toLowerCase();
+                String auditor=dataRow[2].toString().toLowerCase();
+                DateFormat dateformat=new SimpleDateFormat("yyyy-MM-dd");
+                Date date=(Date)dataRow[3];
+                int qty=Integer.parseInt(dataRow[5].toString());
+                int boxes=Integer.parseInt(dataRow[4].toString());
+            
+                if(FROM.getDate()!=null){
+                            Calendar cal=Calendar.getInstance(TimeZone.getDefault(), Locale.CANADA);
+                            cal.setTime(FROM.getDate());
+                            cal.add(Calendar.DAY_OF_MONTH, -1);
+                            Date d=cal.getTime();
+                            Date dd=null;
+                            
+                    if(dataRow[3]!=null){
+                        try {
+                                dd=dateformat.parse(dataRow[3].toString());
+                            } catch (ParseException ex) {
+                                Logger.getLogger(SOABAR_report.class.getName()).log(Level.SEVERE, null, ex);
+                            }   
+                        if(TO.getDate()!=null){
+                            if(rep.contains(report_no.getText()) && bat.contains(batch_no.getText())
+                            && auditor.contains(auditor_name.getText().trim().toLowerCase()) && dd.after(d) && dd.before(TO.getDate())){
+                                tbm.addRow(dataRow);
+                                tot+=qty;
+                                line++;
+                                p+=dataRow[6].toString().equalsIgnoreCase("Passed")?qty:0;
+                                f+=dataRow[6].toString().equalsIgnoreCase("Failed")?qty:0;
+                                box+=boxes;
+                            }   
+                        }else{
+                            if(rep.contains(report_no.getText()) && bat.contains(batch_no.getText())
+                            && auditor.contains(auditor_name.getText().trim().toLowerCase()) && dd.equals(d)){
+                                tbm.addRow(dataRow);
+                                tot+=qty;
+                                line++;
+                                p+=dataRow[6].toString().equalsIgnoreCase("Passed")?qty:0;
+                                f+=dataRow[6].toString().equalsIgnoreCase("Failed")?qty:0;
+                                box+=boxes;
+                            }   
+                        }
+                    }
+                }else{
+                if(rep.contains(report_no.getText()) && bat.contains(batch_no.getText())
+                        && auditor.contains(auditor_name.getText().trim().toLowerCase())){
+                        tbm.addRow(dataRow);
+                        tot+=qty;
+                                line++;
+                                p+=dataRow[6].toString().equalsIgnoreCase("Passed")?qty:0;
+                                f+=dataRow[6].toString().equalsIgnoreCase("Failed")?qty:0;
+                                box+=boxes;
+                 }
+                }
+        }
+        grid_data.getSelectionModel().setSelectionInterval(0, 0);
+            details(grid_data.getValueAt(0, 0),grid_data.getValueAt(0, 1),
+                grid_data.getValueAt(0, 2).toString(),grid_data.getValueAt(0, 8).toString(),
+                grid_data.getValueAt(0, 3),grid_data.getValueAt(0, 9),
+                grid_data.getValueAt(0, 10),grid_data.getValueAt(0, 11));
+        count.setText(line+" rows");
+            auditT.setText(tot+" pieces");
+            auditP.setText(p+" pieces");
+            auditB.setText(box+" boxes");
+            auditF.setText(f+" pieces");
     }
     
     private void details(Object idreport,Object idbatch,String auditord,String userd,Object created,Object enter,Object cus,Object pod){
@@ -846,11 +912,15 @@ public class AuditReport extends javax.swing.JInternalFrame {
         }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.toedter.calendar.JDateChooser FROM;
+    private com.toedter.calendar.JDateChooser TO;
     private javax.swing.JLabel auditB;
     private javax.swing.JLabel auditF;
     private javax.swing.JLabel auditP;
     private javax.swing.JLabel auditT;
     private javax.swing.JLabel auditor;
+    private javax.swing.JTextField auditor_name;
+    private javax.swing.JTextField batch_no;
     private javax.swing.JLabel count;
     private javax.swing.JLabel create;
     private javax.swing.JLabel customer;
@@ -862,7 +932,6 @@ public class AuditReport extends javax.swing.JInternalFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
@@ -886,16 +955,11 @@ public class AuditReport extends javax.swing.JInternalFrame {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
     private javax.swing.JLabel nobatch;
     private javax.swing.JLabel noreport;
     private javax.swing.JLabel po;
     private javax.swing.JProgressBar progress;
+    private javax.swing.JTextField report_no;
     private javax.swing.JLabel state;
     private javax.swing.JPanel status;
     // End of variables declaration//GEN-END:variables

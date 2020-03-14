@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +24,7 @@ import view.lpn_update;
 
 public class loadFrame extends javax.swing.JDialog implements Observateurs{
      private final ConnectionDb conn=ConnectionDb.instance();
-     private Map<String,Map<String,Integer>> listData;
+     private Map<String,Map<String,Object[]>> listData;
 
     public loadFrame(Frame owner, boolean modal) {
         super(owner, modal);
@@ -88,7 +89,7 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
             int total;
             //System.out.println(ob.size());
             listData= new HashMap<>();
-            Map<String,Integer> listLpn;
+            Map<String,Object[]> listLpn;
             for(Object[] o:ob){
                 String sku=o[0].toString().substring(o[0].toString().indexOf("-")+1).trim().concat("."+o[1].toString().trim()).concat("."+o[2].toString().trim()
                 .concat("."+o[4].toString().trim()));
@@ -123,7 +124,11 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
                     String sku1=o1[0].toString().substring(o1[0].toString().indexOf("-")+1).trim().concat("."+o1[1].toString().trim()).concat("."+o1[2].toString().trim()
                 .concat("."+o1[4].toString().trim()));
                     if(sku.equals(sku1)){
-                     listLpn.put(o1[8].toString(), (int)Double.parseDouble(o1[5].toString()));
+                        String lpn=o1[8].toString();
+                        boolean dash=lpn.contains("-");
+                        if(dash)
+                            lpn=lpn.split("-")[0];
+                     listLpn.put(lpn, new Object[]{(int)Double.parseDouble(o1[5].toString()),dash});
                     //System.out.println(o[16].toString());
                     total+=(int)Double.parseDouble(o1[5].toString());  
                     }
@@ -311,6 +316,19 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
         String requete="INSERT INTO BOX_CONTAIN(ORDNUM,LPN,BOX_STICKERS,QTY) VALUES (?,?,?,?)";
         return conn.Update(requete, 0, ordnum,lpn,sticker,qty);
     }
+    
+    private Optional<String> exists(String lpn){
+        String requete="select BOX_STICKERS from BOX_CONTAIN where LPN=?";
+        ResultSet rs=conn.select(requete, lpn);
+        Optional<String> opt=Optional.empty();
+        try{
+             while(rs.next())
+             return Optional.of(rs.getString(1));
+        }catch(SQLException ex){
+            
+        }
+        return null;
+    }
     private String Order_Exist(String Po,String part_id){
          try {
              String query="select ordnum_147 from shoporder where ordref_147=? and prtnum_147=?";
@@ -457,12 +475,23 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
                 if(partid!=null && ord1!=null){
                     int inc=nbLpn(ord1);
                     for(String lpn:listData.get(po.concat(".").concat(sku)).keySet()){
-                    
                     String ind=String.valueOf(inc);
-                    int qt=listData.get(po.concat(".").concat(sku)).get(lpn);
+                    boolean dash=(Boolean)(listData.get(po.concat(".").concat(sku)).get(lpn)[1]);
+                    int qt=(Integer)listData.get(po.concat(".").concat(sku)).get(lpn)[0];
                     String sticker=ord1+"000".substring(ind.length())+ind;
+                    if(dash){
+                        if(exists(lpn).isPresent()){
+                            
+                            sticker=exists(lpn).get()+"-"+qt;
+                            lpn=lpn+"-"+qt;
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "this Lpn is not exist in this po");
+                            continue;
+                        }
+                    }
                     conn.savecst("{call create_box(?,?,?,?,?,?,?)}",ord1,lpn,"",qt,qt,sticker,"");
-                    if(!saveLpn(ord1,lpn,sticker,listData.get(po.concat(".").concat(sku)).get(lpn))){
+                    if(!saveLpn(ord1,lpn,sticker,qt)){
                         //System.err.println(conn.getErreur());
                     errors.put(lpn, conn.getErreur());
                     }

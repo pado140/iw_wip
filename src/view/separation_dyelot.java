@@ -41,6 +41,7 @@ public class separation_dyelot extends javax.swing.JDialog {
     private ConnectionDb conn = ConnectionDb.instance();
     private String po,Marker;
     private int id,plys,marker_no;
+    private Generate_tag genTag;
     /**
      * Creates new form separation_dyelot
      */
@@ -51,7 +52,7 @@ public class separation_dyelot extends javax.swing.JDialog {
         jTable1.setCellEditor(new DefaultCellEditor(new JTextField()));
     }
     
-    public separation_dyelot(JFrame parent, boolean modal,int id,int plys,int marker_no) {
+    public separation_dyelot(JFrame parent, boolean modal,int id,int plys,int marker_no,String marker,Generate_tag gentag) {
         super(parent, modal);
         initComponents();
         jTable1.setCellEditor(new DefaultCellEditor(new JTextField()));
@@ -59,8 +60,10 @@ public class separation_dyelot extends javax.swing.JDialog {
         this.plys=plys;
         gen.setEnabled(false);
         this.marker_no=marker_no;
+        this.Marker=marker;
         cut.setText(String.valueOf(marker_no));
         plys_left.setText(String.valueOf(plys));
+        genTag=gentag;
     }
 
     /**
@@ -84,6 +87,11 @@ public class separation_dyelot extends javax.swing.JDialog {
         cut = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
 
         jLabel1.setText("Dye lot qty:");
 
@@ -241,7 +249,7 @@ public class separation_dyelot extends javax.swing.JDialog {
                 return;
         }
         //print( id, marker_no, data);
-        print_per_page(id, marker_no, data);
+        print_per_page(id, marker_no,Marker, data);
     }//GEN-LAST:event_genActionPerformed
 
     private void jTable1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jTable1PropertyChange
@@ -264,6 +272,11 @@ public class separation_dyelot extends javax.swing.JDialog {
                 plys_left.setForeground(null);
         }
     }//GEN-LAST:event_jTable1KeyReleased
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        // TODO add your handling code here:
+        genTag.mostrardatos();
+    }//GEN-LAST:event_formWindowClosed
 
     
     private int sommeIn(){
@@ -382,9 +395,11 @@ public class separation_dyelot extends javax.swing.JDialog {
     }
     
     
-    private void print_per_page(int id,int cut_no,int... dyelot){
+    private void print_per_page(int id,int cut_no,String marker,int... dyelot){
        String po="";
         String requete= "select * from all_cut where cut_id=?";
+        String requete1= "update cutplan set generated=1 where cut_id=?";
+        boolean exist=false;
         ResultSet rs=conn.select(requete, id);
         List<Map<String,String>> datacut=new ArrayList();
         try {
@@ -476,13 +491,22 @@ public class separation_dyelot extends javax.swing.JDialog {
                   JasperReport jasperReport = (JasperReport) JRLoader.loadObject(master);
                   JRBeanCollectionDataSource beanCutDataSource =new JRBeanCollectionDataSource(da);
                   JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,param,beanCutDataSource);
+                  if(!Files.exists(new File("P:\\TAGS").toPath())){
+                      new File("P:\\TAGS").mkdirs();
+                  }
                   
-                      JasperExportManager.exportReportToPdfFile(jasperPrint, System.getProperty("user.home").concat("/Documents/new travel card/")+po+"("+id+"-"+cut_no+")-dyelot("+dye+").pdf");
-                  
-                  Desktop dsk=Desktop.getDesktop();
-                  dsk.open(new File(System.getProperty("user.home").concat("/Documents/new travel card/")+po+"("+id+"-"+cut_no+")-dyelot("+dye+").pdf"));
-                  
- 
+                  if(Files.exists(new File("P:\\TAGS/").toPath())){
+                      if(!Files.exists(new File("P:\\TAGS/"+marker.replaceAll("/", "_")+"("+cut_no+")("+dye+").pdf").toPath())){
+                            JasperExportManager.exportReportToPdfFile(jasperPrint, "P:\\TAGS/"+marker.replaceAll("/", "_")+"("+cut_no+")("+dye+").pdf");
+                            conn.Update(requete1, 0, id);
+                            Desktop dsk=Desktop.getDesktop();
+                            dsk.open(new File("P:\\TAGS/"+marker.replaceAll("/", "_")+"("+cut_no+")("+dye+").pdf"));
+                      }
+                      else{
+                          exist=true;
+                          return;
+                      }
+                  }
                 }
  
                 catch (Exception e)
@@ -493,6 +517,8 @@ public class separation_dyelot extends javax.swing.JDialog {
                  }
         dye++;
         }
+        if(exist)
+            JOptionPane.showInternalMessageDialog(this, "File already exist");
     }
     
     

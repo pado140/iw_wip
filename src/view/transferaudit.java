@@ -243,8 +243,8 @@ public class transferaudit extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_stickerKeyReleased
 private void fillData(){
-        String requete="select ponum,style,sku,coldsp,size,lpn,box_stickers, ordnum,qty,status_lpn from lpn_in_batch where box_stickers = ?";
-        ResultSet rs=conn.select(requete, sticker.getText().trim());
+        String requete="select ponum,style,sku,coldsp,size,lpn,box_stickers, ordnum,qty,status_lpn from lpn_in_batch where box_stickers = ? or lpn=? ";
+        ResultSet rs=conn.select(requete, sticker.getText().trim(),sticker.getText().trim());
         String status="";
         error.setText("");
         oldqtylabel.setText("N/A");
@@ -255,7 +255,7 @@ private void fillData(){
         try {
             while(rs.next())
             {
-                sticker_selected=sticker.getText().trim();
+                sticker_selected=rs.getString("box_stickers").trim();
                 oldqtylabel.setText(String.valueOf(rs.getInt("qty")));
                 polabel.setText(rs.getString("ponum"));
                 stylelabel.setText(rs.getString("style"));

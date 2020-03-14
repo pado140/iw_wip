@@ -268,7 +268,9 @@ public class lot extends javax.swing.JDialog implements Observateurs{
                DefaultTableModel tbm = (DefaultTableModel) grid_bundle_t.getModel();
                tbm.setRowCount(0);
             Object[][] data=(Object[][])obs[1];
-            
+            try {
+                conn.getConnection().setAutoCommit(false);
+           
             for(int y=0;y<data.length;y++){
                 match=step(data[y][1].toString(),"MATCHBOOK");
                 wash=step(data[y][1].toString(),"WASHING");
@@ -347,7 +349,22 @@ public class lot extends javax.swing.JDialog implements Observateurs{
             //System.out.println(data[5].toString());
             //
             //int line=Integer.parseInt(obs[1][5].toString());
-        }
+                }
+            conn.getConnection().commit();
+            
+            } catch (SQLException ex) {
+                Logger.getLogger(lot.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    conn.getConnection().rollback();
+                } catch (SQLException ex1) {
+                    Logger.getLogger(lot.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            }
+            try {
+                conn.getConnection().setAutoCommit(true);
+            } catch (SQLException ex) {
+                Logger.getLogger(lot.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     public void setCellData(XSSFSheet sheet,JTable table){

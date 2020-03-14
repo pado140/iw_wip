@@ -65,7 +65,7 @@
                   <KeyStroke key="Ctrl+W"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Work Progress"/>
-                <Property name="name" type="java.lang.String" value="Open_only" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="work_progress" noResource="true"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="wp_onlyActionPerformed"/>
@@ -113,7 +113,7 @@
                   <KeyStroke key="F5"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Scan Production"/>
-                <Property name="name" type="java.lang.String" value="Production_sew" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="production" noResource="true"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sewActionPerformed"/>
@@ -131,7 +131,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="bundle">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Send to Module"/>
-                <Property name="name" type="java.lang.String" value="ticket" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="send_to_module" noResource="true"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="bundleActionPerformed"/>
@@ -227,6 +227,7 @@
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem16">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="packing list batch"/>
+                    <Property name="name" type="java.lang.String" value="list_batch" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem16ActionPerformed"/>
@@ -235,6 +236,7 @@
                 <MenuItem class="javax.swing.JMenuItem" name="jMenuItem26">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Reaudit"/>
+                    <Property name="name" type="java.lang.String" value="reaudit" noResource="true"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem26ActionPerformed"/>
@@ -251,6 +253,58 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem22ActionPerformed"/>
               </Events>
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="jMenu4">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="SHIPPING"/>
+                <Property name="name" type="java.lang.String" value="shipping" noResource="true"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem30">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Ready to ship/to WareHouse"/>
+                    <Property name="name" type="java.lang.String" value="warehouse" noResource="true"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem30ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="create_shipment">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Create Shipment"/>
+                    <Property name="name" type="java.lang.String" value="create_shipment" noResource="true"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="create_shipmentActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="scan_box">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Scan Boxes in Shipment"/>
+                    <Property name="name" type="java.lang.String" value="box_in_shipment" noResource="true"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="scan_boxActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <Menu class="javax.swing.JMenu" name="jMenu5">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Report"/>
+                    <Property name="name" type="java.lang.String" value="ship_report" noResource="true"/>
+                  </Properties>
+                  <SubComponents>
+                    <MenuItem class="javax.swing.JMenuItem" name="packinglist">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Packing list"/>
+                        <Property name="name" type="java.lang.String" value="packinglist" noResource="true"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="packinglistActionPerformed"/>
+                      </Events>
+                    </MenuItem>
+                  </SubComponents>
+                </Menu>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="MisMenu">
@@ -328,6 +382,23 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="in_proces_sumActionPerformed"/>
               </Events>
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="jMenu3">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="QUALITY"/>
+                <Property name="name" type="java.lang.String" value="quality_report" noResource="true"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem29">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="AQL report"/>
+                    <Property name="name" type="java.lang.String" value="aql" noResource="true"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem29ActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="settup">
@@ -609,7 +680,7 @@
             <MenuItem class="javax.swing.JMenuItem" name="travel">
               <Properties>
                 <Property name="text" type="java.lang.String" value="transfer to module daily report"/>
-                <Property name="name" type="java.lang.String" value="travel" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="module_daily_report" noResource="true"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="travelActionPerformed"/>
@@ -670,6 +741,15 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem27ActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem28">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Batch Situation"/>
+                <Property name="name" type="java.lang.String" value="situation" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem28ActionPerformed"/>
               </Events>
             </MenuItem>
           </SubComponents>

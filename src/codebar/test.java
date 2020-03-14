@@ -51,8 +51,8 @@ public class test extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     public JPanel barcode(){
-        Barcode b=BarcodeFactory.createBarcode(BarcodeType.Code128,"952065927181813031");
-        b.export("jpg", 1, 50 ,true, "C:\\Users\\Padovano\\Pictures\\pado.jpg");
+        Barcode b=BarcodeFactory.createBarcode(BarcodeType.Code128,"mamba-pimente");
+        b.export("png", 1, 50 ,true, "C:\\Users\\Padovano\\Pictures\\pado-pimente.png");
         JPanel pan=new JPanel(){
             public void paintComponent(Graphics g){
                 BufferedImage im=b.getBarcode(1, 50, true);
