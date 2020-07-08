@@ -33,6 +33,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.view.JasperViewer;
 import observateurs.Observateurs;
 import observateurs.Observe;
 import view.report.Data;
@@ -277,10 +278,14 @@ public static boolean transfer=false;
         // TODO add your handling code here:
         if(evt.getButton()==MouseEvent.BUTTON3){
             if(!GRID_DATA.getSelectionModel().isSelectionEmpty()){
-                if(GRID_DATA.getSelectedRowCount()>1)
+                if(GRID_DATA.getSelectedRowCount()>1){
                     split.setVisible(false);
-                else
+                    AT_EMBL.setVisible(true);
+                }
+                else{
                     split.setVisible(true);
+                    AT_EMBL.setVisible(false);
+                }
             POPUP.show(GRID_DATA,evt.getX(),evt.getY());
             }
             else
@@ -476,14 +481,21 @@ public static boolean transfer=false;
     }
     
     private Map<String ,Integer> at_pad(){
-        String requete="Select [order],nb  from pad_printed";
+        String requete="Select [order],nb,last  from pad_printed";
         Map<String,Integer> sew=new HashMap<>();
         ResultSet rs=conn.select(requete);
         System.out.println("ok");
         try {
             while(rs.next()){
                 String order=rs.getString("order").trim();
-                sew.put(order,rs.getInt("nb"));
+                String stickers=rs.getObject("last").toString();
+                int no=0;
+                try{
+                    no=Integer.parseInt(stickers.substring(8));
+                }catch(NumberFormatException e){
+                    
+                }
+                sew.put(order,no);
                        
             }
         } catch (SQLException ex) {
@@ -626,11 +638,11 @@ public static boolean transfer=false;
                   size=size.replace("/", "-");
                   if(Files.exists(new File("P:\\new travel card/").toPath())){
                       b.export("jpg", 1, 50 ,true, "P:\\new travel card/barcode/"+code+".jpg");
-                JasperExportManager.exportReportToPdfFile(jasperPrint, "P:\\new travel card/"+code+"-"+no+"("+pot+"."+stylet+"."+color_code+"."+size+").pdf");
+                JasperExportManager.exportReportToPdfFile(jasperPrint, "P:\\new travel card/"+code+"-"+no+"("+pot+"."+stylet+"."+color_code.replace("/", "_")+"."+size+").pdf");
                       
                   
                   Desktop dsk=Desktop.getDesktop();
-                  dsk.open(new File("P:\\new travel card/"+code+"-"+no+"("+pot+"."+stylet+"."+color_code+"."+size+").pdf"));
+                  dsk.open(new File("P:\\new travel card/"+code+"-"+no+"("+pot+"."+stylet+"."+color_code.replace("/", "_")+"."+size+").pdf"));
                 
                 
                   
@@ -647,10 +659,10 @@ public static boolean transfer=false;
                           //Files.createDirectory(new File(System.getProperty("user.home").concat("/Documents/new travel card/barcode")).toPath()); 
                       }
                       b.export("jpg", 1, 50 ,true, System.getProperty("user.home").concat("/Documents/new travel card").concat("/barcode/"+code+".jpg"));
-                      JasperExportManager.exportReportToPdfFile(jasperPrint, System.getProperty("user.home").concat("/Documents/new travel card/")+code+"-"+no+"("+pot+"."+stylet+"."+color_code+"."+size+").pdf");
+                      JasperExportManager.exportReportToPdfFile(jasperPrint, System.getProperty("user.home").concat("/Documents/new travel card/")+code+"-"+no+"("+pot+"."+stylet+"."+color_code.replace("/", "_")+"."+size+").pdf");
                   
                   Desktop dsk=Desktop.getDesktop();
-                  dsk.open(new File(System.getProperty("user.home").concat("/Documents/new travel card/")+code+"-"+no+"("+pot+"."+stylet+"."+color_code+"."+size+").pdf"));
+                  dsk.open(new File(System.getProperty("user.home").concat("/Documents/new travel card/")+code+"-"+no+"("+pot+"."+stylet+"."+color_code.replace("/", "_")+"."+size+").pdf"));
                   }
                   if(!conn.Update(requete, 0, sewing,s_travel,code,qty,Principal.user_id))
                 JOptionPane.showMessageDialog(this, conn.getErreur(), "Fatal Error", JOptionPane.ERROR_MESSAGE);

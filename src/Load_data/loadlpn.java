@@ -1,6 +1,10 @@
 package Load_data;
 
 
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfTextArray;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 import connection.ConnectionDb;
 import java.awt.Font;
 import java.io.File;
@@ -17,11 +21,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -353,6 +360,7 @@ public boolean saveCom(Object[] o){
         last_date = new javax.swing.JLabel();
         comb_cust = new javax.swing.JComboBox();
         jButton3 = new javax.swing.JButton();
+        PDFtransform = new javax.swing.JButton();
 
         setClosable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -523,6 +531,13 @@ public boolean saveCom(Object[] o){
             }
         });
 
+        PDFtransform.setText("load PDF FILE");
+        PDFtransform.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PDFtransformActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -540,6 +555,8 @@ public boolean saveCom(Object[] o){
                         .addGap(45, 45, 45)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(PDFtransform)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1196, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -553,17 +570,20 @@ public boolean saveCom(Object[] o){
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
                             .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(19, 19, 19)
-                        .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(23, 23, 23)
+                        .addComponent(PDFtransform, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         pack();
@@ -699,6 +719,126 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
         
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void PDFtransformActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PDFtransformActionPerformed
+        File selectedFile = null;
+        DefaultTableModel tbm = (DefaultTableModel) grid_po.getModel();
+        tbm.setRowCount(0);
+                    
+                     Map<Integer, String> titre=new HashMap<>();
+                        titre.put(0,"Plan date");
+                        titre.put(1,"Description");
+                        titre.put(2,"Color");
+                        titre.put(3,"Item number");
+                        titre.put(4,"Quantity");
+                        titre.put(5,"U/M");
+                        titre.put(6,"U/Ctn");
+                        titre.put(7,"#Ctns");
+                        titre.put(8,"U/Bag");
+                        titre.put(9,"Pckgng");
+                        titre.put(10,"Box volume");
+                        titre.put(11,"CBM volume");
+                        titre.put(12,"Purch price");
+                        titre.put(13,"Amount"); 
+        int result1 = fileChooser.showOpenDialog(this);
+        int type=0;
+        if (result1 == JFileChooser.APPROVE_OPTION) {
+            selectedFile = fileChooser.getSelectedFile();
+            System.out.println("Selected file: " + selectedFile.getName());
+            String ext="";
+            ext =selectedFile.getName().substring(selectedFile.getName().lastIndexOf(".")+1);
+            System.out.println("Selected file ext: " + ext);
+
+                    if(ext.equals("pdf"))
+                        type=1;
+            if(type!=0){
+                boolean data=false;
+                 try {
+                     PdfReader reader =new PdfReader(selectedFile.getAbsolutePath());
+                     for(int j=1;j<=reader.getNumberOfPages();j++){
+                         String Page=PdfTextExtractor.getTextFromPage(reader, j);
+                     int lins=Page.split("\n").length;
+                     for(int i=0;i<lins;i++){
+                         String text=Page.split("\n")[i];
+                         if(text.trim().isEmpty()|| text.trim().contains("**")
+                                 ||text.startsWith("         ")
+                                 ||text.trim().startsWith("-----------")
+                                 ||text.contains("PO ADD LINE")
+                                 )
+                             continue;
+                         System.out.println("line tab:"+text.trim().split("  ").length);
+                         System.out.println("text:"+text);
+                         String val="";
+                         
+                         if(text.toLowerCase().contains("ship date")){
+                             val=text.substring(text.indexOf(":")+1).trim();
+                             val=val.substring(0, val.indexOf("  ")).trim();
+                             ship_date.setText(val);
+                             data=false;
+                             continue;
+                         }
+                         if(text.toLowerCase().contains("po date")){
+                             val=text.substring(text.indexOf(":")+1).trim();
+                             val=val.substring(0, val.indexOf("  ")).trim();
+                             po_date.setText(val);
+                             data=false;
+                             continue;
+                         }
+                         if(text.toLowerCase().contains("req de")){
+                             val=text.substring(12).trim();
+                             val=val.substring(0, val.indexOf("  ")).trim();
+                             last_date.setText(val);
+                             data=false;
+                             continue;
+                         }
+                         if(text.toLowerCase().contains("po no")){
+                             val=text.substring(8).trim();
+                             val=val;
+                                po_text.setText(val);
+                               ispo=true;
+                               data=false;
+                               continue;
+                            }
+                         if(text.toLowerCase().contains("po add line")){
+                                continue;
+                            }
+                        if(text.trim().startsWith("Plan date")){
+                            for(Map.Entry<Integer,String> st:titre.entrySet()){
+                                text=text.trim();
+                                System.out.println("text:"+text+"\n st:"+st.getValue());
+                                if(!text.startsWith(st.getValue())){
+                                    JOptionPane.showMessageDialog(this, "please use the right format, the header must be like below\n"
+                                            + String.join(",", titre.values()));
+                                   return; 
+                                }
+                                text=text.substring(st.getValue().length());
+                            }
+                            grid_po.setModel(new DefaultTableModel(new Object[0][],titre.values().toArray()));
+                            tbm = (DefaultTableModel) grid_po.getModel();
+                            tbm.setRowCount(0);
+                            data=true;
+                            continue;
+                        }
+                        
+                        if(data){
+                            List<String> dataRow=Stream.of(text.trim().split("  ")).filter(st->{return !st.isEmpty();}).collect(Collectors.toList());
+                            tbm.addRow(dataRow.toArray() );
+                        }
+                     }
+                     jButton3.setVisible(ispo);
+                     System.out.println("length:"+lins);
+                     }
+                 } catch (IOException ex) {
+                     Logger.getLogger(loadFrame.class.getName()).log(Level.SEVERE, null, ex);
+                 }
+                 
+            }else{
+                JOptionPane.showMessageDialog(this, "This file can't be open\nplease verify", "Error", JOptionPane.ERROR_MESSAGE);
+            }      
+
+
+        }
+    }//GEN-LAST:event_PDFtransformActionPerformed
+
     private int Po_Exist(String Po){
          try {
              String query="select ordnum_147 from shoporder where ordref_147=?";
@@ -733,10 +873,11 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
            ",REWORK_10,CRTSNS_10,TTLSNS_10,FORCUR_10,EXCESS_10,UOMCST_10,UOMCNV_10,INSREQ_10,CREDTE_10,RTEREV_10,RTEDTE_10"+
            ",COMCDE_10,ORDPTP_10,JOBEXP_10,JOBCST_10,TAXCDE_10,TAX1_10,GLREF_10,CURR_10,UDFKEY_10,UDFREF_10,DISC_10,RECCOST_10"+
            ",MPNMFG_10,DEXPFLG_10,PLSTPRNT_10,ROUTPRNT_10,REQUES_10,ALTBOM_10,ALTRTG_10,CLASS_10,JOB_10,SUBSHP_10,XDFDTE_10) "+
-            "VALUES (?,?,?,?,?,'N','N','MS','"+ord+"0000','',?,'',?,?,?,?,'',?,'','N','3','FG1-FP1',?,?,'',?,0,'N','B','',"+
-           "?,1,'',?,'R','','N','','',0,'N','','','Y','N',0,0,0,0,0,'',?,'',NULL,'SKU','M','Y',0,'',0,'','','',?,0,0,'','N'"+
+            "VALUES (?,'00','00',?,?,'N','N','MS','"+ord+"0000','',?,'',?,?,?,?,'',?,'','N','3','FG1-FP1',?,?,'',?,0,'N','B','',"+
+           "?,1,'',?,'Q','','N','','',0,'N','','','N','N',0,0,0,0,0,'',?,'',NULL,'SKU','M','Y',0,'',0,'','','',?,0,0,'','N'"+
             ",'N','N','','','','','',0,?)";
-      return conn.Update(query,1, ord,line,del,partid,po_date,shipdate,qty,qty,qty,po_date,po_date,po,brand,lbs,poPrice,po.split("_")[0],po_date,udf,X_factory);
+        
+      return conn.Update(query,1, ord,partid,po_date,shipdate,qty,qty,qty,po_date,po_date,po,brand,lbs,poPrice,po.split("_")[0],po_date,udf,X_factory);
       
     }
     
@@ -803,6 +944,7 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
   
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton PDFtransform;
     private javax.swing.JComboBox comb_cust;
     private javax.swing.JTable grid_po;
     private javax.swing.JButton jButton1;

@@ -8,11 +8,14 @@ package view;
 import connection.ConnectionDb;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,18 +26,28 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  *
@@ -47,8 +60,11 @@ public class New_shipment extends javax.swing.JInternalFrame {
     private DefaultTableModel tbm,tbm1;
     private Set<String> listLpn;
     private int boxes,pieces;
-    private JFileChooser file;
     private Task task;
+    private JMenuItem delete;
+    int ship_id=0;
+    private final JFileChooser fileChooser=new JFileChooser();
+    private DataFormatter formatdata;
     
     private class Task extends SwingWorker<Integer,Object>{
 
@@ -141,7 +157,7 @@ public class New_shipment extends javax.swing.JInternalFrame {
     }
     private int shipmentInfos(String shipment_no,String cont){
         ResultSet rs=conn.select("select id from shipments where shipment_number=?", shipment_no);
-            int ship_id=0;
+            
             try {
                 while(rs.next())
                     ship_id=rs.getInt("id");
@@ -177,17 +193,28 @@ public class New_shipment extends javax.swing.JInternalFrame {
     
     private void init(){
         conn = ConnectionDb.instance();
-        file=new JFileChooser("C:/",FileSystemView.getFileSystemView());
         listData=new HashMap<>();
         choose_ship.setModel(new javax.swing.DefaultComboBoxModel(loadCombo()));
         tbm = (DefaultTableModel) grid_data.getModel();
         tbm.setRowCount(0);
         tbm1 = (DefaultTableModel) grid_error.getModel();
         tbm1.setRowCount(0);
-        //tbm.f
+        formatdata=new DataFormatter();
         boxes=0;
         pieces=0;
-        
+        delete=new JMenuItem("Remove box");
+        delete.addActionListener((evt)->{
+            String lpn=grid_data.getValueAt(grid_data.getSelectedRow(), 0).toString().trim();
+            String requete="delete from box_shipped where idlpn=(select id from box_contain where lpn=?)";
+            String requete1="update BOX_CONTAIN set shipment_id=NULL,STATUS=4 where lpn=?";
+            
+            if(conn.Update(requete, 0, lpn)&& conn.Update(requete1, 0, lpn)){
+                JOptionPane.showMessageDialog(this, lpn+" has removed from shipment", "Succes", JOptionPane.INFORMATION_MESSAGE);
+                tbm.removeRow(grid_data.getSelectedRow());
+            }
+        });
+        Popup.add(delete);
+                
     }
     
     @SuppressWarnings("unchecked")
@@ -203,6 +230,7 @@ public class New_shipment extends javax.swing.JInternalFrame {
         choose_ship = new javax.swing.JComboBox();
         customer_lab = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         lab_ship = new javax.swing.JLabel();
@@ -262,10 +290,17 @@ public class New_shipment extends javax.swing.JInternalFrame {
         customer_lab.setText("jLabel1");
         customer_lab.setVisible(false);
 
-        jButton1.setText("Load gbg shipment");
+        jButton1.setText("clear shipments");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Upload lpn in shipment");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
             }
         });
 
@@ -287,30 +322,30 @@ public class New_shipment extends javax.swing.JInternalFrame {
                 .addGap(199, 199, 199)
                 .addComponent(customer_lab, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(29, 29, 29))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(choose_ship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(customer_lab, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(4, 4, 4)
-                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(1, 1, 1)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(choose_ship, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(customer_lab, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(1, 1, 1)
-                                .addComponent(jTextField1))
-                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 1, Short.MAX_VALUE)))
-                .addContainerGap())
+                            .addComponent(jTextField1)
+                            .addComponent(jButton1)))
+                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
 
         lab_ship.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -342,6 +377,14 @@ public class New_shipment extends javax.swing.JInternalFrame {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        grid_data.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                grid_dataMouseClicked(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                grid_dataMouseReleased(evt);
             }
         });
         jScrollPane4.setViewportView(grid_data);
@@ -505,13 +548,16 @@ public class New_shipment extends javax.swing.JInternalFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1037, Short.MAX_VALUE)
-            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(0, 0, 0)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -563,90 +609,40 @@ public class New_shipment extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_choose_shipActionPerformed
 
+    private void grid_dataMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_grid_dataMouseClicked
+        // TODO add your handling code here:
+        if(evt.getButton()==MouseEvent.BUTTON3){
+            if(!grid_data.getSelectionModel().isSelectionEmpty())
+            Popup.show(grid_data,evt.getX(),evt.getY());
+            else
+                JOptionPane.showMessageDialog(this, "Please select a row!", "Warning", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }//GEN-LAST:event_grid_dataMouseClicked
+
+    private void grid_dataMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_grid_dataMouseReleased
+        // TODO add your handling code here:
+        if(evt.getButton()==MouseEvent.BUTTON3){
+            if(!grid_data.getSelectionModel().isSelectionEmpty())
+            Popup.show(grid_data,evt.getX(),evt.getY());
+            else
+                JOptionPane.showMessageDialog(this, "Please select a row!", "Warning", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }//GEN-LAST:event_grid_dataMouseReleased
+
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        file.setDialogTitle("Open file");
-        file.setMultiSelectionEnabled(true);
-        long nline=0;
-        file.setFileFilter(new FileNameExtensionFilter("text file","txt","TXT"));
-        List<Object[]> lpn=new ArrayList<>();
-        String cust="GBG";
-        int returnAct=file.showOpenDialog(this);
-        if(returnAct==JFileChooser.APPROVE_OPTION){
-            progress_bar.setIndeterminate(true);
-            progress_bar.setString("loading");
-            progress_bar.setStringPainted(true);
-            try {
-                String lpn_no="",shipment_no="",billing="",container="",date="";
-                File[] files=file.getSelectedFiles();
-                InputStream fileIn;
-                int n=0,ship_id=0;
-                for(int j=0;j<files.length;j++){
-                boolean firstline=true;
-                fileIn = new FileInputStream(files[j]);
-                InputStreamReader rea=new FileReader(files[j]);
-                BufferedReader reader=new BufferedReader(rea);
-                
-                String line="";
-                Object infos[]=new Object[11];
-                
-                 while((line=reader.readLine())!=null){
-                         if(firstline){
-                             firstline=false;
-                             int i=0;
-                             while(!line.trim().isEmpty()){
-                                 line=line.trim();
-                                 try{
-                                 infos[i]=line.substring(0, line.indexOf("  "));
-                                 line=line.substring(line.indexOf("  "));
-                                 }catch(StringIndexOutOfBoundsException e){
-                                        infos[i]=line;
-                                        line="";
-                                 }
-                                 System.out.println(infos[i]);
-                                 System.out.println(line);
-                                 i++;
-                             }
-                             date=infos[0].toString();
-                             container=infos[2].toString();
-                             shipment_no=infos[3].toString();
-                             String typ="ALL";
-                             cust="GBG";
-                         }else{
-                             lpn_no=line.trim().substring(3).trim();
-                             Object[] lineinfos=new Object[4];
-                             lineinfos[0]=lpn_no;
-                             lineinfos[1]=shipment_no;
-                             lineinfos[2]=container;
-                             lineinfos[3]=date;
-                             lpn.add(lineinfos);
-                             nline++;
-                         }
-                 }
-                }
-            }catch(IOException e){
-                
-            }
-            System.out.println("nline:"+lpn.size());
-            
-             task=new Task();
-            task.addPropertyChangeListener(new PropertyChangeListener() {
-
-                @Override
-                public void propertyChange(PropertyChangeEvent evt) {
-                    if(evt.getPropertyName().equals("progress")){
-                        progress_bar.setValue((Integer)evt.getNewValue());
-                        progress_bar.setString(progress_bar.getValue()+"%");
-                    }
-                }
-            });
-             task.setDonnees(lpn);
-             task.setTablemodel(tbm);
-             task.setTotal(nline);
-             task.execute();
-
+        String requete="update BOX_CONTAIN set shipment_id=NULL,STATUS=4 where shipment_id=?";
+        String requete2="delete from box_shipped where shipment_id=?";
+        if(conn.Update(requete, 0,listData.get(choose_ship.getSelectedItem().toString())[0].toString()) && conn.Update(requete2, 0, listData.get(choose_ship.getSelectedItem().toString())[0].toString())){
+            JOptionPane.showMessageDialog(this, "Shipment cleared!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            fillTable(Integer.parseInt(listData.get(choose_ship.getSelectedItem().toString())[0].toString()),customer_lab.getText());
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        load();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void initialized(int id){
         String requete="select * from shipments where id=?";
@@ -670,6 +666,7 @@ public class New_shipment extends javax.swing.JInternalFrame {
         listLpn=new HashSet<>();
         boxes=0;
         pieces=0;
+        tbm.setRowCount(0);
         String requete="select * from lpn where shipment_id=? and brand=?";
         ResultSet rs=conn.select(requete, id,brand);
         try {
@@ -724,20 +721,25 @@ public class New_shipment extends javax.swing.JInternalFrame {
             if(!listLpn.contains(lpn)){
                 Object[][] data=ob;
                 int stat=Integer.parseInt(data[0][1].toString());
-                if(data[0][3].toString().equals(customer_lab.getText())){
+                
                 if(Integer.parseInt(data[0][2].toString())!=0){
                     System.out.println(data[0][2]);
-                    ErrorLpn="already shipped.";
-                    ////JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
-                        //+ "- already shipped.", "error scanning", JOptionPane.ERROR_MESSAGE);
-                }else
-                return true;
-                }else
-            {
-                //JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
-                    //+ "- you can't scan a "+data[3].toString().trim()+" lpn in a "+customer_lab.getText().trim()+".", "error scanning", JOptionPane.ERROR_MESSAGE);
-             ErrorLpn="invalid lpn.";
-            }
+                    ErrorLpn="already shipped in shipment :"+data[0][15].toString();
+                }else{
+                    if(stat==4){
+                        if(!data[0][3].toString().trim().equals(customer_lab.getText())){
+                            ErrorLpn="invalid lpn.Lpn doesn't match customer";
+                        }
+                        return true;
+                    }
+                    else if(stat<2){
+                        ErrorLpn="lpn not audited yet";
+                    }
+                    else{
+                        ErrorLpn="Not yet scan in warehouse";
+                    }
+                }
+                
             }else{
              //JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
                     //+ "- already scan this shipment.", "error scanning", JOptionPane.ERROR_MESSAGE);
@@ -755,50 +757,11 @@ public class New_shipment extends javax.swing.JInternalFrame {
             if(ErrorLpn!=null){
             tbm1.addRow(new Object[]{lpn,ErrorLpn});
             System.err.println(lpn+" : "+ErrorLpn);
+            return false;
             }
-        return false;
+        return true;
     }
     
-    private boolean canScanGBG(Object[][] ob,String lpn){
-        String ErrorLpn=null;
-        //if(ob!=null){
-        try{
-            if(!listLpn.contains(lpn)){
-                Object[][] data=ob;
-                int stat=Integer.parseInt(data[0][1].toString());
-                if(data[0][3].toString().equals(customer_lab.getText())){
-                if(Integer.parseInt(data[0][2].toString())!=0){
-                    System.out.println(data[0][2]);
-                    ErrorLpn="already shipped.";
-                    //JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
-                        //+ "- already shipped.", "error scanning", JOptionPane.ERROR_MESSAGE);
-                }
-                return true;
-                }else
-            {
-                //JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
-                    //+ "- you can't scan a "+data[3].toString().trim()+" lpn in a "+customer_lab.getText().trim()+".", "error scanning", JOptionPane.ERROR_MESSAGE);
-             ErrorLpn="invalid lpn.";
-            }
-            }else{
-             //JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
-                   // + "- already scan this shipment.", "error scanning", JOptionPane.ERROR_MESSAGE);
-             ErrorLpn="Duplicate lpn.";
-            }
-        }catch(NullPointerException e){
-            //JOptionPane.showMessageDialog(this, "This Lpn cant be scan \n\t "
-                    //+ "- not packed yet from wip.", "error scanning", JOptionPane.ERROR_MESSAGE);
-            ErrorLpn="Not Valid by WIP.";
-        }
-        //}else{
-            //ErrorLpn="invalid lpn.";
-        //}
-            if(ErrorLpn!=null){
-            tbm1.addRow(new Object[]{lpn,ErrorLpn});
-            System.err.println(lpn+" : "+ErrorLpn);
-            }
-        return false;
-    }
     
     private boolean set(String lpn){
         Object[][] data=getLpn(lpn,customer_lab.getText());
@@ -807,9 +770,12 @@ public class New_shipment extends javax.swing.JInternalFrame {
         boolean istrue=false,ismix=false;
         String lpn_mix="";
         
-        
+        try {
+            conn.getConnection().setAutoCommit(false);
+        } catch (SQLException ex) {
+            Logger.getLogger(New_shipment.class.getName()).log(Level.SEVERE, null, ex);
+        }
         if(canScan(data,lpn)){
-            
             if((Integer)data[0][12]!=0){
                 ismix=true;
                 idlpn_mix=(Integer)data[0][12];
@@ -821,12 +787,31 @@ public class New_shipment extends javax.swing.JInternalFrame {
                 listLpn.add(lpn);
             for(Object[] o:data){
             idlpn=Integer.parseInt(o[0].toString());
+            idbox=Integer.parseInt(o[13].toString());
+            conn.Update("insert into box_shipped (shipment_id,idlpn,box_id,qty,confirm_qty) values(?,?,?,?,?)",0,shipment_id,
+                    idlpn,idbox,o[10], o[14]);
             String requete="update box_contain set status=3,scan_date=?,shipment_id=? where id=?";
             tbm.addRow(new Object[]{o[8],o[4],o[5],o[6].toString().substring(o[6].toString().indexOf(".")+1, o[6].toString().lastIndexOf(".")),o[7],o[9],o[10],ismix,lpn_mix});
             
             istrue=conn.Update(requete, 0, new Date(),shipment_id,idlpn);
             //boxes++;
             pieces+=Integer.parseInt(o[10].toString());
+            }
+            try {
+                conn.getConnection().commit();
+            } catch (SQLException ex) {
+                try {
+                    conn.getConnection().rollback();
+                    conn.getConnection().setAutoCommit(true);
+                } catch (SQLException ex1) {
+                    Logger.getLogger(New_shipment.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+                Logger.getLogger(New_shipment.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                conn.getConnection().setAutoCommit(true);
+            } catch (SQLException ex) {
+                Logger.getLogger(New_shipment.class.getName()).log(Level.SEVERE, null, ex);
             }
             boxes++;
             lab_box_aug.setText(String.valueOf(boxes));
@@ -845,7 +830,7 @@ public class New_shipment extends javax.swing.JInternalFrame {
     private Object[][] getLpn(String lpn,String customer){
         Object[][] data=null;
         String requete="select * from shipproom where lpn_to_scan=? or BOX_STICKERS=?";
-        ResultSet rs=conn.select(requete,jTextField1.getText().trim());
+        ResultSet rs=conn.select(requete,jTextField1.getText().trim(),jTextField1.getText().trim());
         
         
     try {
@@ -858,7 +843,7 @@ public class New_shipment extends javax.swing.JInternalFrame {
             Object[] o=new Object[]{
             rs.getString("id"),rs.getString("status"),rs.getInt("shipment_id"),rs.getString("brand"),rs.getString("ponum"),
             rs.getString("style"),rs.getString("sku"),rs.getString("coldsp"),rs.getString("lpn"),rs.getString("size"),
-            rs.getInt("qty"),rs.getString("lpn_mix"),rs.getInt("boxmix_id"),rs.getInt("box_id")};
+            rs.getInt("qty"),rs.getString("lpn_mix"),rs.getInt("boxmix_id"),rs.getInt("box_id"),rs.getInt("lastqty"),rs.getString("shipment_number")};
             data[i]=o;
             i++;
         }
@@ -875,6 +860,7 @@ public class New_shipment extends javax.swing.JInternalFrame {
     private javax.swing.JTable grid_error;
     private javax.swing.JLabel infos_loading;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel18;
@@ -901,7 +887,7 @@ public class New_shipment extends javax.swing.JInternalFrame {
     private javax.swing.JLabel txt_date;
     private javax.swing.JLabel txt_type;
     // End of variables declaration//GEN-END:variables
-    
+    private JPopupMenu Popup=new JPopupMenu();
     class T implements Runnable{
 
     private String lpn;
@@ -915,36 +901,69 @@ public class New_shipment extends javax.swing.JInternalFrame {
     }
         @Override
         public void run() {
-            Object[][] data=getLpn(lpn,cus);
-            int idlpn=0,idlpn_mix=0;
-            int shipment_id=ship;
-            boolean istrue=false,ismix=false;
-            String lpn_mix="";
-            if(canScanGBG(data,lpn)){
             
-            if((Integer)data[0][12]!=0){
-                ismix=true;
-                idlpn_mix=(Integer)data[0][12];
-                lpn_mix=data[0][11].toString();
-                listLpn.add(lpn_mix);
-                String requete="update mix_box set scanned=1,shipment_id=? where id=?";
-                conn.Update(requete, 0, shipment_id,idlpn_mix);
-            }else
-                listLpn.add(lpn);
-            for(Object[] o:data){
-            idlpn=Integer.parseInt(o[0].toString());
-            String requete="update box_contain set status=3,scan_date=?,shipment_id=? where id=?";
-            tbm.addRow(new Object[]{o[8],o[4],o[5],o[6].toString().substring(o[6].toString().indexOf(".")+1, o[6].toString().lastIndexOf(".")),o[7],o[9],o[10],ismix,lpn_mix});
-            
-            istrue=conn.Update(requete, 0, new Date(),shipment_id,idlpn);
-            //boxes++;
-            pieces+=Integer.parseInt(o[10].toString());
-            }
-            boxes++;
-            lab_box_aug.setText(String.valueOf(boxes));
-            lab_piece_aug.setText(String.valueOf(pieces));
-        }
         }
     
-}
+    }
+    
+    private void load(){
+        File selectedFile = null;
+        int result1 = fileChooser.showOpenDialog(this);
+        int type=0;
+        if (result1 == JFileChooser.APPROVE_OPTION) {
+            selectedFile = fileChooser.getSelectedFile();
+            System.out.println("Selected file: " + selectedFile.getName());
+    
+            String ext="";
+            ext =selectedFile.getName().substring(selectedFile.getName().lastIndexOf(".")+1);
+            System.out.println("Selected file ext: " + ext);
+            
+            if(ext.equals("xlsx"))
+                type=1;
+            if(ext.equals("xls"))
+                type=2;
+            if(type!=0){                
+                try {
+                    read(type,selectedFile.getAbsolutePath());
+                } catch (IOException ex) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+                }   
+            }else{
+                JOptionPane.showMessageDialog(this, "This file can't be open\nplease verify", "Error", JOptionPane.ERROR_MESSAGE);
+            }      
+        }     
+    }
+    
+    public void read(int type,String inputFile) throws IOException  {
+        FileInputStream fis = new FileInputStream(inputFile);
+        Sheet sheet=null;
+        Workbook book1=null;
+        if(type==1)
+            book1 = new XSSFWorkbook(fis);
+        if(type==2)
+            book1 = new HSSFWorkbook(fis);
+        
+        sheet = book1.getSheetAt(0);
+        Map<Integer,String> obj=new HashMap<>();
+        Iterator<Row> itr = sheet.iterator();
+        List<Object> titre=new ArrayList<>();
+            Row tit=sheet.getRow(0);
+            Cell ce=tit.getCell(0);
+            if(formatdata.formatCellValue(ce).trim().toLowerCase().contains("lpn")){
+                itr.next();
+                while (itr.hasNext()) {
+                    tit=itr.next();
+                    ce=tit.getCell(0);
+                    String val=formatdata.formatCellValue(ce).trim();
+                    if(val.trim().isEmpty())
+                        return;
+                    jTextField1.setText(val);
+                    set(jTextField1.getText().trim());
+                    jTextField1.setText("");
+                    
+                }
+            }else
+                return;
+             
+    }
 }

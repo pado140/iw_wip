@@ -25,7 +25,7 @@ import observateurs.Observateurs;
 public class Audit_form extends javax.swing.JInternalFrame implements Observateurs{
 private final ConnectionDb conn = ConnectionDb.instance();
 private Map<Object,Integer> list;
-private Object[] auditor;
+private Object[] auditor,inspector_val;
 private Object[] operation;
 private Object[] defect;
 private int batch_id;
@@ -162,11 +162,16 @@ private DefaultTableModel tbm1;
         jButton3 = new javax.swing.JButton();
         OPERATION = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
+        jLabel22 = new javax.swing.JLabel();
+        inspector = new javax.swing.JTextField();
+        select_inspect = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         RESULT = new javax.swing.JTextArea();
         jLabel18 = new javax.swing.JLabel();
         AUDITOR = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
+        jLabel20 = new javax.swing.JLabel();
+        packers = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
         jLabel19 = new javax.swing.JLabel();
         boxes = new javax.swing.JLabel();
@@ -428,17 +433,17 @@ private DefaultTableModel tbm1;
 
         defect_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "DEFECT CODE", "DEFO/DEFECT", "QTY", "OPERATION", "defect_id", "operation_id"
+                "DEFECT CODE", "DEFO/DEFECT", "QTY", "OPERATION", "defect_id", "operation_id", "INSPECTOR", "INSPECTOR_ID"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -457,6 +462,8 @@ private DefaultTableModel tbm1;
             defect_table.getColumnModel().getColumn(4).setMaxWidth(0);
             defect_table.getColumnModel().getColumn(5).setMinWidth(0);
             defect_table.getColumnModel().getColumn(5).setMaxWidth(0);
+            defect_table.getColumnModel().getColumn(7).setMinWidth(0);
+            defect_table.getColumnModel().getColumn(7).setMaxWidth(0);
         }
 
         jLabel15.setText("DEFECT CODE:");
@@ -491,6 +498,23 @@ private DefaultTableModel tbm1;
             }
         });
 
+        jLabel22.setText("Inspector:");
+
+        inspector.setEditable(false);
+        inspector.setText("N/A");
+        inspector.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inspectorActionPerformed(evt);
+            }
+        });
+
+        select_inspect.setText("jButton2");
+        select_inspect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                select_inspectActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -499,25 +523,29 @@ private DefaultTableModel tbm1;
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addComponent(jLabel15)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(38, 38, 38)
                 .addComponent(jLabel16)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(QTY_DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel17)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(OPERATION, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(OPERATION, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel22)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(inspector, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(select_inspect, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(ADD)
                 .addContainerGap())
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 886, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+            .addComponent(jScrollPane2)
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -527,13 +555,16 @@ private DefaultTableModel tbm1;
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                         .addComponent(OPERATION, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButton4))
+                        .addComponent(jButton4)
+                        .addComponent(ADD)
+                        .addComponent(inspector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(select_inspect, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel22))
                     .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
                         .addComponent(jLabel16)
                         .addComponent(QTY_DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel17)
-                        .addComponent(ADD)
                         .addComponent(DEFECT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jButton3)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -563,80 +594,88 @@ private DefaultTableModel tbm1;
             }
         });
 
+        jLabel20.setText("Packers:");
+
         javax.swing.GroupLayout detailsLayout = new javax.swing.GroupLayout(details);
         details.setLayout(detailsLayout);
         detailsLayout.setHorizontalGroup(
             detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane3)
             .addGroup(detailsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane3)
+                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(detailsLayout.createSequentialGroup()
                         .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(detailsLayout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(AUDIT_DATE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(81, 81, 81)
-                                .addComponent(jLabel3))
                             .addComponent(jLabel18, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
-                        .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(detailsLayout.createSequentialGroup()
-                                .addComponent(AUDITOR, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, 0)
-                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(75, 75, 75)
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(PULLED, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(49, 49, 49)
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(REVIEWED, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(25, 25, 25))
+                        .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailsLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(AUDIT_DATE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(48, 48, 48)
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(AUDITOR, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, 0)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(75, 75, 75)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(PULLED, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(49, 49, 49)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(REVIEWED, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(55, 55, 55)
+                        .addComponent(jLabel20)
+                        .addGap(18, 18, 18)
+                        .addComponent(packers, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(86, 86, 86)))
+                .addContainerGap())
         );
         detailsLayout.setVerticalGroup(
             detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(detailsLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(AUDITOR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(detailsLayout.createSequentialGroup()
-                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel18)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(detailsLayout.createSequentialGroup()
+                .addGap(11, 11, 11)
                 .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(detailsLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(jLabel3))
+                        .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                                .addComponent(AUDITOR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(detailsLayout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(jLabel3))
+                            .addGroup(detailsLayout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addComponent(PULLED, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(detailsLayout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(jLabel4))
+                            .addGroup(detailsLayout.createSequentialGroup()
+                                .addGap(2, 2, 2)
+                                .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(REVIEWED, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel20)
+                                    .addComponent(packers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(detailsLayout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(jLabel5)))
+                        .addGap(6, 6, 6)
+                        .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(detailsLayout.createSequentialGroup()
+                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
+                                .addComponent(jLabel18)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(detailsLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(PULLED, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(detailsLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(jLabel4))
-                    .addGroup(detailsLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(REVIEWED, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(detailsLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(jLabel5))
-                    .addGroup(detailsLayout.createSequentialGroup()
-                        .addGap(11, 11, 11)
                         .addGroup(detailsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel2)
-                            .addComponent(AUDIT_DATE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(337, 337, 337))
+                            .addComponent(AUDIT_DATE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(338, 338, 338))))
         );
 
         jLabel19.setText("Total Boxes:");
@@ -687,7 +726,7 @@ private DefaultTableModel tbm1;
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(details, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(details, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0))
@@ -770,18 +809,18 @@ private DefaultTableModel tbm1;
                 conn.Update("insert into batch_transac (batch_id,status,user_id) values(?,?,?)", 0,batch_id,!passall.isSelected()?"fail":"pass",Principal.user_id);
                 String requete2="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('Audit',?,0,7,?,NULL,NULL,?)";
                 conn.Update(requete2, 0, new Object[]{batch_id,"audit batch",Principal.user_id});
-                conn.Update("insert into audit (batch_id,user_id,result,details,polybag_warn,polabel,sticker,thread,folding,shipping,cartons,pieces,auditor_id,date) values("
-                        + "?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 1, batch_id,Principal.user_id,passall.isSelected(),RESULT.getText(),POLYBAG.isSelected(),POLABEL.getText(),STICKER.getText(),
-                        THREAD.isSelected(),FOLDING.isSelected(),SHIPPINGMARKS.getText(),PULLED.getText(),REVIEWED.getText(),auditor[1],AUDIT_DATE.getDate());
+                conn.Update("insert into audit (batch_id,user_id,result,details,polybag_warn,polabel,sticker,thread,folding,shipping,cartons,pieces,auditor_id,date,parckers) values("
+                        + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 1, batch_id,Principal.user_id,passall.isSelected(),RESULT.getText(),POLYBAG.isSelected(),POLABEL.getText(),STICKER.getText(),
+                        THREAD.isSelected(),FOLDING.isSelected(),SHIPPINGMARKS.getText(),PULLED.getText(),REVIEWED.getText(),auditor[1],AUDIT_DATE.getDate(),packers.getText().trim());
                     int auditid=conn.getLast();
                     for(int j=0;j<defect_table.getRowCount();j++){
                         if(defect_table.getValueAt(j, 5)==null){
-                            conn.Update("insert into defect_audit (defect_id,audit_id,qty) values (?,?,?)",
-                                0,defect_table.getValueAt(j, 4), auditid,defect_table.getValueAt(j, 2));
+                            conn.Update("insert into defect_audit (defect_id,audit_id,qty,inspector_id) values (?,?,?,?)",
+                                0,defect_table.getValueAt(j, 4), auditid,defect_table.getValueAt(j, 2),defect_table.getValueAt(j, 7));
                         }else{
-                        conn.Update("insert into defect_audit (defect_id,audit_id,qty,[operation_audit_id]) values (?,?,?,?)",
+                        conn.Update("insert into defect_audit (defect_id,audit_id,qty,[operation_audit_id],inspector_id) values (?,?,?,?,?)",
                                 0,defect_table.getValueAt(j, 4), auditid,defect_table.getValueAt(j, 2),
-                                        defect_table.getValueAt(j, 5));
+                                        defect_table.getValueAt(j, 5),defect_table.getValueAt(j, 7));
                         }
                     }
                 for(int i=0;i<grid_data.getRowCount();i++){
@@ -817,6 +856,8 @@ private DefaultTableModel tbm1;
             } catch (SQLException ex) {
                 try {
                     conn.getConnection().rollback();
+                    JOptionPane.showMessageDialog(this, "Error");
+                    init();
                 } catch (SQLException ex1) {
                     Logger.getLogger(Audit_form.class.getName()).log(Level.SEVERE, null, ex1);
                 }
@@ -849,8 +890,8 @@ private DefaultTableModel tbm1;
 
     private void ADDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ADDActionPerformed
         // TODO add your handling code here:
-        if(defect!=null && Integer.parseInt(QTY_DEFECT.getValue().toString())>0 ){
-            Object[] data=new Object[]{defect[1],defect[2]+"/"+defect[4],QTY_DEFECT.getValue(),null,defect[0],null};
+        if(defect!=null && Integer.parseInt(QTY_DEFECT.getValue().toString())>0 && inspector_val!=null){
+            Object[] data=new Object[]{defect[1],defect[2]+"/"+defect[4],QTY_DEFECT.getValue(),null,defect[0],null,inspector_val[0],inspector_val[1]};
             if(operation!=null){
                 data[3]=operation[0];
                 data[5]=operation[1];
@@ -874,7 +915,7 @@ private DefaultTableModel tbm1;
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        AuditorForm af=new AuditorForm(null, true);
+        AuditorForm af=new AuditorForm(null, true,"auditor");
         af.ajouterObservateur(this);
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -922,6 +963,27 @@ private DefaultTableModel tbm1;
             }
         });
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void inspectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inspectorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inspectorActionPerformed
+
+    private void select_inspectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_select_inspectActionPerformed
+        // TODO add your handling code here:
+        AuditorForm af=new AuditorForm(null, true,"inspector");
+        af.ajouterObservateur(this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                af.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        af.dispose(); 
+                    }
+                });
+                af.setVisible(true);
+            }
+        });
+    }//GEN-LAST:event_select_inspectActionPerformed
 
     private void Audit(int lbid,int lpid,boolean check,String box_sticker,int qty,int audit_id){
         String requete="update batches_lpn set status=? where id=?";
@@ -977,6 +1039,7 @@ private DefaultTableModel tbm1;
     private javax.swing.JTable defect_table;
     private javax.swing.JPanel details;
     private javax.swing.JTable grid_data;
+    private javax.swing.JTextField inspector;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -993,7 +1056,9 @@ private DefaultTableModel tbm1;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1009,8 +1074,10 @@ private DefaultTableModel tbm1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTextField packers;
     private javax.swing.JCheckBox passall;
     private javax.swing.JLabel pieces;
+    private javax.swing.JButton select_inspect;
     // End of variables declaration//GEN-END:variables
     private final Map<String,Object[]> Auditors=new LinkedHashMap(),Operations=new LinkedHashMap(),Defects=new LinkedHashMap();
     
@@ -1019,6 +1086,10 @@ private DefaultTableModel tbm1;
         if(obs[0].equals("auditor_select")){
             auditor=(Object[])obs[1];
              AUDITOR.setText(auditor[0].toString());
+        }
+        if(obs[0].equals("inspector_select")){
+            inspector_val=(Object[])obs[1];
+             inspector.setText(inspector_val[0].toString());
         }
         if(obs[0].equals("defect_seleted")){
             defect=(Object[])obs[1];

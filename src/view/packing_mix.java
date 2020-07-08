@@ -5,6 +5,11 @@
  */
 package view;
 
+import admin.Manager.ManagerFactory;
+import admin.Manager.Managerlist;
+import admin.objets.BoxDetails;
+import admin.objets.Lpn;
+import alert.Alert;
 import connection.ConnectionDb;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,6 +17,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -66,6 +72,8 @@ private JFileChooser file;
         jButton3 = new javax.swing.JButton();
         isdefault = new javax.swing.JCheckBox();
         tablelist = new javax.swing.JComboBox();
+        mod = new javax.swing.JComboBox();
+        ismodul = new javax.swing.JCheckBox();
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -109,6 +117,16 @@ private JFileChooser file;
 
         tablelist.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Select table--", "Packing 29-1", "Packing 29-2", "Packing 29-3", "Packing 29-4", "Packing 30-1", "Packing 30-2", "Packing 30-3", "Packing 30-4" }));
 
+        mod.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Please choose module", "MOD 1", "MOD 1A", "MOD 1B", "MOD 2", "MOD 2A", "MOD 2B", "MOD 3", "MOD 4", "MOD 5", "MOD 6", "MOD 7", "MOD 8", "MOD 9", "MOD 10", "MOD 11", "MOD 12", "MOD 13", "MOD 14", "MOD 15", "MOD 16", "MOD 17", "MOD 18", "MOD 19", "MOD 20", "MOD 21", "MOD 22", "MOD 23", "MOD 24", "MOD 25", "MOD 26", "MOD 27", "MOD 28", "MOD 29", "MOD 30", "MOD 31", "MOD 32", "MOD 33", "MOD 34", "MOD 35", "MOD 36", "MOD 37", "MOD 38", "MOD 39", "MOD 40", "MOD 41", "MOD 42", "MOD 43", "MOD 44", "MOD 45", "MOD 46", "MOD 47", "MOD 48", "MOD 49", "MOD 50", "SAMPLE ROOM" }));
+
+        ismodul.setSelected(true);
+        ismodul.setText("Scan in Module");
+        ismodul.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ismodulActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -122,7 +140,12 @@ private JFileChooser file;
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(64, 64, 64)
                         .addComponent(tablelist, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(isdefault))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(isdefault)
+                        .addGap(155, 155, 155)
+                        .addComponent(mod, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(ismodul)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -140,8 +163,11 @@ private JFileChooser file;
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(tablelist, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(isdefault)
+                .addGap(15, 15, 15)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ismodul)
+                    .addComponent(isdefault)
+                    .addComponent(mod, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -236,11 +262,11 @@ private JFileChooser file;
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 682, Short.MAX_VALUE))
+                .addGap(0, 673, Short.MAX_VALUE))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addGap(0, 117, Short.MAX_VALUE)
-                    .addComponent(jSplitPane1)))
+                    .addGap(0, 126, Short.MAX_VALUE)
+                    .addComponent(jSplitPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         pack();
@@ -333,6 +359,10 @@ private JFileChooser file;
         }
     }//GEN-LAST:event_isdefaultActionPerformed
 
+    private void ismodulActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ismodulActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ismodulActionPerformed
+
     private void mostrar(){
     tbm.setRowCount(0);
     tbm1.setRowCount(0);
@@ -354,29 +384,30 @@ private JFileChooser file;
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
         }
 }
-    
+     
     private void act(){
         String table="Both";
-       if(!isdefault.isSelected()&&tablelist.getSelectedIndex()==0){
-           JOptionPane.showInternalMessageDialog(this, "please select a table!!!", "choose table", JOptionPane.WARNING_MESSAGE);
+        String modulo="";
+        
+        if(mod.getSelectedIndex()==0&&(!isdefault.isSelected()&&tablelist.getSelectedIndex()==0)){
+           JOptionPane.showInternalMessageDialog(this, "please select a Module or a table or both!!!", "choose module and table", JOptionPane.WARNING_MESSAGE);
             return;
        }
-       if(tablelist.getSelectedIndex()>0)
-           table=tablelist.getSelectedItem().toString();
-           
-//        new Thread(){
-//            public void run(){
+        if(!ismodul.isSelected()){
+            modulo="";
+        }
+        if(tablelist.getSelectedIndex()>0)
+          table=tablelist.getSelectedItem().toString();
+        modulo=mod.getSelectedItem().toString();
                 String text=jTextField1.getText().trim();
-                T ac=new T(text,table);
+                T ac=new T(text,table,modulo);
                 Thread t=new Thread(ac);
                 t.start();
-            //}
-//        }.start();
         
     }
     private boolean alreadyPacked(String cr){
-        String requete="select count(lpnScan) n from packed_lpn where lpnScan=? or BOX_STICKERS=?";
-        ResultSet rs=conn.select(requete,cr,cr);
+        String requete="select count(lpn) n from BOX_PACKED where lpn=?";
+        ResultSet rs=conn.select(requete,cr);
         boolean check=false;
         try {
             while(rs.next()){
@@ -389,68 +420,126 @@ private JFileChooser file;
         return check;
     }
     
-    
-    private Set<Object[]> atpacking(String cr){
-        String requete1="select work_order,p.sku,state,p.po,p.style,packed,sewn,at_match,at_press,at_wash,lpnScan,box_stickers,qty,second_matchbook,second_press,second_wash,second_ps from process_all p inner join lpn_scan l on(work_order=ORDNUM_147)"
-                + " where  BOX_STICKERS=? or lpnscan=?";
-        ResultSet rs=conn.select(requete1, cr,cr);
-        Set<Object[]> val=new HashSet<>();
-        int qtypack=0;
-        int packed=0,qty=0;
-        String po="",sku="";
-        String status="";
-    
+    private Set<String> getModules(String Workoder){
+        Set<String> val=new HashSet<>();
+        String requete="select * from sew_start  where order_num=?";
+        ResultSet rs=conn.select(requete, Workoder);
     try {
         while(rs.next()){
-            Object[] ob=new Object[5];
-            String order=rs.getString("work_order");
-            sku=rs.getString("sku");
-            po=rs.getString("po");
-            qty=rs.getInt("qty");
-            status=rs.getString("state").trim();
-            packed=rs.getInt("packed");
-            qtypack=rs.getInt("sewn")-packed;
-            String style=rs.getString("style").trim();
-            boolean match=step(style,"MATCHBOOK");
-            boolean wash=step(style,"WASHING");
-            boolean press=step(style,"PRESS");
-            int second=0;
+            val.add(rs.getString("module").trim());
+        }
+    } catch (SQLException ex) {
+        Logger.getLogger(packing_mix.class.getName()).log(Level.SEVERE, null, ex);
+    }
+        return val;
+    }
+//    private Map<Integer,Set<Object[]>> atpacking(String cr){
+//        String requete1="select work_order,p.sku,state,p.po,p.style,packed,sewn,at_match,at_press,at_wash,lpn,stickers,l.qty,second_matchbook,second_press,second_wash,second_ps from process_all p inner join lpn_master l on(work_order=ORDNUM_147)"
+//                + " where  STICKERS=? or lpn=?";
+//        ResultSet rs=conn.select(requete1, cr,cr);
+//        Set<Object[]> val=new HashSet<>();
+//        int qtypack=0;
+//        int packed=0,qty=0;
+//        String po="",sku="";
+//        String status="";
+//    
+//    try {
+//        while(rs.next()){
+//            Object[] ob=new Object[6];
+//            String order=rs.getString("work_order");
+//            sku=rs.getString("sku");
+//            po=rs.getString("po");
+//            qty=rs.getInt("qty");
+//            status=rs.getString("state").trim();
+//            packed=rs.getInt("packed");
+//            qtypack=rs.getInt("sewn")-packed;
+//            String style=rs.getString("style").trim();
+//            boolean match=step(style,"MATCHBOOK");
+//            boolean wash=step(style,"WASHING");
+//            boolean press=step(style,"PRESS");
+//            int second=0;
+//            if(!(match||wash||press) ){
+//                second=rs.getInt("second_ps");
+//                qtypack=rs.getInt("sewn")-(rs.getInt("packed"));
+//            }
+//            else{
+//                second=rs.getInt("second_matchbook")+rs.getInt("second_press")+rs.getInt("second_wash");
+//                qtypack=(match?rs.getInt("at_match"):(press?rs.getInt("at_press"):rs.getInt("at_wash")))-(rs.getInt("packed")+second);
+//            }
+//            System.out.println("pack qty:"+qtypack+"\t vs qty:"+qty);
+//                    //ob[0]=sticker;
+//                    ob[0]=qty;
+//                    ob[1]=qtypack;
+//                    ob[2]=po;
+//                    ob[3]=sku;
+//                    ob[4]=status;
+//                    ob[5]=order;
+//                    val.add(ob);
+//            }
+//    } catch (SQLException ex) {
+//        Logger.getLogger(packing.class.getName()).log(Level.SEVERE, null, ex);
+//    }
+//       return val; 
+//    }
+    private Object[] production(String workorder){
+        String req="select sku,state,po,style,sewn,packed,at_match,at_press,at_wash from process_all where work_order=?";
+        List<Map<String,Object>> data=conn.selectlist(req, workorder);
+        if(data.isEmpty()){
+            Alert.error(this,"This sku is invalid");
+            return null;
+        }
+        Map<String,Object> values=data.get(0);
+        String style=values.get("style").toString().trim();
+        boolean match=step(style,"MATCHBOOK");
+        boolean wash=step(style,"WASHING");
+        boolean press=step(style,"PRESS");
+        int qtypack=0;
             if(!(match||wash||press) ){
-                second=rs.getInt("second_ps");
-                qtypack=rs.getInt("sewn")-(rs.getInt("packed"));
+                qtypack=Integer.parseInt(values.get("sewn").toString())-Integer.parseInt(values.get("packed").toString());
             }
             else{
-                second=rs.getInt("second_matchbook")+rs.getInt("second_press")+rs.getInt("second_wash");
-                qtypack=(match?rs.getInt("at_match"):(press?rs.getInt("at_press"):rs.getInt("at_wash")))-(rs.getInt("packed")+second);
+                qtypack=(match?Integer.parseInt(values.get("at_match").toString()):(press?Integer.parseInt(values.get("at_press").toString())
+                        :Integer.parseInt(values.get("at_wash").toString())))-(Integer.parseInt(values.get("packed").toString()));
             }
-            System.out.println("pack qty:"+qtypack+"\t vs qty:"+qty);
-                    //ob[0]=sticker;
-                    ob[0]=qty;
-                    ob[1]=qtypack;
-                    ob[2]=po;
-                    ob[3]=sku;
-                    ob[4]=status;
-                    val.add(ob);
-            }
-    } catch (SQLException ex) {
-        Logger.getLogger(packing.class.getName()).log(Level.SEVERE, null, ex);
+            
+        return new Object[]{qtypack,values.get("state").toString().trim(),
+        values.get("po").toString().trim(),values.get("sku").toString().trim()};
     }
-       return val; 
+    
+    private Lpn atpacking(String cr){
+        Lpn lpn=new Lpn();
+        lpn.setLpn(cr);
+        lpn=(Lpn)ManagerFactory.createModel(Managerlist.lpn).search(lpn);
+        return lpn;
     }
-    private boolean canSave(Set<Object[]> val){
+    
+    private synchronized boolean packed(Lpn lpn,String table,String module){
+        String requete="insert into box_packed(lpn,qtylpn,skus,box_id,table_packed,module,created_by,modified_by) values (?,?,?,?,?,?,?,?)";
+        return conn.Update(requete, 1, lpn.getLpn().trim(),lpn.getQty(),lpn.getDetails().size(),lpn.getId(),table,module,Principal.user_id,Principal.user_id);
+    }
+    
+    private synchronized boolean canSave(Lpn lpn){
         Erreur="";
-        if(val.isEmpty()){
+        if(lpn==null){
             //JOptionPane.showMessageDialog(this, "this sticker is invalid", "Bad error", JOptionPane.ERROR_MESSAGE);
             Erreur="this sticker is invalid";
             return false;
         }
-        
-        for(Object[] ob:val){
-            if((Integer)ob[0]>(Integer)ob[1]){
+       for(BoxDetails bd:lpn.getDetails()){
+            Object[] ob=production(bd.getOrdnum());
+            if(ismodul.isSelected()){
+            if(!getModules(bd.getOrdnum()).contains(mod.getSelectedItem().toString())){
+                Erreur="this SKU was not transfered in this module\n please contact the production supervisor";
+                return false;
+            }
+            }
+            System.out.println(bd.getQty()+" vs "+ob[0]+" sewnqty :");
+            
+            if(bd.getQty()>(Integer)ob[0]){
                 Erreur+="the po:"+ob[2].toString().trim()+" and the sku:"+ob[3].toString().trim()+" can't scan \n";
                 return false;
             }
-            if(ob[4].equals("5"))
+            if(ob[1].equals("5"))
                 {
                 Erreur+="the po:"+ob[2].toString().trim()+" and the sku:"+ob[3].toString().trim()+" is already closed \n";
                 return false;
@@ -463,6 +552,40 @@ private JFileChooser file;
     
         return true;
     }
+//    private synchronized boolean canSave(Set<Object[]> val){
+//        Erreur="";
+//        if(val.isEmpty()){
+//            //JOptionPane.showMessageDialog(this, "this sticker is invalid", "Bad error", JOptionPane.ERROR_MESSAGE);
+//            Erreur="this sticker is invalid";
+//            return false;
+//        }
+//       
+//        for(Object[] ob:val){
+//            if(ismodul.isSelected()){
+//            if(!getModules(ob[5].toString()).contains(mod.getSelectedItem().toString())){
+//                Erreur="this SKU was not transfered in this module\n please contact the production supervisor";
+//                return false;
+//            }
+//            }
+//            System.out.println(ob[0]+" vs "+ob[1]+" sewnqty :");
+//            
+//            if((Integer)ob[0]>(Integer)ob[1]){
+//                Erreur+="the po:"+ob[2].toString().trim()+" and the sku:"+ob[3].toString().trim()+" can't scan \n";
+//                return false;
+//            }
+//            if(ob[4].equals("5"))
+//                {
+//                Erreur+="the po:"+ob[2].toString().trim()+" and the sku:"+ob[3].toString().trim()+" is already closed \n";
+//                return false;
+//            }
+//        }
+//      if(!Erreur.isEmpty()){
+//            JOptionPane.showMessageDialog(this, Erreur, "Bad error", JOptionPane.ERROR_MESSAGE); 
+//           return false;
+//      }
+//    
+//        return true;
+//    }
 
     private boolean exists(String lpn){
         String requete ="SELECT count(*) n from lpn_scan where lpnScan=? or BOX_STICKERS=?";
@@ -479,6 +602,7 @@ private JFileChooser file;
     private javax.swing.JTable GRID_DATA;
     private javax.swing.JTable Log;
     private javax.swing.JCheckBox isdefault;
+    private javax.swing.JCheckBox ismodul;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
@@ -488,16 +612,21 @@ private JFileChooser file;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JComboBox mod;
     private javax.swing.JComboBox tablelist;
     // End of variables declaration//GEN-END:variables
 class T implements Runnable{
 
-    private String text,packtable;
+    private String text,packtable,module;
     private int lineSelected;
     
-    public T(String text,String pack){
+    public T(String text,String module){
+        this(text,"Both",module);
+    }
+    public T(String text,String pack,String module){
         this.text=text;
         packtable=pack;
+        this.module=module;
         tbm1.addRow(new Object[]{text,"Pending","waiting"});
         lineSelected=tbm1.getRowCount()-1;
     }
@@ -506,8 +635,10 @@ class T implements Runnable{
             tbm1.setValueAt("Running", lineSelected, 1);
             if(exists(text)){
            if(!alreadyPacked(text)){
-            if(canSave(atpacking(text))){
-                conn.savecst("{call proc_pack(?,?)}",text,packtable);
+               Lpn lpn=atpacking(text);
+            if(canSave(lpn)){
+                conn.savecst("{call proc_pack2(?,?,?)}",text,packtable,module);
+                packed(lpn, packtable, module);
                 tbm1.setValueAt("Success", lineSelected, 2);
                 tbm1.setValueAt("Ok", lineSelected, 1);
             }else{

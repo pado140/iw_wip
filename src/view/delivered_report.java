@@ -83,7 +83,7 @@ private Set<Object[]> liste;
         setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
-        setTitle("deliverd report");
+        setTitle("delivered report");
         addInternalFrameListener(new javax.swing.event.InternalFrameListener() {
             public void internalFrameActivated(javax.swing.event.InternalFrameEvent evt) {
             }

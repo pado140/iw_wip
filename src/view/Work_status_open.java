@@ -9,6 +9,7 @@ package view;
 import connection.ConnectionDb;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
@@ -49,6 +50,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import static view.Principal.except;
 
 /**
  *
@@ -95,7 +97,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             count.setText("Waiting...");
             first.setText("Waiting...");
             secondlabel.setText("Waiting...");
-            except.setText("Waiting...");
+            exceptQty.setText("Waiting...");
             
             data_cut();
             initPlan();
@@ -108,6 +110,15 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         String requete="select * from work_process where state<>'5'";
         ResultSet rs = conn.select(requete);
         
+//        ArrayList<String> exc=new ArrayList<>();
+//        exc.add("FM12");
+//        exc.add("FM15");
+//        exc.add("FM12IW");
+//        exc.add("FM9");
+//        exc.add("FM10");
+//        exc.add("FM11");
+//        exc.add("856821");
+//        exc.add("856822");
         
         
         try {
@@ -166,12 +177,15 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 sobar-=pp;
                 pp-=se;
                 se-=mod;
-                mod-=(first+second+exception);
+                mod-=(first+second+exception+scrap);
                 first-=(pack);
                 pack-=batch==0?secondpost:batch; 
                 batch-=(reinspect+pack_approved);  
                 reinspect-=reinspect!=0?secondpost:0;
-                pack_approved-=shipped;
+                if(except.contains(rs.getString("style").trim())){
+                     pack-=ready;
+                }
+                
                 Object[] data=new Object[34];
                 data[1]=rs.getString("brand");
                 data[2]=po;
@@ -200,7 +214,10 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 data[24]=reinspect;
                 data[25]=secondpost;
                 data[26]=pack_approved-ready;
-                data[27]=ready;
+                
+                if(except.contains(rs.getString("style").trim()))
+                    data[26]=0;
+                data[27]=ready-shipped;
                 data[28]=lastready;
                 data[29]=ready>=orderQty*0.95?"Ok to ship":(int)((orderQty*0.95)-ready)+" remaining to ship";
                 data[30]=shipped;
@@ -254,7 +271,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             first.setText(qty_f+" pieces");
             secondlabel.setText(qty_s+" pieces");
             orderlabel.setText(tot+" pieces");
-            except.setText(qty_e+" pieces");
+            exceptQty.setText(qty_e+" pieces");
             state.setText("Ready");
             if(this.isCancelled()){
             progress.setVisible(true);
@@ -262,7 +279,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             count.setText("Cancelled");
             first.setText("Cancelled");
             secondlabel.setText("Cancelled");
-            except.setText("Cancelled");
+            exceptQty.setText("Cancelled");
             state.setText("Cancelled");
            System.out.println("nbr line:"+line);
             }
@@ -370,7 +387,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         jLabel17 = new javax.swing.JLabel();
         secondlabel = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
-        except = new javax.swing.JLabel();
+        exceptQty = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         orderlabel = new javax.swing.JLabel();
         export = new javax.swing.JButton();
@@ -594,7 +611,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
 
         jLabel18.setText("Sum Exception:");
 
-        except.setText("0 Pieces");
+        exceptQty.setText("0 Pieces");
 
         jLabel19.setText("Sum Order:");
 
@@ -620,7 +637,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 .addGap(40, 40, 40)
                 .addComponent(jLabel18)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(except)
+                .addComponent(exceptQty)
                 .addGap(41, 41, 41)
                 .addComponent(jLabel19)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -649,7 +666,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                         .addComponent(orderlabel))
                     .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel18)
-                        .addComponent(except))
+                        .addComponent(exceptQty))
                     .addGroup(statusLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel15)
                         .addComponent(count)
@@ -790,6 +807,12 @@ public class Work_status_open extends javax.swing.JInternalFrame {
                 wb.write(fileOut);
                 fileOut.close();
                 wb.close();
+                int option=JOptionPane.showConfirmDialog(this, "File saved with success! \n"
+                        + "Do you want to open it?","confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.INFORMATION_MESSAGE);
+                if(option==JOptionPane.YES_OPTION){
+                    Desktop dsk=Desktop.getDesktop();
+                    dsk.open(new File(name));
+                }
             }catch (FileNotFoundException ex) {
                 Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
             }catch (IOException ex) {
@@ -854,7 +877,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
             first.setText(f+" pieces");
             secondlabel.setText(sec+" pieces");
             orderlabel.setText(tot+" pieces");
-            except.setText(ex+" pieces");
+            exceptQty.setText(ex+" pieces");
     }
 
     public void setCellData(XSSFSheet sheet,JTable table){
@@ -946,7 +969,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
         String query="select Distinct style,count(distinct[TYPE]) t FROM StyleMaster where type_id not in(4,6,7) group by style";
         ResultSet rs=conn.select(query);
         Map<String,Integer> lissty=new HashMap<>();
-        try {
+        try { 
             while(rs.next()){
                 String sty=rs.getString("style").trim();
                 lissty.put(sty, rs.getInt("t"));
@@ -1080,7 +1103,7 @@ public class Work_status_open extends javax.swing.JInternalFrame {
     private javax.swing.JPopupMenu POPUP;
     private javax.swing.JPopupMenu column_menu;
     private javax.swing.JLabel count;
-    private javax.swing.JLabel except;
+    private javax.swing.JLabel exceptQty;
     private javax.swing.JButton export;
     private javax.swing.JLabel first;
     private javax.swing.JTable grid_data;

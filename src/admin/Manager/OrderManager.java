@@ -16,7 +16,7 @@ public class OrderManager extends ModelManager<Orders>{
     private static OrderManager manager=null;
 
     
-    public synchronized static OrderManager getManger() {
+    public synchronized static OrderManager getManager() {
         if(manager==null)
             manager=new OrderManager();
         return manager;

@@ -8,6 +8,7 @@ package view;
 import connection.ConnectionDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -19,11 +20,14 @@ import javax.swing.table.DefaultTableModel;
  */
 public class Fabrics extends javax.swing.JInternalFrame {
 private final ConnectionDb conn = ConnectionDb.instance();
+private DefaultTableModel tbm;
     /**
      * Creates new form Fabrics
      */
+     private final ArrayList<Object[]> datas=new ArrayList<>();
     public Fabrics() {
         initComponents();
+        tbm=(DefaultTableModel)grid_data.getModel();
         initField();
     }
 
@@ -58,6 +62,11 @@ private final ConnectionDb conn = ConnectionDb.instance();
         jLabel1.setText("Search");
 
         jTextField1.setText("jTextField1");
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
 
         newbtn.setText("Add new");
         newbtn.addActionListener(new java.awt.event.ActionListener() {
@@ -219,6 +228,11 @@ private final ConnectionDb conn = ConnectionDb.instance();
         }
     }//GEN-LAST:event_newbtnActionPerformed
 
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+        // TODO add your handling code here:
+        search();
+    }//GEN-LAST:event_jTextField1KeyReleased
+
     private void initField(){
         pane_new.setVisible(false);
         fabname.setText("");
@@ -226,6 +240,7 @@ private final ConnectionDb conn = ConnectionDb.instance();
         newbtn.setVisible(true);
     }
 private Object[][] load(){
+    datas.clear();
     String requete=" select * from fabric";
     ResultSet rs=conn.select(requete);
     Object[][] data=null;
@@ -238,6 +253,7 @@ private Object[][] load(){
            data[i][0]=rs.getInt("fab_id");
            data[i][1]=rs.getString("Fabnm");
            data[i][2]=rs.getDouble("Fabwth");
+           datas.add(new Object[]{rs.getInt("fab_id"),rs.getString("Fabnm"),rs.getDouble("Fabwth")});
            i++;
         }
     } catch (SQLException ex) {
@@ -274,4 +290,14 @@ private boolean exists(String fab){
     private javax.swing.JPanel pane_new;
     private javax.swing.JFormattedTextField width;
     // End of variables declaration//GEN-END:variables
+
+    private void search(){
+        tbm.setNumRows(0);
+        String critere=jTextField1.getText().trim().toLowerCase();
+        for(Object[] ob:datas){
+            if(ob[1].toString().toLowerCase().contains(critere)){
+                tbm.addRow(ob);
+            }
+        }
+    }
 }

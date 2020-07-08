@@ -11,8 +11,8 @@ package admin.objets;
  */
 public class line_item extends beans{
     private double curqty,orgqty,dueqty,po_price,pbs,cm;
-    private String w_order,sku,line,status;
-    private Sku_Master part_id;
+    private String worder,sku,line,status;
+    private SkuMaster partid;
     private int plan,cut,soabar,pp,sew,mod,first,sec,packing,ship;
 
     public line_item() {
@@ -66,12 +66,12 @@ public class line_item extends beans{
         this.cm = cm;
     }
 
-    public String getW_order() {
-        return w_order;
+    public String getWorder() {
+        return worder;
     }
 
-    public void setW_order(String w_order) {
-        this.w_order = w_order;
+    public void setWorder(String w_order) {
+        this.worder = w_order;
     }
 
     public String getSku() {
@@ -98,12 +98,12 @@ public class line_item extends beans{
         this.status = status;
     }
 
-    public Sku_Master getPart_id() {
-        return part_id;
+    public SkuMaster getPartid() {
+        return partid;
     }
 
-    public void setPart_id(Sku_Master part_id) {
-        this.part_id = part_id;
+    public void setPartid(SkuMaster partid) {
+        this.partid = partid;
     }
 
     public int getPlan() {

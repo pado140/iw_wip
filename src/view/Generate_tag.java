@@ -214,10 +214,19 @@ public class Generate_tag extends javax.swing.JInternalFrame {
 
     private void separationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_separationActionPerformed
         // TODO add your handling code here:
-        separation_dyelot dyelot=new separation_dyelot(new JFrame(), false,(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 5),(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 4)
+        if(grid_data.getValueAt(grid_data.getSelectedRow(), 1).toString().equalsIgnoreCase("AGA")
+                ||grid_data.getValueAt(grid_data.getSelectedRow(), 3).toString().trim().contains("856821/6822")
+                ||grid_data.getValueAt(grid_data.getSelectedRow(), 3).toString().trim().contains("6821/6822")){
+        separation_dyelot_AGA dyelot=new separation_dyelot_AGA(new JFrame(), false,(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 5),(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 4)
                 ,(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 6),grid_data.getValueAt(grid_data.getSelectedRow(), 3).toString(),this);
         dyelot.setModal(true);
         dyelot.setVisible(true);
+        }else{
+            separation_dyelot dyelot1=new separation_dyelot(new JFrame(), false,(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 5),(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 4)
+                ,(Integer)grid_data.getValueAt(grid_data.getSelectedRow(), 6),grid_data.getValueAt(grid_data.getSelectedRow(), 3).toString(),this);
+        dyelot1.setModal(true);
+        dyelot1.setVisible(true);
+        }
         
     }//GEN-LAST:event_separationActionPerformed
 

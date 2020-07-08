@@ -262,7 +262,7 @@ public class pivot extends javax.swing.JDialog implements Observateurs{
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel1.setText("Date Plan");
 
-        plan.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--SELECTED--", "HWY", "AUG", "CLV", "LAT" }));
+        plan.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--SELECTED--", "HWY", "AUG", "CLV", "LAT", "AGA" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

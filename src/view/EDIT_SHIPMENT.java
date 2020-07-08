@@ -29,7 +29,6 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
         super(parent, modal);
         initComponents();
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -42,7 +41,6 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
         jLabel1 = new javax.swing.JLabel();
         shipment_num = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        customer = new javax.swing.JComboBox();
         jLabel3 = new javax.swing.JLabel();
         type = new javax.swing.JComboBox();
         jButton1 = new javax.swing.JButton();
@@ -51,6 +49,7 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
         jLabel5 = new javax.swing.JLabel();
         datechoose = new com.toedter.calendar.JDateChooser();
         jLabel6 = new javax.swing.JLabel();
+        customer = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -59,8 +58,6 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
         shipment_num.setText("jTextField1");
 
         jLabel2.setText("CUSTOMER:");
-
-        customer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "HWY", "AUG", "EDS", "FSM", "CHS" }));
 
         jLabel3.setText("TYPE:");
 
@@ -78,6 +75,8 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
         container_num.setText("jTextField1");
 
         jLabel5.setText("DATE:");
+
+        datechoose.setDateFormatString("yyyy-MM-dd");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -103,10 +102,10 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(shipment_num, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
-                            .addComponent(customer, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(type, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(container_num)
-                            .addComponent(datechoose, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(datechoose, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(customer))))
                 .addContainerGap(117, Short.MAX_VALUE))
             .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -125,11 +124,11 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
                         .addGap(2, 2, 2)
                         .addComponent(container_num)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(customer)
-                        .addGap(4, 4, 4)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(customer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(type, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -151,9 +150,9 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
         int check=JOptionPane.showConfirmDialog(this, "Are you sure to update these informations","Confirmation",JOptionPane.YES_NO_OPTION);
         if(check==JOptionPane.YES_OPTION){
             if(conn.Update(requete, 0, shipment_num.getText().trim(),
-                    container_num.getText().trim(),customer.getSelectedItem(),type.getSelectedItem(),shipment_id))
+                    container_num.getText().trim(),customer.getText().trim(),type.getSelectedItem(),datechoose.getDate(),shipment_id))
                 alerter(new Object[]{"update shipment",ligne,shipment_num.getText().trim(),
-                    container_num.getText().trim(),customer.getSelectedItem(),datechoose.getDate(),type.getSelectedItem()});
+                    container_num.getText().trim(),customer.getText().trim(),datechoose.getDate(),type.getSelectedItem()});
             this.dispose();
         }
         
@@ -165,7 +164,7 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
         try {
             while(rs.next()){
                 shipment_num.setText(rs.getString("shipment_number"));
-            customer.setSelectedItem(rs.getString("customer"));
+            customer.setText(rs.getString("customer"));
             type.setSelectedItem(rs.getString("typeShipment"));
             container_num.setText(rs.getString("container_number"));
             datechoose.setDate(rs.getDate("created"));
@@ -218,7 +217,7 @@ public class EDIT_SHIPMENT extends javax.swing.JDialog implements Observateurs,O
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField container_num;
-    private javax.swing.JComboBox customer;
+    private javax.swing.JTextField customer;
     private com.toedter.calendar.JDateChooser datechoose;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;

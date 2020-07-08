@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,9 +55,9 @@ public class packing_by_shipment extends javax.swing.JDialog implements Observat
         listLpn=new HashSet<>();
         //fillTable();
     }
-    private void initialized(int id){
+    private void initialized(ArrayList<String> id){
         String requete="select * from shipments where id=?";
-        ResultSet rs=conn.select(requete, id);
+        ResultSet rs=conn.select(requete, String.join(",", id));
         try {
             while(rs.next()){
                 lab_ship.setText(rs.getString("shipment_number"));
@@ -71,13 +72,13 @@ public class packing_by_shipment extends javax.swing.JDialog implements Observat
         }
         
     }
-    private void fillTable(int id){
+    private void fillTable(ArrayList<String> id){
         tbm.setRowCount(0);
         listLpn=new HashSet<>();
         int boxes=0;
         int pieces=0;
-        String requete="select * from packing_list_shipment where shipment_id=?";
-        ResultSet rs=conn.select(requete, id);
+        String requete="select * from packing_list_shipment where shipment_id in(?)";
+        ResultSet rs=conn.select(requete, String.join(",", id));
         try {
             while(rs.next()){
                 tbm.addRow(new Object[]{rs.getString("shipment_number"),rs.getString("container_number"),rs.getString("lpn"),rs.getString("ponum"),rs.getString("style"),
@@ -334,48 +335,7 @@ public class packing_by_shipment extends javax.swing.JDialog implements Observat
                 
         }
     }
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(packing_by_shipment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(packing_by_shipment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(packing_by_shipment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(packing_by_shipment.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                packing_by_shipment dialog = new packing_by_shipment(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable grid_data;
     private javax.swing.JButton jButton1;
@@ -399,8 +359,8 @@ public class packing_by_shipment extends javax.swing.JDialog implements Observat
     @Override
     public void executer(Object... obs) {
         if(obs[0].equals("packing_list_shipment")){
-            fillTable(Integer.parseInt(obs[1].toString()));
-            initialized(Integer.parseInt(obs[1].toString()));
+            fillTable((ArrayList<String>)(obs[1]));
+            initialized((ArrayList<String>)(obs[1]));
         }
     }
 }

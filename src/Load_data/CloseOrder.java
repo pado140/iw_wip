@@ -165,7 +165,7 @@ public boolean ExecuteCom(String ob){
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setIconifiable(true);
         setMaximizable(true);
-        setTitle("DELETE ORDER");
+        setTitle("CLOSE/CANCEL ORDER");
 
         grid_po.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -245,7 +245,7 @@ public boolean ExecuteCom(String ob){
             }
         });
 
-        cancel.setText("EDIT");
+        cancel.setText("CLOSE/CANCEL");
         cancel.setVisible(false);
         cancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

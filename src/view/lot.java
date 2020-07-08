@@ -276,18 +276,20 @@ public class lot extends javax.swing.JDialog implements Observateurs{
                 wash=step(data[y][1].toString(),"WASHING");
                 press=step(data[y][1].toString(),"PRESS");
             System.out.println(data[y][5].toString());
+            int blank=(Integer)data[y][10];
+            int bundleqty=(Integer)data[y][9];
             //setVisible(true);
-            int line=(int)Math.ceil(Integer.parseInt(data[y][5].toString())/25);
-            if(Integer.parseInt(data[y][5].toString())%25>5)
+            int line=(int)Math.ceil(Integer.parseInt(data[y][5].toString())/bundleqty);
+            if(Integer.parseInt(data[y][5].toString())%bundleqty>5)
                 line+=1;
             //line+=2;
-            int blank=4;
-            if(Integer.parseInt(data[y][5].toString())>200)
-                blank=6;
-            if(Integer.parseInt(data[y][5].toString())>400)
-                blank=8;
-            if(Integer.parseInt(data[y][5].toString())>700)
-                blank=10;
+            
+//            if(Integer.parseInt(data[y][5].toString())>200)
+//                blank=6;
+//            if(Integer.parseInt(data[y][5].toString())>400)
+//                blank=8;
+//            if(Integer.parseInt(data[y][5].toString())>700)
+//                blank=10;
             int a=0;
             // Object[] dat=new Object[7];
             String type="first";
@@ -295,17 +297,17 @@ public class lot extends javax.swing.JDialog implements Observateurs{
                Object dat=null;
                String code="";
                 if(i==line-1){
-                    if(Integer.parseInt(data[y][5].toString())%25>5)
-                    dat=Integer.parseInt(data[y][5].toString())%25;
+                    if(Integer.parseInt(data[y][5].toString())%bundleqty>5)
+                    dat=Integer.parseInt(data[y][5].toString())%bundleqty;
                     else{
-                        if(Integer.parseInt(data[y][5].toString())%25>0)
-                            dat=25+Integer.parseInt(data[y][5].toString())%25;
-                        if(Integer.parseInt(data[y][5].toString())%25==0)
-                            dat=25;
+                        if(Integer.parseInt(data[y][5].toString())%bundleqty>0)
+                            dat=bundleqty+Integer.parseInt(data[y][5].toString())%bundleqty;
+                        if(Integer.parseInt(data[y][5].toString())%bundleqty==0)
+                            dat=bundleqty;
                     }
                    
                 }else if(i<line-1){
-                     dat=25;
+                     dat=bundleqty;
                     
                 }
                 //int A=alpha.

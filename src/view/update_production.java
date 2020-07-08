@@ -490,21 +490,34 @@ private int lot=0,qty=0,sewn=0;
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
         
-       
-        String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'ps',?,?)";
-                    
+       String requete="insert into sewing_production (qty_per_lot,s_traveller,slot,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'ps',?,?)";
+
+            
+                //int A=alpha.
                 String code=travel;
                 if(lot<10)
                     code+="000"+(lot);
                 else
                     code+="00"+(lot);
                 
-                System.err.println(code);
-                
+                    
                         conn.Update(requete, 0, 0,stravel,code,order,travel);
-                         
-        //}
-        get(travel);
+                       
+        get(travel); 
+//        String requete="insert into POST_SECOND (QTY,s_traveller,STICKERS,status,type_sew,order_num,lot_stickers) values(?,?,?,0,'ps',?,?)";
+//                    
+//                String code=travel;
+//                if(lot<10)
+//                    code+="000"+(lot);
+//                else
+//                    code+="00"+(lot);
+//                
+//                System.err.println(code);
+//                
+//                        conn.Update(requete, 0, 0,stravel,code,order,travel);
+//                         
+//        //}
+//        get(travel);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private Object[] value(JTable a,int ligne){
@@ -524,6 +537,7 @@ private int lot=0,qty=0,sewn=0;
         travel=null;
         lot=1;
         stravel=null;
+        sewn=0;
         String requete="select * from sewing_production where lot_stickers=?";
         ResultSet rs=conn.select(requete, code);
         try {

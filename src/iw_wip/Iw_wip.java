@@ -6,6 +6,11 @@
 
 package iw_wip;
 
+import admin.Manager.ManagerFactory;
+import admin.Manager.Managerlist;
+import admin.objets.Lpn;
+import admin.util.DateUtils;
+import java.util.Calendar;
 import java.util.concurrent.Executors;
 import view.Principal;
 
@@ -20,13 +25,28 @@ public class Iw_wip {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        DateUtils du=DateUtils.getInstance();
+        du.tString();
+        Calendar c=Calendar.getInstance();
+        c.set(2020, 6, 27);
+        du.setDate(c.getTime());
+        du.tString();
         
-        int cores = Runtime.getRuntime().availableProcessors();
-        System.out.println("Number of cores present: " + cores);
-        System.out.println("Using number of threads: " + cores/2);
-        Executors.newFixedThreadPool(cores);
-        Executors.newWorkStealingPool();
-        Principal.main(args);
+        Lpn lpn=new Lpn();
+        lpn.setLpn("iw2016102167");
+        
+        lpn=(Lpn)ManagerFactory.createModel(Managerlist.lpn).search(lpn);
+        
+        System.out.println(lpn);
+        lpn.getDetails().forEach(bd->{
+            System.out.println(bd.toString());
+        });
+//        int cores = Runtime.getRuntime().availableProcessors();
+//        System.out.println("Number of cores present: " + cores);
+//        System.out.println("Using number of threads: " + cores/2);
+//        Executors.newFixedThreadPool(cores);
+//        Executors.newWorkStealingPool();
+//        Principal.main(args);
     }
     
 }

@@ -167,10 +167,12 @@
     <Component class="javax.swing.JComboBox" name="comb_typ">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="3">
+          <StringArray count="5">
             <StringItem index="0" value="-Choose-"/>
             <StringItem index="1" value="Air"/>
             <StringItem index="2" value="Sea"/>
+            <StringItem index="3" value="Truck"/>
+            <StringItem index="4" value="INDIVIDUAL"/>
           </StringArray>
         </Property>
         <Property name="name" type="java.lang.String" value="combo_typ" noResource="true"/>
@@ -197,23 +199,12 @@
         <Property name="text" type="java.lang.String" value="Customer:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="custom">
-      <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="8">
-            <StringItem index="0" value="--SELECT CUSTOMER--"/>
-            <StringItem index="1" value="HWY"/>
-            <StringItem index="2" value="CHS"/>
-            <StringItem index="3" value="EDG"/>
-            <StringItem index="4" value="AUG"/>
-            <StringItem index="5" value="FSM"/>
-            <StringItem index="6" value="WCR"/>
-            <StringItem index="7" value="GBG"/>
-          </StringArray>
-        </Property>
-      </Properties>
-    </Component>
     <Component class="com.toedter.calendar.JDateChooser" name="datechoose">
+    </Component>
+    <Component class="javax.swing.JTextField" name="custom">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="AGA"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

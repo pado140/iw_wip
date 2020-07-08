@@ -6,13 +6,19 @@
 
 package connection;
 
+import alert.Alert;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +33,7 @@ public class ConnectionDb {
     //private String Url="jdbc:sqlserver://localhost;databaseName=wip_archive";
     private String user="iw";
     private String pass="passwordiw";//IW2012R2-DC\\SQLEXPRESSIW
-    private String Url="jdbc:sqlserver://IW2012R2-DC\\SQLEXPRESSIW;databaseName=wip_archive";
+    private String Url="jdbc:sqlserver://192.168.90.161\\SQLEXPRESSIW;databaseName=wip_archive";
     private Statement state=null;
     private ResultSet resultat;
     private Connection connection=null;
@@ -40,6 +46,7 @@ public class ConnectionDb {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(
     Url, user, pass);
+            
             Logger.getLogger(ConnectionDb.class.getName()).log(Level.OFF, "succes");
             System.out.println("Success");
             System.out.println("status:"+connection.getClientInfo().toString());
@@ -100,6 +107,7 @@ public class ConnectionDb {
             System.err.println(ex.getErrorCode()+ex.getSQLState());
             this.setErreur(ex.getMessage());
             instance();
+            Alert.error(null, ex.getMessage());
         }
        return resultat; 
     }
@@ -128,6 +136,7 @@ public class ConnectionDb {
             ex.printStackTrace();
             this.setErreur(ex.getMessage());
             instance();
+            Alert.error(null, ex.getMessage());
         }
        return check; 
     }
@@ -143,6 +152,7 @@ public class ConnectionDb {
         } catch (SQLException ex) {
             Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
             this.setErreur(ex.getMessage());
+            Alert.error(null, ex.getMessage());
         }
         return null;
     }
@@ -155,6 +165,7 @@ public class ConnectionDb {
                 c.setObject(i+1, params[i]);
             
             c.executeUpdate();
+            return true;
             //System.err.println("result:");
         } catch (SQLException ex) {
             Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
@@ -166,6 +177,7 @@ public class ConnectionDb {
             } catch (SQLException ex) {
                 Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
                 this.setErreur(ex.getMessage());
+                Alert.error(null, ex.getMessage());
             }
             
         }
@@ -183,7 +195,50 @@ public class ConnectionDb {
         this.connection = connection;
     }
     
-    
+    public synchronized List<Map<String,Object>> selectlist(String query, Object... critere){
+
+        List<Map<String,Object>> list= new ArrayList<>();
+        try {
+            PreparedStatement prepare=connection.prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            int i=1;
+            for(Object ob:critere){
+                prepare.setObject(i, ob);
+                i++;
+            }
+            ResultSetMetaData metadata=prepare.getMetaData();
+
+            resultat=prepare.executeQuery();
+            while(resultat.next()){
+                //Object ob=clas.newInstance();
+                Map<String,Object> obj=new LinkedHashMap<>();
+                for(int j=1;j<=metadata.getColumnCount();j++){
+                    //utility.hydrated(ob, metadata.getColumnName(j), resultat.getObject(j,Class.forName(metadata.getColumnClassName(j))));
+                    if(resultat.getObject(j)!=null)
+                        obj.put(metadata.getColumnName(j),resultat.getObject(metadata.getColumnName(j)));
+                }
+                list.add(obj);
+            }
+            resultat.close();
+            prepare.closeOnCompletion();
+        } catch (SQLException ex) {
+            Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, ex);
+            this.setErreur(ex.getMessage());
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                Logger.getLogger(ConnectionDb.class.getName()).log(Level.SEVERE, null, e);
+            }
+            Alert.error(null,ex.getMessage());
+        }finally{
+            
+            instance();
+        }
+//        catch (ClassNotFoundException ex) {
+//            Logger.getLogger(ConnectionSql.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        return list;
+    }
+
     
 }
     

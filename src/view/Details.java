@@ -101,7 +101,7 @@ private boolean initiated;
                color=rs.getString("coldsp").trim();
                Code=sku.substring(sku.indexOf(".")+1,sku.lastIndexOf("."));
              
-                   Object[] datas=new Object[10];
+                   Object[] datas=new Object[11];
                    datas[0]=rs.getString("brand");
                    datas[1]=rs.getString("ponum").trim();
                    datas[2]=rs.getString("style");
@@ -112,6 +112,7 @@ private boolean initiated;
                    datas[7]=rs.getString("created").replace("/", "-").trim();
                    datas[8]=rs.getInt("nb");
                    datas[9]=rs.getString("tablepacking");
+                   datas[10]=rs.getString("module");
                    qty_f+=rs.getInt("val");
                    qty_b+=rs.getInt("nb");
                   liste.add(datas);
@@ -306,23 +307,24 @@ private boolean initiated;
 
         GRID_DATA.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "CUSTOMER", "PO", "STYLE", "COLOR CODE", "COLOR", "SIZE", "PACKED", "DATE", "BOX COUNT", "TABLE"
+                "CUSTOMER", "PO", "STYLE", "COLOR CODE", "COLOR", "SIZE", "PACKED", "DATE", "BOX COUNT", "TABLE", "MODULE"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        GRID_DATA.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(GRID_DATA);
 
         jLabel14.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N

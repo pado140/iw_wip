@@ -185,6 +185,10 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
         jLabel7 = new javax.swing.JLabel();
         qty = new javax.swing.JLabel();
         line = new javax.swing.JLabel();
+        bundle = new javax.swing.JSpinner();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        blank = new javax.swing.JSpinner();
 
         gen.setText("Generate bundle barcode");
         gen.addActionListener(new java.awt.event.ActionListener() {
@@ -312,6 +316,14 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
 
         line.setText("jLabel6");
 
+        bundle.setModel(new javax.swing.SpinnerNumberModel(1, null, null, 1));
+
+        jLabel8.setText("Bundle qty:");
+
+        jLabel9.setText("blank qty:");
+
+        blank.setModel(new javax.swing.SpinnerNumberModel(1, 1, 8, 1));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -340,9 +352,12 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
                             .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(code, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(code, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel8))
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(10, 10, 10)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -351,8 +366,14 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(qty, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(210, 210, 210)
+                                .addComponent(qty, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(bundle, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(38, 38, 38)
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(blank, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(147, 147, 147)
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -362,7 +383,7 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jButton1)
-                        .addGap(0, 4, Short.MAX_VALUE))
+                        .addGap(0, 8, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -396,7 +417,12 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
                                             .addComponent(jLabel7)
                                             .addComponent(qty))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addComponent(code, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(code, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(bundle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel8)
+                                    .addComponent(jLabel9)
+                                    .addComponent(blank, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 333, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0))
@@ -512,7 +538,8 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
     }
     private void modActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modActionPerformed
         // TODO add your handling code here:
-        Object[][] data=new Object[grid_bundle.getSelectedRowCount()][9];
+        if(JOptionPane.showConfirmDialog(this, String.format("lots will be separated in multiples of %d units with %d blanks",bundle.getValue(),blank.getValue()), "confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)==JOptionPane.YES_OPTION){
+        Object[][] data=new Object[grid_bundle.getSelectedRowCount()][11];
         for(int i=0;i<grid_bundle.getSelectedRowCount();i++){
         int ligne=grid_bundle.getSelectedRows()[i];
         data[i][0]=grid_bundle.getValueAt(ligne, 1);
@@ -524,11 +551,15 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
         data[i][6]=grid_bundle.getValueAt(ligne, 0);
         data[i][7]=grid_bundle.getValueAt(ligne, 9);
         data[i][8]=grid_bundle.getValueAt(ligne, 8);
+        data[i][9]=bundle.getValue();
+        data[i][10]=blank.getValue();
         }
+       
         alerter("issued",data);
         ((JDialog)observa1).setModal(true);
         ((JDialog)observa1).setVisible(true);
         mostrarDatos();
+        }
         //filtre(potext.getText(),style_txt.getText(),col_txt.getText());
     }//GEN-LAST:event_modActionPerformed
 
@@ -614,6 +645,8 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JSpinner blank;
+    private javax.swing.JSpinner bundle;
     private javax.swing.JTextField code;
     private javax.swing.JTextField color;
     private javax.swing.JMenuItem gen;
@@ -626,6 +659,8 @@ public class Bundle extends javax.swing.JInternalFrame implements Observe{
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel line;

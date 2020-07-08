@@ -48,8 +48,8 @@ public class AsgShipment extends javax.swing.JDialog {
         save = new javax.swing.JButton();
         save3 = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
-        custom = new javax.swing.JComboBox();
         datechoose = new com.toedter.calendar.JDateChooser();
+        custom = new javax.swing.JTextField();
 
         jLabel6.setText("jLabel6");
 
@@ -81,7 +81,7 @@ public class AsgShipment extends javax.swing.JDialog {
 
         jLabel5.setText("type:");
 
-        comb_typ.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "-Choose-", "Air", "Sea" }));
+        comb_typ.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "-Choose-", "Air", "Sea", "Truck", "INDIVIDUAL" }));
         comb_typ.setName("combo_typ"); // NOI18N
 
         save.setText("Save");
@@ -100,7 +100,7 @@ public class AsgShipment extends javax.swing.JDialog {
 
         jLabel7.setText("Customer:");
 
-        custom.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--SELECT CUSTOMER--", "HWY", "CHS", "EDG", "AUG", "FSM", "WCR", "GBG" }));
+        custom.setText("AGA");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -121,7 +121,7 @@ public class AsgShipment extends javax.swing.JDialog {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField1)
                             .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 195, Short.MAX_VALUE)
-                            .addComponent(custom, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(custom))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -198,7 +198,7 @@ public class AsgShipment extends javax.swing.JDialog {
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     private boolean canSave(){
-        if(jTextField1.getText().trim().equals("") || jTextField2.getText().trim().equals("") || comb_typ.getSelectedIndex()<1||custom.getSelectedIndex()<1){
+        if(jTextField1.getText().trim().equals("") || jTextField2.getText().trim().equals("") || comb_typ.getSelectedIndex()<1||custom.getText().trim().equals("")){
             JOptionPane.showConfirmDialog(this, "FILL THE INFORMATIONS BEFORE SAVED");
             
         }else{
@@ -217,7 +217,7 @@ public class AsgShipment extends javax.swing.JDialog {
             String cont=jTextField1.getText().trim();
             String ship=jTextField2.getText().trim();
             String typ=comb_typ.getSelectedItem().toString();
-            String cust=custom.getSelectedItem().toString();
+            String cust=custom.getText().trim();
             if(conn.Update(requete, 0, ship,cont,typ,cust,datechoose.getDate())){
                 JOptionPane.showMessageDialog(this, "Saved with success");
                 init();
@@ -231,7 +231,7 @@ public class AsgShipment extends javax.swing.JDialog {
         jTextField1.setText("");
         jTextField2.setText("");
         comb_typ.setSelectedIndex(0);
-        custom.setSelectedIndex(0);
+        custom.setText("");
         datechoose.setDateFormatString("yyyy-MM-dd");
         datechoose.setDate(new Date());
         //lab_dat.setText(new Date().toString());
@@ -280,7 +280,7 @@ public class AsgShipment extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox comb_typ;
-    private javax.swing.JComboBox custom;
+    private javax.swing.JTextField custom;
     private com.toedter.calendar.JDateChooser datechoose;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

@@ -442,7 +442,7 @@ public boolean saveCom(Object[] o){
 
         jLabel6.setText("Last Date:");
 
-        comb_cust.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select Customer", "HWY", "AUG", "CLV", "" }));
+        comb_cust.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select Customer", "HWY", "AUG", "CLV", "LAT", "VAL" }));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);

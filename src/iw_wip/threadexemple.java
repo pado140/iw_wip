@@ -50,9 +50,9 @@ DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 //conn=ConnectionDb.instance();
             cal.add(Calendar.SECOND, 1);
             int a=1;
-            System.out.println(cal.getTime());
+            //System.out.println(cal.getTime());
             if(cal.get(Calendar.HOUR_OF_DAY)>=8){
-                    //System.exit(0);
+                    //System.exit(0); 
                 alerter("closed packing");
                     if((cal.get(Calendar.HOUR_OF_DAY)==8 && cal.get(Calendar.MINUTE)>=30)||cal.get(Calendar.HOUR_OF_DAY)>8)
                         alerter("closed");
@@ -75,8 +75,8 @@ DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             try {
                 //if(conn.)
                s=new Socket(InetAddress.getByName("192.168.90.161"), 80);
-                System.out.println("connected:"+ s.isConnected());
-                System.out.println("db connected:"+ !conn.closed());
+                //System.out.println("connected:"+ s.isConnected());
+                //System.out.println("db connected:"+ !conn.closed());
                 netok=s.isConnected();
                 if(conn.closed())
                     conn = ConnectionDb.instance();
@@ -85,8 +85,8 @@ DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 s.close();
             } catch (IOException ex) {
                 netok=false;
-                System.out.println("connected:"+ netok);
-                System.out.println("db connected:"+ conn.closed());
+                //System.out.println("connected:"+ netok);
+                //System.out.println("db connected:"+ conn.closed());
             }
             //alerter("connection");
             alerter("connection network",netok,conn);

@@ -10,7 +10,7 @@ import connection.ConnectionDb;
  *
  * @author Padovano
  */
-public class ManagerFactory {
+public class ManagerFactory<T> {
     //private final ConnectionSql conn=ConnectionSql.instance(1);
     private static ModelManager mod;
         
@@ -18,7 +18,13 @@ public class ManagerFactory {
         ConnectionDb conn=ConnectionDb.instance();
         switch(type){
             case order:
-                mod=OrderManager.getManger();
+                mod=OrderManager.getManager();
+                break;
+            case lpn:
+                mod=LpnManager.getManager();
+                break;
+            case detaillpn:
+                mod=BoxDetailManager.getManager();
                 break;
         }
         

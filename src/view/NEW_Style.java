@@ -212,7 +212,7 @@ public class NEW_Style extends javax.swing.JInternalFrame implements Observateur
 
         jLabel19.setText("Customer");
 
-        CUST.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Selected--", "HWY", "AUG", "CHS", "FSM", "EDG", "GBG" }));
+        CUST.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Selected--", "HWY", "AUG", "CHS", "FSM", "EDG", "GBG", "AGA", "VAL" }));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);

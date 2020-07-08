@@ -503,7 +503,7 @@
                       <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
                       <Component id="jLabel18" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="except" min="-2" max="-2" attributes="0"/>
+                      <Component id="exceptQty" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
                       <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -536,7 +536,7 @@
                           </Group>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="except" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="exceptQty" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                               <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -614,7 +614,7 @@
                 <Property name="text" type="java.lang.String" value="Sum Exception:"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="except">
+            <Component class="javax.swing.JLabel" name="exceptQty">
               <Properties>
                 <Property name="text" type="java.lang.String" value="0 Pieces"/>
               </Properties>

@@ -30,14 +30,16 @@ public class AuditorForm extends javax.swing.JDialog implements Observateurs,Obs
     private final ConnectionDb conn = ConnectionDb.instance();
     private JFrame parent;
     private newAuditor NewAudit;
+    private String type="auditor";
 
     /**
      * Creates new form AuditorForm
      */
-    public AuditorForm(javax.swing.JFrame parent, boolean modal) {
+    public AuditorForm(javax.swing.JFrame parent, boolean modal,String type) {
         super(parent, modal);
         this.parent=parent;
         initComponents();
+        this.type=type;
         init();
     }
 
@@ -142,7 +144,7 @@ public class AuditorForm extends javax.swing.JDialog implements Observateurs,Obs
 
     private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
         // TODO add your handling code here:
-        alerter("auditor_select",auditorName.get(jList1.getSelectedValue()));
+        alerter(type+"_select",auditorName.get(jList1.getSelectedValue()));
         this.dispose();
     }//GEN-LAST:event_jList1MouseClicked
 
@@ -159,7 +161,7 @@ public class AuditorForm extends javax.swing.JDialog implements Observateurs,Obs
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        NewAudit=new newAuditor(this.parent, true);
+        NewAudit=new newAuditor(this.parent, true,type);
         NewAudit.ajouterObservateur(this);
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -175,11 +177,20 @@ public class AuditorForm extends javax.swing.JDialog implements Observateurs,Obs
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void init(){
-        ResultSet rs=conn.select("select * from auditor");
+        String requete="select * from auditor";
+        if(type.equalsIgnoreCase("inspector")){
+            requete="select * from inspectors";
+            this.setTitle("SELECT INSPECTOR");
+        }
+        ResultSet rs=conn.select(requete);
         while(true){
             try {
                 if(!rs.next()) break;
-                auditorName.put(rs.getString("auditor_code")+"-"+rs.getString("auditor_name"), new Object[]{rs.getString("auditor_code")+"-"+rs.getString("auditor_name"),rs.getInt("id")});
+                
+                if(type.equalsIgnoreCase("auditor"))
+                    auditorName.put(rs.getString("auditor_code")+"-"+rs.getString("auditor_name"), new Object[]{rs.getString("auditor_code")+"-"+rs.getString("auditor_name"),rs.getInt("id")});
+                if(type.equalsIgnoreCase("inspector"))
+                    auditorName.put(rs.getString("code")+"-"+rs.getString("INSPECTOR"), new Object[]{rs.getString("code")+"-"+rs.getString("INSPECTOR"),rs.getInt("id")});
             } catch (SQLException ex) {
                 Logger.getLogger(AuditorForm.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -208,6 +219,13 @@ public class AuditorForm extends javax.swing.JDialog implements Observateurs,Obs
     @Override
     public void executer(Object... obs) {
         if(obs[0].equals("new auditor")){
+            type="auditor";
+            searchlist.put(obs[1].toString(), Arrays.copyOfRange(obs, 1, obs.length));
+            auditorName.put(obs[1].toString(), Arrays.copyOfRange(obs, 1, obs.length));
+            jList1.setListData(searchlist.keySet().toArray());
+        }
+        if(obs[0].equals("new inspector")){
+            type="inspector";
             searchlist.put(obs[1].toString(), Arrays.copyOfRange(obs, 1, obs.length));
             auditorName.put(obs[1].toString(), Arrays.copyOfRange(obs, 1, obs.length));
             jList1.setListData(searchlist.keySet().toArray());

@@ -6,11 +6,17 @@
 
 package view;
 
+import admin.util.feedData;
 import connection.ConnectionDb;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,14 +32,20 @@ public class Sewing_prod extends javax.swing.JInternalFrame {
     private final ConnectionDb conn = ConnectionDb.instance();
     private DefaultTableModel tbm;
     private Set<Object[]> datalist;
+    private String Erreur;
+    private Map<Integer,Integer> hourstable=new HashMap<>();
     /**
      * Creates new form Sewing_prod
      */
     public Sewing_prod() {
         
         initComponents();
-        tbm = (DefaultTableModel) grid_sew.getModel();
-        mostrar();
+        tbm = (DefaultTableModel) Log.getModel();
+        hourstable.put(8, 13);
+        hourstable.put(7, 13);
+        for(int i=1;i<=12;i++){
+            hourstable.put(8+i,i);
+        }
     }
 
     /**
@@ -46,10 +58,10 @@ public class Sewing_prod extends javax.swing.JInternalFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        grid_sew = new javax.swing.JTable();
         jTextField1 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        Log = new javax.swing.JTable();
 
         setClosable(true);
         setIconifiable(true);
@@ -74,31 +86,6 @@ public class Sewing_prod extends javax.swing.JInternalFrame {
             }
         });
 
-        grid_sew.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "PO NUM", "STYLE", "COLOR CODE", "COLOR", "SIZE", "QTY", "TICKET", "Category"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        jScrollPane1.setViewportView(grid_sew);
-        if (grid_sew.getColumnModel().getColumnCount() > 0) {
-            grid_sew.getColumnModel().getColumn(3).setMinWidth(0);
-            grid_sew.getColumnModel().getColumn(3).setMaxWidth(0);
-        }
-
         jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField1KeyReleased(evt);
@@ -108,20 +95,34 @@ public class Sewing_prod extends javax.swing.JInternalFrame {
 
         jLabel1.setText("Sewing Traveler");
 
+        Log.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "STICKER", "STATUS", "MESSAGE"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(Log);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(0, 0, 0)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1106, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(0, 0, 0))
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addContainerGap(868, Short.MAX_VALUE))
+            .addComponent(jScrollPane2)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -131,7 +132,7 @@ public class Sewing_prod extends javax.swing.JInternalFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -157,7 +158,7 @@ public class Sewing_prod extends javax.swing.JInternalFrame {
             if(jTextField1.getText().trim().isEmpty()){
                 return;
             }
-                get(jTextField1.getText().trim());
+                act();
                 //mostrar();
                 //load();
                 jTextField1.setText("");
@@ -173,22 +174,23 @@ public class Sewing_prod extends javax.swing.JInternalFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTable grid_sew;
+    private javax.swing.JTable Log;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
-private void get(String sew){
-    
+private synchronized boolean get(String sew){
+    boolean check=false;
+    Erreur="";
     //tbm.setRowCount(0);
     //Pattern p=Pattern.compile("[");
     String requete="select * from production_scan where Slot=?";
     System.out.println(requete);
     ResultSet rs=conn.select(requete, sew);
     boolean exist=false,used=false, valid=true,closed=true;
-    String sewing_t="",item="",type="",lot="";
+    String sewing_t="",item="",type="",lot="",module="",build="";
     Date dat=new Date();
     int bar=29;
     int id=0;
@@ -197,7 +199,7 @@ private void get(String sew){
         try {
             while(rs.next()){
                 exist=true;
-                type=rs.getString("type_sew");
+                type=rs.getString("type_sew").trim();
                 id=rs.getInt("sew_id");
                 if(rs.getInt("status")==1)
                     used=true;
@@ -208,11 +210,14 @@ private void get(String sew){
                 sewing_t=rs.getString("S_TRAVELLER").trim();
                 item=rs.getString("slot");
                 lot=rs.getString("lot_stickers");
+                module=rs.getString("module");
+                build="BLD "+rs.getString("workcenter");
                 QTY_CUT=rs.getInt("qty");
                 //dat=rs.getDate("modified");
             }   } catch (SQLException ex) {
             Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Error please, try again");
+            Erreur="Error please, try again";
+            //JOptionPane.showMessageDialog(this, "Error please, try again");
         }
         System.out.println("closed:"+closed);
         if(!closed){
@@ -239,9 +244,9 @@ private void get(String sew){
                             dat_new+=dat.getMonth()+"-";
                             dat_new+=dat.getDate();
                             if(date_mod.equals(dat_new)){
-
-                                JOptionPane.showMessageDialog(this, "you cannot scan multiple blank stickers in a same date");
-                                return;
+                                Erreur="you cannot scan multiple blank stickers in a same date";
+                                //JOptionPane.showMessageDialog(this, "you cannot scan multiple blank stickers in a same date");
+                                return false;
                             }
                         }
 
@@ -251,10 +256,21 @@ private void get(String sew){
 
 
                         String option="";
+                        try{
+                        if(type.equals("ps")){
+                        do{
+                        option=JOptionPane.showInputDialog(this, "please Confirm quantity"
+                                + "\n Quantity must inferior or equals to:"+QTY_CUT, "Confirmation", JOptionPane.WARNING_MESSAGE);
+                        }while(option.trim().isEmpty() || Pattern.matches("\\d+",option)==false||Integer.parseInt(option)>QTY_CUT);
+                        }else{
                         do{
                         option=JOptionPane.showInputDialog(this, "please Confirm quantity"
                                 + "\n Quantity must inferior or equals to:"+bar, "Confirmation", JOptionPane.WARNING_MESSAGE);
                         }while(option.trim().isEmpty() || Pattern.matches("\\d+",option)==false||Integer.parseInt(option)>bar);
+                        }
+                        }catch(NullPointerException ex){
+                            return false;
+                        }
                         System.out.println(option);
                         qty=Integer.parseInt(option);
                             if(type.equalsIgnoreCase("first"))
@@ -266,81 +282,42 @@ private void get(String sew){
                         }
 
                     setSewn(sew);
-
-
-                    String []posku=sewing_t.replace(".", "-").split("-");
-                    String color,Code;
-                   color=null;
-                   Code=posku[2];
-                    data[0]=posku[0];
-                       data[1]=posku[1];
-                       data[6]=item;
-                       data[7]=type;
-                       data[2]=Code;
-                       data[3]=color;
-                       data[4]=posku[3];
-                       data[5]=qty;
-                       datalist.add(data);
-                       tbm.addRow(data);
-
-
-
+                    if(!type.equalsIgnoreCase("ps")){
+                        DateFormat df=new SimpleDateFormat("yyyy-MM-dd");
+                        Calendar c=Calendar.getInstance();
+                        int hour=c.get(Calendar.HOUR_OF_DAY);
+                    Thread feed=new feedData(qty, item, module, hourstable.get(hour), type.equalsIgnoreCase("first")?1:(type.equalsIgnoreCase("second")?2:3), build, df.format(new Date()));
+                    feed.setDaemon(true);
+                    feed.start();
+                    }
                     String requete1="insert into TRANSAC(TRANSACT,ITEM,QTY,ACT_TYPE,ACT_NAME,SUB_ITEM,QTY_SUBITEM,user_id) values ('sewing',?,?,3,?,?,?,?)";
-                        if(!conn.Update(requete1, 0, new Object[]{sewing_t,QTY_CUT,"sewing",item,qty,Principal.user_id}))
-                                JOptionPane.showMessageDialog(this, "Error please, try again");
+                        if(!conn.Update(requete1, 0, new Object[]{sewing_t,QTY_CUT,"sewing",item,qty,Principal.user_id})){
+                            Erreur="Error please, try again";
+                            return false;
+                                //JOptionPane.showMessageDialog(this, "Error please, try again");
+                        }
+                        return true;
                     }else{
-                        JOptionPane.showMessageDialog(this, "This sticker you scan is invalid", "Alert", JOptionPane.ERROR_MESSAGE);
+                        Erreur="This sticker you scan is invalid";
+//                        JOptionPane.showMessageDialog(this, "This sticker you scan is invalid", "Alert", JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(this, "This sticker you scan is already scanned", "Alert", JOptionPane.ERROR_MESSAGE);
+                    Erreur="This sticker you scan is already scanned";
+//                    JOptionPane.showMessageDialog(this, "This sticker you scan is already scanned", "Alert", JOptionPane.ERROR_MESSAGE);
                 }
             }else{
-                JOptionPane.showMessageDialog(this, "This sticker you scan is not valid", "Alert", JOptionPane.ERROR_MESSAGE);
+                Erreur="This sticker you scan is not exist";
+//                JOptionPane.showMessageDialog(this, "This sticker you scan is not exist", "Alert", JOptionPane.ERROR_MESSAGE);
             }
         }else{
-                JOptionPane.showMessageDialog(this, "This workorder is already close", "Alert", JOptionPane.ERROR_MESSAGE);
+            Erreur="This workorder is already close";
+//                JOptionPane.showMessageDialog(this, "This workorder is already close", "Alert", JOptionPane.ERROR_MESSAGE);
             }
-        
+     return false;   
 }
-    private void mostrar(){
-    
-    tbm.setRowCount(0);
-    datalist=new LinkedHashSet<>();
-    String requete="select * from sewing_production where Status=1";
-    System.out.println(requete);
-    ResultSet rs=conn.select(requete);
-        try {
-            while(rs.next()){
-                String []posku=rs.getString("S_TRAVELLER").trim().replace(".", "-").split("-");
-                   
-                String color,Code;
-               color=null;
-               Code=posku[2];
-               
-             
-                   Object[] data=new Object[8];
-                   data[0]=posku[0];
-                   data[1]=posku[1];
-                   data[6]=rs.getString("slot");
-                   data[7]=rs.getString("type_sew");
-                   data[2]=Code;
-                   data[3]=color;
-                   data[4]=posku[3];
-                   data[5]=rs.getString("QTY_PER_LOT");
-                   datalist.add(data);
-                   tbm.addRow(data);
-            }   } catch (SQLException ex) {
-            Logger.getLogger(Sewing_prod.class.getName()).log(Level.SEVERE, null, ex);
-        }
-}
-    private void load(){
-        tbm.setRowCount(0);
-        datalist.parallelStream().forEach((data) -> {
-            tbm.addRow(data);
-        });
-    }
+   
     
     private boolean setqty(int qty,String sew){
         String requete="update sewing_production set qty_updated=0 ,QTY_PER_LOT=? ,date_updated=getDate() where slot=?";
@@ -382,6 +359,13 @@ private void get(String sew){
         return dat;
     }
     
+    private void act(){
+        String text=jTextField1.getText().trim();
+                scan ac=new scan(text);
+//                T ac=new T(text,modulo);
+                Thread t=new Thread(ac);
+                t.start();
+    }
     private Date lastInsertSecond(String s_traveller){
         String requete="select max(modified) modified from sewing_production where lot_stickers=? and STATUS=1 and type_sew='second'";
         ResultSet rs=conn.select(requete,s_traveller);
@@ -397,7 +381,7 @@ private void get(String sew){
     }
     
     private int entry(String travel){
-        String requete="select sum(QTY_PER_LOT) qty from sewing_production where lot_stickers=? and status=1 ";
+        String requete="select sum(QTY_PER_LOT) qty from sewing_production where lot_stickers=? and status=1 and type_sew<>'ps' ";
         ResultSet rs=conn.select(requete,travel);
         int id=0;
         try {
@@ -414,6 +398,31 @@ private void get(String sew){
         return val-entry(trave);
     }
     
+    class scan implements Runnable{
+
+    private String text;
+    private int lineSelected;
     
+    public scan(String text){
+        this.text=text;
+        tbm.addRow(new Object[]{text,"Pending","waiting"});
+        lineSelected=tbm.getRowCount()-1;
+    }
+        @Override
+        public void run() {
+            tbm.setValueAt("Running", lineSelected, 1);
+            if(get(text)){
+                tbm.setValueAt("Success", lineSelected, 2);
+                tbm.setValueAt("Ok", lineSelected, 1);
+            }else{
+                tbm.setValueAt(Erreur, lineSelected, 2);
+               tbm.setValueAt("Fail", lineSelected, 1);
+               //Log.getColumnModel().getColumn();
+            }
+            
+        }
+        
+    
+}
     
 }

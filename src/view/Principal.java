@@ -15,8 +15,11 @@ import Load_data.GBG.Transform_file_to_lpn;
 import Load_data.GBG.load_gbg_lpn_file;
 import Load_data.loadlpn;
 import Load_data.EDG.loadlpnEDS;
+import Load_data.loadOrder;
 import Load_data.loadOtherOrder;
+import admin.util.PrefManager;
 import connection.ConnectionDb;
+import connection.ConnectionDbMYSQL;
 import iw_wip.threadexemple;
 import java.awt.Color;
 import java.awt.Component;
@@ -25,8 +28,11 @@ import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,10 +59,12 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             ,at_pp,dreport,CONSO,at_soabar,lpnHol,lpnEd,lpnChs,ORD_WEST,workStyle,sewing,daily_soa,daily_pad,updatepo,oponly,delDaily,close,user,ord_gbg,
             update_production,lpn_gb,batch,packin_list_batch,audit,lpngbg_convert,sewing_ajust,update_workcenter,unscan,update_mod,tag,fab,lpn_update,
             upc_scan,sum_mod,post_sewing,wash,match_book,press,ready_pack,stylenew,washreport,pressreport,matchreport,close_travel,follow_up,second_post,ajust_post,
-            upload,packajust,secondupload,reaudit,ajustboxqty,auditReport,auditsituation,scorecard,warehouse,addInShipment,packingList;
+            upload,packajust,secondupload,reaudit,ajustboxqty,auditReport,auditsituation,scorecard,warehouse,addInShipment,packingList,agabox,packing_list_warehouse
+            ,updatepack,pack_list,shiplist,planification;
+    private AddColorStyleFabric colorsettup;
     public Connection_user auth;
     private lock_fen lockframe;
-    public static int user_id=0;
+    public static int user_id=0,staff_id;
     public static String group;
     private String username;
     private daemon damon;
@@ -67,7 +75,10 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private Image img;
     DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
     private threadexemple te=new threadexemple();
-    private ConnectionDb conn;
+    private ConnectionDb conn=ConnectionDb.instance();
+    private ConnectionDbMYSQL conn2=ConnectionDbMYSQL.instance();
+    private PrefManager pref=PrefManager.getInstance();
+    public static final ArrayList<String> except=new ArrayList<>();
         //te.ajouterObservateur(new Principal());
         private Thread t;
         private Executors exec;
@@ -82,6 +93,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         img=new javax.swing.ImageIcon(getClass().getResource("/view/icon/wiplogo1.png")).getImage();
         this.setIconImage(img); 
         System.out.println(getMenuBar());
+        
         auth=new Connection_user(this, true);
         auth.setLocationRelativeTo(this);
         auth.ajouterObservateur(this);
@@ -93,11 +105,28 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         init();
         fullscreen();
         setVisible(true);
-        auth.setVisible(true);
-        
+        if(pref.getInt("iduser",0)==0)
+            auth.setVisible(true);
+        else
+            initUser();
+        except.add("FM12");
+        except.add("FM15");
+        except.add("FM15K");
+        except.add("FM15Y");
+        except.add("FM12IW");
+        except.add("FM9");
+        except.add("FM10");
+        except.add("FM11");
+        except.add("856821");
+        except.add("856822");
         
     }
 
+    private void initUser(){
+        this.ajouterObservateur(this);
+        alerter(new Object[]{"Connected",pref.getInt("iduser",0),pref.getString("username"),pref.getString("fname"),pref.getString("lname"),
+        pref.getString("nivel"),pref.getString("departement")});
+    }
     
     private void fullscreen(){
     this.ajouterObservateur(auth);
@@ -154,6 +183,8 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         scan_box = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
         packinglist = new javax.swing.JMenuItem();
+        jMenuItem32 = new javax.swing.JMenuItem();
+        list_shipment = new javax.swing.JMenuItem();
         MisMenu = new javax.swing.JMenu();
         user_manager = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
@@ -177,6 +208,8 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         fab_menu = new javax.swing.JMenuItem();
         jMenuItem7 = new javax.swing.JMenuItem();
         jMenuItem9 = new javax.swing.JMenuItem();
+        jMenuItem31 = new javax.swing.JMenuItem();
+        color_ajust = new javax.swing.JMenuItem();
         UPLOAD = new javax.swing.JMenu();
         asg_upload_manager = new javax.swing.JMenu();
         upload_asg_order = new javax.swing.JMenuItem();
@@ -204,6 +237,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         pack = new javax.swing.JMenuItem();
         jMenuItem27 = new javax.swing.JMenuItem();
         jMenuItem28 = new javax.swing.JMenuItem();
+        PACKLIST = new javax.swing.JMenuItem();
         ajust = new javax.swing.JMenu();
         update_sewing_transfer = new javax.swing.JMenuItem();
         update_mod_transfer = new javax.swing.JMenuItem();
@@ -217,6 +251,9 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         packing_ajust = new javax.swing.JMenuItem();
         second = new javax.swing.JMenuItem();
         ajusbox = new javax.swing.JMenuItem();
+        jMenuItem33 = new javax.swing.JMenuItem();
+        jMenu6 = new javax.swing.JMenu();
+        plan = new javax.swing.JMenuItem();
 
         profil.setText("profil");
         con_menu.add(profil);
@@ -280,21 +317,22 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
                 .addContainerGap(36, Short.MAX_VALUE))
         );
 
+        label_principal.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
         javax.swing.GroupLayout label_principalLayout = new javax.swing.GroupLayout(label_principal);
         label_principal.setLayout(label_principalLayout);
         label_principalLayout.setHorizontalGroup(
             label_principalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, label_principalLayout.createSequentialGroup()
-                .addGap(0, 590, Short.MAX_VALUE)
+                .addGap(0, 570, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         label_principalLayout.setVerticalGroup(
             label_principalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, label_principalLayout.createSequentialGroup()
-                .addGap(0, 289, Short.MAX_VALUE)
+                .addGap(0, 267, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-        label_principal.setLayer(jPanel1, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         jLabel1.setText("jLabel1");
 
@@ -531,6 +569,25 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         });
         jMenu5.add(packinglist);
 
+        jMenuItem32.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_W, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem32.setText("In Shipping");
+        jMenuItem32.setName("in shipping"); // NOI18N
+        jMenuItem32.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem32ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem32);
+
+        list_shipment.setText("PACKING LIST DETAILED");
+        list_shipment.setName("shiplist"); // NOI18N
+        list_shipment.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                list_shipmentActionPerformed(evt);
+            }
+        });
+        jMenu5.add(list_shipment);
+
         jMenu4.add(jMenu5);
 
         WIPMenu.add(jMenu4);
@@ -707,6 +764,24 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         });
         settup.add(jMenuItem9);
 
+        jMenuItem31.setText("generate box for AGA");
+        jMenuItem31.setName("AGABOX"); // NOI18N
+        jMenuItem31.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem31ActionPerformed(evt);
+            }
+        });
+        settup.add(jMenuItem31);
+
+        color_ajust.setText("COLOR AJUSTMENT");
+        color_ajust.setName("colorSetting"); // NOI18N
+        color_ajust.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                color_ajustActionPerformed(evt);
+            }
+        });
+        settup.add(color_ajust);
+
         jMenuBar1.add(settup);
 
         UPLOAD.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/icon/upload2.png"))); // NOI18N
@@ -800,6 +875,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         jMenu1.add(lpn_gbg);
 
         jMenuItem8.setText("Load Lpn");
+        jMenuItem8.setName("lpnloader"); // NOI18N
         jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem8ActionPerformed(evt);
@@ -924,6 +1000,15 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         });
         reports.add(jMenuItem28);
 
+        PACKLIST.setText("PACKING LIST PACKED BOXES");
+        PACKLIST.setName("packlist"); // NOI18N
+        PACKLIST.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PACKLISTActionPerformed(evt);
+            }
+        });
+        reports.add(PACKLIST);
+
         jMenuBar1.add(reports);
 
         ajust.setText("Ajustment");
@@ -1031,7 +1116,32 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         });
         ajust.add(ajusbox);
 
+        jMenuItem33.setText("Update packing Box");
+        jMenuItem33.setName("updatepacking"); // NOI18N
+        jMenuItem33.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem33ActionPerformed(evt);
+            }
+        });
+        ajust.add(jMenuItem33);
+
         jMenuBar1.add(ajust);
+
+        jMenu6.setMnemonic('P');
+        jMenu6.setText("Planning");
+        jMenu6.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jMenu6.setName("planning"); // NOI18N
+
+        plan.setText("Planification");
+        plan.setName("planification"); // NOI18N
+        plan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                planActionPerformed(evt);
+            }
+        });
+        jMenu6.add(plan);
+
+        jMenuBar1.add(jMenu6);
 
         setJMenuBar(jMenuBar1);
 
@@ -1039,11 +1149,17 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(label_principal)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(label_principal)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(label_principal)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(label_principal)
+                .addContainerGap())
         );
 
         pack();
@@ -1075,9 +1191,6 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             bundle_t=new Bundle();
             bundle_t.setVisible(true);
             label_principal.add(bundle_t);
-            //bundle_t.toFront();
-            
-            //System.out.println("new");
         }
         if(bundle_t.isIcon()){
             try {
@@ -2274,7 +2387,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private void jMenuItem25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem25ActionPerformed
         // TODO add your handling code here:
         if(upload==null|| upload.isClosed()){
-            upload=new loadOtherOrder();
+            upload=new loadOrder();
             upload.setVisible(true);
             label_principal.add(upload);
             
@@ -2510,6 +2623,139 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         packingList.toFront();
     }//GEN-LAST:event_packinglistActionPerformed
 
+    private void jMenuItem31ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem31ActionPerformed
+        // TODO add your handling code here:
+        if(agabox==null|| agabox.isClosed()){
+            agabox=new Packing_list();
+            agabox.setVisible(true);
+            label_principal.add(agabox);
+            
+            System.out.println("new");
+        }
+        if(agabox.isIcon()){
+            try {
+                agabox.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        agabox.toFront();
+    }//GEN-LAST:event_jMenuItem31ActionPerformed
+
+    private void jMenuItem32ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem32ActionPerformed
+        // TODO add your handling code here:
+        if(packing_list_warehouse==null|| packing_list_warehouse.isClosed()){
+            packing_list_warehouse=new WarehouseReport();
+            packing_list_warehouse.setVisible(true);
+            label_principal.add(packing_list_warehouse);
+            
+            System.out.println("new");
+        }
+        if(packing_list_warehouse.isIcon()){
+            try {
+                packing_list_warehouse.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        packing_list_warehouse.toFront();
+    }//GEN-LAST:event_jMenuItem32ActionPerformed
+
+    private void jMenuItem33ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem33ActionPerformed
+        // TODO add your handling code here:
+        if(updatepack==null|| updatepack.isClosed()){
+            updatepack=new UpdatePackingInfos();
+            updatepack.setVisible(true);
+            label_principal.add(updatepack);
+            
+            System.out.println("new");
+        }
+        if(updatepack.isIcon()){
+            try {
+                updatepack.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        updatepack.toFront();
+    }//GEN-LAST:event_jMenuItem33ActionPerformed
+
+    private void PACKLISTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PACKLISTActionPerformed
+        // TODO add your handling code here:
+        if(pack_list==null|| pack_list.isClosed()){
+            pack_list=new PackingList_packing();
+            pack_list.setVisible(true);
+            label_principal.add(pack_list);
+            
+            System.out.println("new");
+        }
+        if(pack_list.isIcon()){
+            try {
+                pack_list.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        pack_list.toFront();
+    }//GEN-LAST:event_PACKLISTActionPerformed
+
+    private void list_shipmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_list_shipmentActionPerformed
+        // TODO add your handling code here:
+        if(shiplist==null|| shiplist.isClosed()){
+            shiplist=new PackingList_shipinfos();
+            shiplist.setVisible(true);
+            label_principal.add(shiplist);
+            
+            System.out.println("new");
+        }
+        if(shiplist.isIcon()){
+            try {
+                shiplist.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        shiplist.toFront();
+    }//GEN-LAST:event_list_shipmentActionPerformed
+
+    private void planActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_planActionPerformed
+        // TODO add your handling code here:
+        if(planification==null|| planification.isClosed()){
+            planification=new planification();
+            planification.setVisible(true);
+            label_principal.add(planification);
+            
+            System.out.println("new");
+        }
+        if(planification.isIcon()){
+            try {
+                planification.setIcon(false);
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            System.out.println("old");
+        }
+        planification.toFront();
+    }//GEN-LAST:event_planActionPerformed
+
+    private void color_ajustActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_color_ajustActionPerformed
+        // TODO add your handling code here:
+            colorsettup=new AddColorStyleFabric(this, true);
+            colorsettup.setVisible(true);
+        
+    }//GEN-LAST:event_color_ajustActionPerformed
+
     private void init(){
         connecter=false;
         if(time==null)
@@ -2635,6 +2881,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenu Consolidation;
     private javax.swing.JMenuItem MATCHBOOKREPORT;
     private javax.swing.JMenu MisMenu;
+    private javax.swing.JMenuItem PACKLIST;
     private javax.swing.JMenuItem PRESSDREPORT;
     private javax.swing.JMenuItem Progress;
     private javax.swing.JMenu UPLOAD;
@@ -2646,6 +2893,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenuItem bundle;
     private javax.swing.JMenu chs_upload_manager;
     private javax.swing.JMenuItem closeorder;
+    private javax.swing.JMenuItem color_ajust;
     private javax.swing.JPopupMenu con_menu;
     private javax.swing.JMenuItem create_shipment;
     private javax.swing.JMenuItem createbox;
@@ -2661,6 +2909,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenu jMenu5;
+    private javax.swing.JMenu jMenu6;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem10;
@@ -2686,6 +2935,9 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenuItem jMenuItem29;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem30;
+    private javax.swing.JMenuItem jMenuItem31;
+    private javax.swing.JMenuItem jMenuItem32;
+    private javax.swing.JMenuItem jMenuItem33;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem6;
@@ -2699,6 +2951,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JPopupMenu.Separator jSeparator3;
     private javax.swing.JPopupMenu.Separator jSeparator4;
     private javax.swing.JDesktopPane label_principal;
+    private javax.swing.JMenuItem list_shipment;
     private javax.swing.JMenuItem lock;
     private javax.swing.JMenuItem logout;
     private javax.swing.JMenuItem lpn_gbg;
@@ -2706,6 +2959,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
     private javax.swing.JMenuItem pack1;
     private javax.swing.JMenuItem packing_ajust;
     private javax.swing.JMenuItem packinglist;
+    private javax.swing.JMenuItem plan;
     private javax.swing.JMenuItem prod_ajust_sew;
     private javax.swing.JMenuItem profil;
     private javax.swing.JMenuItem psp;
@@ -2758,13 +3012,25 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
             if(t.isInterrupted())
                 t.start();
             
+            try(ResultSet rs=conn2.select("select staff_id from aga_staffs where firstname=? and lastname=?", obs[3].toString(),obs[4].toString())){
+                while(rs.next())
+                    staff_id=rs.getInt("staff_id");
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
             label.setText(obs[3].toString()+" "+obs[4].toString());
             label.setVisible(true);
             user_id=Integer.parseInt(obs[1].toString());
             group=obs[6].toString();
             connecter=true;
             username=obs[2].toString();
-            Object[] Mainmenu=(Object[])obs[7];
+            if(group.trim().equalsIgnoreCase("MIS")){
+                menulist.forEach((text, u) -> {
+                    System.out.println(text);
+                    u.setVisible(true);
+                });
+            }else{
+            Object[] Mainmenu=getDroits(user_id);
             for(int i=0;i<Mainmenu.length;i++){
                 try{
                 menulist.get(Mainmenu[i].toString().trim().toLowerCase()).setVisible(true);
@@ -2772,7 +3038,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
                     System.err.println("error:"+e.getMessage());
                 }
             }
-            
+            }
             if(sew.isVisible()){
                 sew.setEnabled(false);
                 jMenuItem5.setEnabled(false);
@@ -2835,7 +3101,7 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
                     lock();
                     
                }
-                //System.out.println("time :"+unactive_sec);
+                
             }
         }
         if(obs[0].equals("change user")){
@@ -2879,5 +3145,24 @@ public class Principal extends javax.swing.JFrame implements Observateurs,Observ
         lockframe.setModal(true);
         lockframe.setVisible(true);
         t.currentThread().run();
+    }
+    
+    private Object[] getDroits(int user_id){
+        Object [] droits=null;
+        try{
+        String sql="select * from roles_user where user_id=?";
+        ResultSet rs1 = conn.select(sql,user_id);
+                        rs1.last();
+                        droits=new Object[rs1.getRow()];
+                        rs1.beforeFirst();
+                        int i=0;
+                        while (rs1.next()) {
+                            droits[i]=rs1.getString("field");
+                            i++;
+                        }
+        }catch(SQLException ex){
+            System.err.println(ex.getMessage());
+        }
+        return droits;
     }
 }

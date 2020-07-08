@@ -274,12 +274,13 @@
     <Component class="javax.swing.JComboBox" name="plan">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="5">
+          <StringArray count="6">
             <StringItem index="0" value="--SELECTED--"/>
             <StringItem index="1" value="HWY"/>
             <StringItem index="2" value="AUG"/>
             <StringItem index="3" value="CLV"/>
             <StringItem index="4" value="LAT"/>
+            <StringItem index="5" value="AGA"/>
           </StringArray>
         </Property>
       </Properties>

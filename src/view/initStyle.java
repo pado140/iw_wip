@@ -89,6 +89,7 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
         popup.add(delete);
 
         setClosable(true);
+        setTitle("CREATE/MODIFY STYLE");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Infos Style"));
 
@@ -116,7 +117,7 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
 
         jLabel19.setText("Customer");
 
-        CUST.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Selected--", "HWY", "AUG", "CHS", "FSM", "EDG", "GBG", "CLV" }));
+        CUST.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "--Selected--", "HWY", "AUG", "CHS", "FSM", "EDG", "GBG", "CLV", "AGA", "IW", "VAL" }));
 
         jLabel6.setText("Fabric Type:");
 
@@ -394,8 +395,8 @@ public class initStyle extends javax.swing.JInternalFrame implements Observe,Obs
             
         if(!est_vide)
             requete="update proto_style set style=?,proto=?,brand=?,styfam=?,profam=?,description=? where proto_id="+proto_id;
-        if(conn.Update(requete, 1, txt_style.getText().trim(),txt_proto.getText().trim(),CUST.getSelectedItem().toString(),
-                txt_pattern.getText().trim(),txt_profam.getText().trim(),DESC.getText().trim())){
+        if(conn.Update(requete, 1, txt_style.getText().trim().toUpperCase(),txt_proto.getText().trim().toUpperCase(),CUST.getSelectedItem().toString(),
+                txt_pattern.getText().trim().toUpperCase(),txt_profam.getText().trim().toUpperCase(),DESC.getText().trim())){
             if(est_vide)
                 proto_id=conn.getLast();
             requete="insert into fab_style(proto_id,fab_id,type_id,proto_opt) values (?,?,?,1)";

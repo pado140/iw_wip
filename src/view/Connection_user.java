@@ -5,6 +5,7 @@
  */
 package view;
 
+import admin.util.PrefManager;
 import connection.ConnectionDb;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
@@ -22,6 +23,7 @@ import observateurs.Observe;
  */
 public class Connection_user extends javax.swing.JDialog implements Observe,Observateurs{
 private ConnectionDb conn = ConnectionDb.instance();
+private PrefManager pref=PrefManager.getInstance();
     /**
      * Creates new form Connection_user
      */
@@ -404,7 +406,16 @@ private ConnectionDb conn = ConnectionDb.instance();
                             droits[i]=rs1.getString("field");
                             i++;
                         }
-                       alerter(new Object[]{"Connected",rs.getInt("iduser"),rs.getString("username"),rs.getString("fname"),rs.getString("lname"),
+                        if(saveNew()){
+                            System.out.println("new");
+//                        pref.putInt("iduser", rs.getInt("iduser"));
+//                        pref.put("username", rs.getString("username"));
+//                        pref.put("fname", rs.getString("fname"));
+//                        pref.put("lname", rs.getString("lname"));
+//                        pref.put("nivel", rs.getString("nivel"));
+//                        pref.put("departement", rs.getString("departement"));
+                        }
+                       alerter(new Object[]{"Connected",rs.getInt("iduser"),rs.getString("username"),rs.getString("fname").trim(),rs.getString("lname").trim(),
                        rs.getString("nivel"),rs.getString("departement"),droits});
                
            }
@@ -442,6 +453,7 @@ private ConnectionDb conn = ConnectionDb.instance();
             label_error.setText("");
             username.setText("");
             password.setText("");
+            pref.clear();
         }
         
         if(obs[0].equals("connection network")){
@@ -459,5 +471,9 @@ private ConnectionDb conn = ConnectionDb.instance();
             
             
         }
+    }
+    
+    private boolean saveNew(){
+        return pref.getInt("iduser", 0)==0;
     }
 }

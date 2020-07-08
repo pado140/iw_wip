@@ -9,6 +9,9 @@ import connection.ConnectionDb;
 import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -27,6 +30,8 @@ public class Packing_list extends javax.swing.JInternalFrame implements Observe,
     private DefaultTableModel tbm;
     private packing_by_shipment pbs;
     private EDIT_SHIPMENT EDS;
+    
+    private Set<Object[]> datas=new HashSet<>();
     /**
      * Creates new form Packing_list
      */
@@ -92,8 +97,15 @@ public class Packing_list extends javax.swing.JInternalFrame implements Observe,
         setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
+        setTitle("All Shipments");
 
         jLabel1.setText("Shipment number:");
+
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -217,17 +229,27 @@ public class Packing_list extends javax.swing.JInternalFrame implements Observe,
 
     private void packActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_packActionPerformed
         // TODO add your handling code here:
-        alerter("packing_list_shipment",grid_data.getValueAt(grid_data.getSelectedRow(), 6));
+        ArrayList<String> shipids=new ArrayList<>();
+        for(int i=0;i<grid_data.getSelectedRowCount();i++){
+            shipids.add(grid_data.getValueAt(grid_data.getSelectedRows()[i],6).toString());
+        }
+        alerter("packing_list_shipment",shipids);
         pbs.setModal(true);
         pbs.setVisible(true);
     }//GEN-LAST:event_packActionPerformed
 
     private void closeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeActionPerformed
         // TODO add your handling code here:
+        if(grid_data.getSelectedRowCount()>1){
+            JOptionPane.showMessageDialog(this, "you must select one column a time");
+            grid_data.getSelectionModel().clearSelection();
+            return;
+            
+        }
         int id_shipment=Integer.parseInt(grid_data.getValueAt(grid_data.getSelectedRow(), 6).toString());
         String shipment_number=grid_data.getValueAt(grid_data.getSelectedRow(), 0).toString();
         String requete="update Shipments set status=0 where id=?";
-        int choix=JOptionPane.showConfirmDialog(this, "are you sure to close the shipment "+shipment_number+" ?", "confirmation",
+        int choix=JOptionPane.showConfirmDialog(this, "are you sure to close those shipment "+shipment_number+" ?", "confirmation",
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         if(choix==JOptionPane.YES_OPTION){
         if(conn.Update(requete, 0,id_shipment)){
@@ -239,10 +261,26 @@ public class Packing_list extends javax.swing.JInternalFrame implements Observe,
 
     private void editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editActionPerformed
         // TODO add your handling code here:
+        if(grid_data.getSelectedRowCount()>1){
+            JOptionPane.showMessageDialog(this, "you must select one column a time");
+            grid_data.getSelectionModel().clearSelection();
+            return;
+            
+        }
         alerter("edit_shipment",grid_data.getValueAt(grid_data.getSelectedRow(), 6),grid_data.getSelectedRow());
         EDS.setModal(true);
         EDS.setVisible(true);
     }//GEN-LAST:event_editActionPerformed
+
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+        // TODO add your handling code here:
+        tbm.setNumRows(0);
+        for(Object[] obj:datas){
+            if(obj[0].toString().toLowerCase().contains(jTextField1.getText().trim().toLowerCase())){
+                tbm.addRow(obj);
+            }
+        }
+    }//GEN-LAST:event_jTextField1KeyReleased
     
     private void fillTable(){
         String requete="select shipment_id,shipment_number,container_number,status_shipment,date_shipment,customer,count(lpn) nb_lpn,sum(qty) pieces"
@@ -252,6 +290,9 @@ public class Packing_list extends javax.swing.JInternalFrame implements Observe,
         try {
             while(rs.next()){
                 tbm.addRow(new Object[]{rs.getString("shipment_number"),rs.getString("container_number"),rs.getInt("nb_lpn"),
+                rs.getInt("pieces"),rs.getString("date_shipment"),rs.getString("customer"),rs.getInt("shipment_id"),
+                rs.getInt("status_shipment")==1?"Open":"Closed",rs.getString("typeShipment")});
+                datas.add(new Object[]{rs.getString("shipment_number"),rs.getString("container_number"),rs.getInt("nb_lpn"),
                 rs.getInt("pieces"),rs.getString("date_shipment"),rs.getString("customer"),rs.getInt("shipment_id"),
                 rs.getInt("status_shipment")==1?"Open":"Closed",rs.getString("typeShipment")});
                 

@@ -17,12 +17,24 @@ import static observateurs.Observe.obs;
  */
 public class newAuditor extends javax.swing.JDialog implements Observe{
 private final ConnectionDb conn = ConnectionDb.instance();
+private String type="auditor";
     /**
      * Creates new form newAuditor
      */
-    public newAuditor(java.awt.Frame parent, boolean modal) {
+    public newAuditor(java.awt.Frame parent, boolean modal,String type) {
         super(parent, modal);
+        this.type=type;
         initComponents();
+        init();
+    }
+    
+    private void init(){
+        setTitle("new Auditor");
+        if(type.equalsIgnoreCase("inspector")){
+            setTitle("new Inspector");
+            codelabel.setText("INSPECTOR CODE:");
+            namelabel.setText("INSPECTOR NAME:");
+        }
     }
 
     /**
@@ -34,16 +46,16 @@ private final ConnectionDb conn = ConnectionDb.instance();
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        codelabel = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
+        namelabel = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel1.setText("Auditor Code:");
+        codelabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        codelabel.setText("Auditor Code:");
 
         jTextField1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
 
@@ -54,8 +66,8 @@ private final ConnectionDb conn = ConnectionDb.instance();
             }
         });
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel2.setText("Auditor Name:");
+        namelabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        namelabel.setText("Auditor Name:");
 
         jTextField2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
 
@@ -73,20 +85,20 @@ private final ConnectionDb conn = ConnectionDb.instance();
                     .addComponent(jTextField2)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 182, Short.MAX_VALUE)))
+                            .addComponent(codelabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(namelabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 91, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(14, 14, 14)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(codelabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(namelabel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -106,9 +118,11 @@ private final ConnectionDb conn = ConnectionDb.instance();
         String code=jTextField1.getText().trim();
         String name=jTextField2.getText().trim();
         String requete ="insert into Auditor (Auditor_name,Auditor_code) values (?,?)";
-        if(conn.Update(requete, WIDTH, name,code)){
-            alerter("new auditor",code+"-"+name,conn.getLast());
-            JOptionPane.showMessageDialog(this, "New Auditor has been added");
+        if(type.equalsIgnoreCase("inspector"))
+            requete="insert into inspectors (inspector,code) values (?,?)";
+        if(conn.Update(requete, 1, name,code)){
+            alerter("new "+type,code+"-"+name,conn.getLast());
+            JOptionPane.showMessageDialog(this, "New "+type+" has been added");
             this.dispose();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -143,7 +157,7 @@ private final ConnectionDb conn = ConnectionDb.instance();
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                newAuditor dialog = new newAuditor(new javax.swing.JFrame(), true);
+                newAuditor dialog = new newAuditor(new javax.swing.JFrame(), true,"auditor");
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -156,11 +170,11 @@ private final ConnectionDb conn = ConnectionDb.instance();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel codelabel;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
+    private javax.swing.JLabel namelabel;
     // End of variables declaration//GEN-END:variables
 
     @Override

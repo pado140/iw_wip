@@ -738,6 +738,7 @@ public class AuditReport extends javax.swing.JInternalFrame {
 
     private void report_noKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_report_noKeyReleased
         // TODO add your handling code here:
+        
         buscar();
     }//GEN-LAST:event_report_noKeyReleased
 

@@ -350,8 +350,8 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
            ",REWORK_10,CRTSNS_10,TTLSNS_10,FORCUR_10,EXCESS_10,UOMCST_10,UOMCNV_10,INSREQ_10,CREDTE_10,RTEREV_10,RTEDTE_10"+
            ",COMCDE_10,ORDPTP_10,JOBEXP_10,JOBCST_10,TAXCDE_10,TAX1_10,GLREF_10,CURR_10,UDFKEY_10,UDFREF_10,DISC_10,RECCOST_10"+
            ",MPNMFG_10,DEXPFLG_10,PLSTPRNT_10,ROUTPRNT_10,REQUES_10,ALTBOM_10,ALTRTG_10,CLASS_10,JOB_10,SUBSHP_10) "+
-            "VALUES (?,'0','0',?,?,'N','N','MS','"+ord+"0000','',?,'',?,?,?,?,'',?,'','N','3','FG1-FP1',?,?,'',0,0,'N','B','',"+
-           "0,1,'',?,'R','','N','','',0,'N','','','Y','N',0,0,0,0,0,'',?,'',NULL,'SKU','M','Y',0,'',0,'','',?,?,0,0,'','N'"+
+            "VALUES (?,'00','00',?,?,'N','N','MS','"+ord+"0000','',?,'',?,?,?,?,'',?,'','N','3','FG1-FP1',?,?,'',0,0,'N','B','',"+
+           "0,1,'',?,'Q','','N','','',0,'N','','','N','N',0,0,0,0,0,'',?,'',NULL,'SKU','M','Y',0,'',0,'','',?,?,0,0,'','N'"+
             ",'N','N','','','',?,'',0)";
       
       return conn.Update(query,1, ord,partid,created,created,qty,qty,qty,created,created,po,plan,po.split("_")[0],created,key,udf,classe);
@@ -415,16 +415,23 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
          return null;
     }
     private int nbLpn(String ord){
-        String requete="select count(ordnum) nb from BOX_CONTAIN where ordnum =?";
+        String requete="select max(CAST(BOX_STICKERS AS numeric)) nb from BOX_CONTAIN where ordnum =? and box_stickers not like'%-%'";
         ResultSet rs=conn.select(requete, ord);
         
         try {
             while(rs.next())
             {
-                return rs.getInt("nb")+1;
+                
+                try{
+                    String stickers=rs.getObject("nb").toString();
+                    return Integer.parseInt(stickers.substring(8))+1;
+                }catch(NumberFormatException |NullPointerException e){
+                    return 1;
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(lpn_update.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
         return 1;
     }
@@ -461,6 +468,7 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
                     errors.put(sku, conn.getErreur());
                 }
             }
+            System.out.println("po:"+po+"\n sku:"+partid);
             
             ord1=Order_Exist(po,partid);
                 if(ord1==null){
@@ -469,16 +477,19 @@ public class loadFrame extends javax.swing.JDialog implements Observateurs{
                     //String key=Integer.parseInt(wh)>0?"":wh;
                     saveOrder(po, ord1, partid,date_plan.getDate(), qty, plan.getSelectedItem().toString(),classe, sku1, classe);
                     if(conn.getErreur()!=null){
+                        
                     errors.put(ord1, conn.getErreur());
                 }
                 }
+                ord1=Order_Exist(po,partid);
                 if(partid!=null && ord1!=null){
                     int inc=nbLpn(ord1);
+                    System.out.println("ordnum:"+ord1+"\t nb:"+inc);
                     for(String lpn:listData.get(po.concat(".").concat(sku)).keySet()){
                     String ind=String.valueOf(inc);
                     boolean dash=(Boolean)(listData.get(po.concat(".").concat(sku)).get(lpn)[1]);
                     int qt=(Integer)listData.get(po.concat(".").concat(sku)).get(lpn)[0];
-                    String sticker=ord1+"000".substring(ind.length())+ind;
+                    String sticker=ord1+"0000".substring(ind.length())+ind;
                     if(dash){
                         if(exists(lpn).isPresent()){
                             

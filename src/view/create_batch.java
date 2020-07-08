@@ -559,6 +559,7 @@ private Map<Object,Integer> list;
     } catch (SQLException | NullPointerException ex) {
         Logger.getLogger(create_batch.class.getName()).log(Level.SEVERE, null, ex);
     }
+    
     }
     private Object[] getLpn(String lpn){
         String requete="select * from lpn_packed where lpn=? or box_stickers=?";

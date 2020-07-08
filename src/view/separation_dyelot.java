@@ -30,6 +30,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.view.JasperViewer;
 import view.report.data_layout;
 
 /**
@@ -192,7 +193,7 @@ public class separation_dyelot extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(4, 4, 4)
+                .addGap(0, 0, 0)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(cut, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -396,6 +397,7 @@ public class separation_dyelot extends javax.swing.JDialog {
     
     
     private void print_per_page(int id,int cut_no,String marker,int... dyelot){
+        int bundleqt=75;
        String po="";
         String requete= "select * from all_cut where cut_id=?";
         String requete1= "update cutplan set generated=1 where cut_id=?";
@@ -432,9 +434,9 @@ public class separation_dyelot extends javax.swing.JDialog {
             for(Map<String,String> data:datacut){
                 int ratio=Integer.parseInt(data.get("ratio"));
                 for(int i=0;i<ratio;i++){
-                    if(pl>75){
-                        int nb=(int)Math.ceil(pl/75);
-                        if(pl%75>0)
+                    if(pl>bundleqt){
+                        int nb=(int)Math.ceil(pl/bundleqt);
+                        if(pl%bundleqt>0)
                             nb+=1;
                         for(int j=0;j<nb;j++){
                             data_layout d=new data_layout();
@@ -446,10 +448,10 @@ public class separation_dyelot extends javax.swing.JDialog {
                                 d.setColor(data.get("col")+"-"+data.get("color"));
                                 d.setSize(data.get("size"));
                                 d.setStyle(data.get("style"));
-                                d.setQty(75);
-                                if(pl%75>0){
+                                d.setQty(bundleqt);
+                                if(pl%bundleqt>0){
                                     if(j==nb-1)
-                                        d.setQty(pl%75);
+                                        d.setQty(pl%bundleqt);
                                 }
                                 
                                 d.setNb(dyelot.length*ratio*nb);
@@ -468,9 +470,9 @@ public class separation_dyelot extends javax.swing.JDialog {
                             d.setColor(data.get("col")+"-"+data.get("color"));
                             d.setSize(data.get("size"));
                             d.setStyle(data.get("style"));
-                            d.setQty(75);
-                            if(pl%75>0)
-                                d.setQty(pl%75);
+                            d.setQty(bundleqt);
+                            if(pl%bundleqt>0)
+                                d.setQty(pl%bundleqt);
                             d.setNb(dyelot.length*ratio);
                             d.setTicket_num(count);
                             da.add(d);
@@ -489,8 +491,12 @@ public class separation_dyelot extends javax.swing.JDialog {
                   for(int i=0;i<da.size();i++)
                       System.out.println("da:"+da.get(i).getPo());
                   JasperReport jasperReport = (JasperReport) JRLoader.loadObject(master);
+                  
                   JRBeanCollectionDataSource beanCutDataSource =new JRBeanCollectionDataSource(da);
                   JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,param,beanCutDataSource);
+                  JasperViewer jviewer=new JasperViewer(jasperPrint);
+                  //JasperViewer.viewReport(jasperPrint);
+                  jviewer.show();
                   if(!Files.exists(new File("P:\\TAGS").toPath())){
                       new File("P:\\TAGS").mkdirs();
                   }

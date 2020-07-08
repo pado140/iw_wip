@@ -268,7 +268,7 @@ public class loadOrder extends javax.swing.JInternalFrame implements Observe{
             }
         });
 
-        customerchoice.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "LAT", "CLV" }));
+        customerchoice.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "AGA", "IW", "CLV", "VAL" }));
 
         jLabel1.setText("Select Customer");
 
@@ -381,7 +381,7 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
          return null;
     }
     
-    public boolean saveOrder(String po,String ord,String partid,Date created,int qty,String key,String udf,Date xfact,double price,String cust){
+    public boolean saveOrder(String po,String ord,String partid,java.sql.Date created,int qty,String key,String udf,Date xfact,double price,String cust){
         String query="INSERT INTO Order_Master (ORDNUM_10,LINNUM_10,DELNUM_10,PRTNUM_10,CURDUE_10,RECFLG_10,TAXABLE_10"+
            ",TYPE_10,ORDER_10,VENID_10,ORGDUE_10,PURUOM_10,CURQTY_10,ORGQTY_10,DUEQTY_10,CURPRM_10,FILL03_10,ORGPRM_10,FILL04_10"+
            ",FRMPLN_10,STATUS_10,STK_10,CUSORD_10,PLANID_10,BUYER_10,PSCRAP_10,ASCRAP_10,SCRPCD_10,SCHCDE_10,REVLEV_10,COST_10"+
@@ -389,12 +389,12 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
            ",REWORK_10,CRTSNS_10,TTLSNS_10,FORCUR_10,EXCESS_10,UOMCST_10,UOMCNV_10,INSREQ_10,CREDTE_10,RTEREV_10,RTEDTE_10"+
            ",COMCDE_10,ORDPTP_10,JOBEXP_10,JOBCST_10,TAXCDE_10,TAX1_10,GLREF_10,CURR_10,UDFKEY_10,UDFREF_10,DISC_10,RECCOST_10"+
            ",MPNMFG_10,DEXPFLG_10,PLSTPRNT_10,ROUTPRNT_10,REQUES_10,ALTBOM_10,ALTRTG_10,CLASS_10,JOB_10,SUBSHP_10) "+
-            "VALUES (?,'0','0',?,?,'N','N','MS','"+ord+"0000','',?,'',?,?,?,?,'',?,'','N','3','FG1-FP1',?,?,'',0,0,'N','B','',"+
-           "?,1,'',?,'R','','N','','',0,'N','','','Y','N',0,0,0,0,0,'',?,'',NULL,'SKU','M','Y',0,'',0,'','',?,?,0,0,'','N'"+
+            "VALUES (?,'0','0',?,getDate(),'N','N','MS','"+ord+"0000','',?,'',?,?,?,getDate(),'',getDate(),'','N','3','FG1-FP1',?,?,'',0,0,'N','B','',"+
+           "?,1,'',?,'R','','N','','',0,'N','','','Y','N',0,0,0,0,0,'',getDate(),'',NULL,'SKU','M','Y',0,'',0,'','',?,?,0,0,'','N'"+
             ",'N','N','','','','','',0)";
       
         String Alias=po;
-      return conn.Update(query,1, ord,partid,created,xfact,qty,qty,qty,created,created,po,cust,price,Alias,created,key,udf);
+      return conn.Update(query,1, ord,partid,xfact,qty,qty,qty,po,cust,price,Alias,key,udf);
       
     }
     
@@ -511,7 +511,7 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
             String description=grid_po.getValueAt(a, columnAt("DESCRIP")).toString();
             Date xfact=null;
             try {
-                xfact=new SimpleDateFormat("dd/MM/yyyy").parse(grid_po.getValueAt(a, columnAt("XFACT")).toString());
+                xfact=new SimpleDateFormat("MM/dd/yy").parse(grid_po.getValueAt(a, columnAt("XFACT")).toString());
             } catch (ParseException ex) {
                 Logger.getLogger(loadOrderFishman.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -550,21 +550,27 @@ if (result1 == JFileChooser.APPROVE_OPTION) {
                 if(ord1==null){
                     ordernum++;
                     ord1=String.valueOf(ordernum);
-                    //String key=Integer.parseInt(wh)>0?"":wh;
-                    saveOrder(po, ord1, partid,new Date(), qty, "NULL",sku1,xfact,price,choixCustomer);
+                    saveOrder(po, 
+                            ord1, 
+                            partid,
+                            new java.sql.Date(new Date().getTime()),
+                            qty, 
+                            "NULL",
+                            sku1,
+                            xfact,price,choixCustomer);
+                
                     if(conn.getErreur()!=null){
                     errors.put(ord1, conn.getErreur());
-                }
+                    }
                 }
         }
-        if(data.size()>0){
+        if(datatoUpdate.size()>0){
             int choix=JOptionPane.showConfirmDialog(this, "this po is exist.\n would you like to update the order",
                     "Update order",JOptionPane.YES_NO_OPTION);
             if(choix==JOptionPane.YES_OPTION){
                 for(String title:datatoUpdate.keySet()){
-                   // for(Object[] ob:datatoUpdate.get(title)){
-                    
-                    //}
+                   Object[] ob=datatoUpdate.get(title);
+                    update(title, (Integer)ob[0], (Date)ob[1], (Double)ob[2]);
                 }
             }
             

@@ -7,7 +7,9 @@ package view;
 
 import admin.util.iconRenderer;
 import connection.ConnectionDb;
+import java.awt.Desktop;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -66,9 +68,10 @@ public class Module_summary extends javax.swing.JInternalFrame {
              list=new ArrayList<>();
              datalist=new ArrayList<>();
              String text_icon="Completed";
-             Map<String,Integer> sec,exp;
+             Map<String,Integer> sec,exp,sc;
              sec=second();
              exp=exception();
+             sc=scrap();
              Calendar ca=Calendar.getInstance();
              ca.set(2019, 3, 7);
              Date da=ca.getTime();
@@ -81,18 +84,23 @@ public class Module_summary extends javax.swing.JInternalFrame {
                 Date max=rs.getDate("max_first");
                 String tc=rs.getString("sewing_traveller");
                 String sewing_parts[]=tc.trim().replace(".", "-").split("-");
-                int ssec=0,except=0;
+                int ssec=0,except=0,scra=0;
                 try{
                     ssec=sec.get(rs.getString("stickers"));
                 }catch(NullPointerException e){
                     ssec=0;
                 }
                 try{
+                    scra=sc.get(rs.getString("stickers"));
+                }catch(NullPointerException e){
+                    scra=0;
+                }
+                try{
                     except=exp.get(rs.getString("stickers"));
                 }catch(NullPointerException e){
                     except=0;
                 }
-                Object[] o=new Object[18];
+                Object[] o=new Object[19];
                 o[0]=text_icon;
                 o[2]="Completed";
                 o[1]=rs.getDate("date_in");
@@ -108,7 +116,9 @@ public class Module_summary extends javax.swing.JInternalFrame {
                 o[16]=ssec;
                 o[8]=rs.getString("color");
                 o[17]=except;
-                o[14]=qty-first-ssec-except;
+                o[18]=scra;
+                
+                o[14]=qty-first-ssec-except-scra;
                 o[11]=max;
                 o[3]=rs.getString("WORKCENTER");
                 list.add(o);
@@ -135,10 +145,8 @@ public class Module_summary extends javax.swing.JInternalFrame {
                         
                         if(previous!=null&&!previous.isEmpty()){
                             for(Object val[] :previous){
-                                int qty=Integer.parseInt(val[10].toString());
-                                int first=Integer.parseInt(val[15].toString()),ssec=Integer.parseInt(val[16].toString()),ex=Integer.parseInt(val[17].toString());
-                                System.out.println("\t\t\t-"+val[12]+"-"+val[13]);
-                                if(qty-first-ssec-ex>0){
+                                int bal=Integer.parseInt(val[14].toString());
+                                if(bal>0){
                                     Calendar cal=Calendar.getInstance();
                                     cal.setTime(in);
                                     int ad=2;
@@ -165,15 +173,10 @@ public class Module_summary extends javax.swing.JInternalFrame {
                     }
                     if(previous!=null&&!previous.isEmpty()){
                 for(Object val[] :previous){
-                    int qty=Integer.parseInt(val[10].toString());
-                    int first=Integer.parseInt(val[15].toString()),ssec=Integer.parseInt(val[16].toString()),ex=Integer.parseInt(val[17].toString());
-                                System.out.println("\t\t\t-"+val[12]+"-"+val[13]);
-                                if(qty-first-ssec-ex>0){
-                                    
-                                    
-                                val[2]="Processing";
+                    int bal=Integer.parseInt(val[14].toString());
+                    if(bal>0){
+                        val[2]="Processing";
                         text_icon="In Process";
-                        
                     }else
                         text_icon="Completed";
                     val[0]=text_icon;
@@ -232,6 +235,19 @@ public class Module_summary extends javax.swing.JInternalFrame {
         try {
             while(rs.next()){
                 data.put(rs.getString("lot_stickers"), rs.getInt("second"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Module_summary.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return data;
+    }
+    private Map<String,Integer> scrap(){
+        Map<String,Integer> data=new HashMap<>();
+        String req="SELECT * FROM scrap_by_travel";
+        ResultSet rs=conn.select(req);
+        try {
+            while(rs.next()){
+                data.put(rs.getString("lot_stickers"), rs.getInt("qty"));
             }
         } catch (SQLException ex) {
             Logger.getLogger(Module_summary.class.getName()).log(Level.SEVERE, null, ex);
@@ -297,6 +313,7 @@ public class Module_summary extends javax.swing.JInternalFrame {
         setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
+        setTitle("Module Summary");
 
         jLabel1.setText("building filter:");
 
@@ -383,23 +400,24 @@ public class Module_summary extends javax.swing.JInternalFrame {
         grid_data.setAutoCreateRowSorter(true);
         grid_data.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "", "Date in Module", "Due Date", "BUILDING", "MODULE", "PO NUM", "STYLE", "CODE", "COLOR", "SIZE", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "Travel card No", "Balance At Module", "FIRST", "SECOND", "EXCEPTION"
+                "", "Date in Module", "Due Date", "BUILDING", "MODULE", "PO NUM", "STYLE", "CODE", "COLOR", "SIZE", "QTY", "LAST PRODUCTION DATE", "WORK ORDER", "Travel card No", "Balance At Module", "FIRST", "SECOND", "EXCEPTION", "SCRAP"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, true, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false
+                false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        grid_data.getTableHeader().setReorderingAllowed(false);
         grid_data.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 grid_dataMouseReleased(evt);
@@ -554,6 +572,12 @@ public class Module_summary extends javax.swing.JInternalFrame {
                 wb.write(fileOut);
                 fileOut.close();
                 wb.close();
+                int option=JOptionPane.showConfirmDialog(this, "File saved with success! \n"
+                        + "Do you want to open it?","confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.INFORMATION_MESSAGE);
+                if(option==JOptionPane.YES_OPTION){
+                    Desktop dsk=Desktop.getDesktop();
+            dsk.open(new File(name));
+                }
             }catch (FileNotFoundException ex) {
                 Logger.getLogger(Bundle.class.getName()).log(Level.SEVERE, null, ex);
             }catch (IOException ex) {

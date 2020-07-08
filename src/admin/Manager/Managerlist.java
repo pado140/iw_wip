@@ -14,5 +14,9 @@ public enum Managerlist {
     parts,
     part_num,
     style,color,
+    lpn,
+    detaillpn,
+    customer,
+    shipment
     
 }

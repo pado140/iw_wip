@@ -6,12 +6,18 @@
 package view;
 
 import connection.ConnectionDb;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -22,8 +28,12 @@ import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -36,17 +46,31 @@ private ConnectionDb conn = ConnectionDb.instance();
 private DefaultTableModel tbm,tbm1;
 private String Erreur="";
 private JFileChooser file;
+ArrayList<String> exc=Principal.except;
+private final JFileChooser fileChooser=new JFileChooser();
+private DataFormatter formatdata;
+private static int passed_box=0,scanbox=0;
+        
     /**
      * Creates new form packing
      */
     public Ready_to_ship() {
         initComponents();
-        
+        passed_box=0;
+        scanbox=0;
         file=new JFileChooser("C:/",FileSystemView.getFileSystemView());
         file.setDialogTitle("enregistre le fichier");
         file.setFileFilter(new FileNameExtensionFilter("Workbook excel","xlsx","xls"));
         tbm1 = (DefaultTableModel) Log.getModel();
         tbm1.setRowCount(0);
+        
+        formatdata=new DataFormatter();
+        
+    }
+    
+    private synchronized void addBox(){
+        ++passed_box;
+        passed.setText(""+passed_box);
     }
 
     /**
@@ -62,6 +86,11 @@ private JFileChooser file;
         jTextField1 = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        box_pass = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        passed = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         Log = new javax.swing.JTable();
@@ -70,7 +99,7 @@ private JFileChooser file;
         setIconifiable(true);
         setMaximizable(true);
         setResizable(true);
-        setTitle("Packed");
+        setTitle("Scan into WareHouse");
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -92,30 +121,69 @@ private JFileChooser file;
             }
         });
 
+        jButton1.setText("load lpn");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Box Scanned:");
+
+        box_pass.setText("qty");
+
+        jLabel4.setText("Box Passed:");
+
+        passed.setText("qty");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(55, 55, 55)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 290, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(55, 55, 55)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 179, Short.MAX_VALUE)
+                        .addComponent(jButton1)
+                        .addGap(42, 42, 42))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(box_pass)
+                        .addGap(35, 35, 35)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(passed)
+                        .addGap(128, 128, 128)))
                 .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButton1)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel4)
+                        .addComponent(passed))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel2)
+                        .addComponent(box_pass)))
+                .addGap(5, 5, 5))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 16, Short.MAX_VALUE))
         );
 
         Log.setModel(new javax.swing.table.DefaultTableModel(
@@ -153,7 +221,9 @@ private JFileChooser file;
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -242,8 +312,14 @@ private JFileChooser file;
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        load();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     private void act(){
-           
+                ++scanbox;
+                box_pass.setText(scanbox+"");
                 String text=jTextField1.getText().trim();
                 T ac=new T(text,text);
                 Thread t=new Thread(ac);
@@ -268,8 +344,48 @@ private JFileChooser file;
     }
     
     
+//    private Set<Object[]> ready(String cr){
+//        String requete1="select ordnum,stats,ponum,sku,coldsp,size,lpn,box_stickers,qty,status_lpn,last_qty,status from lpn_in_batch"
+//                + " where  BOX_STICKERS=? or lpn=?";
+//        ResultSet rs=conn.select(requete1, cr,cr);
+//        Set<Object[]> val=new HashSet<>();
+//        int qtyconfirm=0;
+//        int qty=0;
+//        String po="",sku="";
+//        String status="";
+//    
+//    try {
+//        while(rs.next()){
+//            Object[] ob=new Object[10];
+//            String order=rs.getString("ordnum");
+//            String box_stickers=rs.getString("box_stickers");
+//            String lpn=rs.getString("lpn");
+//            sku=rs.getString("sku");
+//            po=rs.getString("ponum");
+//            qty=rs.getInt("qty");
+//            status=rs.getString("stats").trim();
+//            qtyconfirm=rs.getInt("last_qty");
+//            
+//                    ob[0]=qty;
+//                    ob[1]=qtyconfirm;
+//                    ob[2]=po;
+//                    ob[3]=sku;
+//                    ob[4]=status;
+//                    ob[5]=order;
+//                    ob[6]=box_stickers;
+//                    ob[7]=lpn;
+//                    ob[8]=rs.getString("status_lpn").trim();
+//                    ob[9]=rs.getInt("status");
+//                    val.add(ob);
+//            }
+//    } catch (SQLException ex) {
+//        Logger.getLogger(packing.class.getName()).log(Level.SEVERE, null, ex);
+//    }
+//       return val; 
+//    }
+    
     private Set<Object[]> ready(String cr){
-        String requete1="select ordnum,stats,ponum,sku,coldsp,size,lpn,box_stickers,qty,status_lpn,last_qty,status from lpn_in_batch"
+        String requete1="select [ORDNUM_147],stats,ponum,sku,style,coldsp,size,lpn,box_stickers,qty,status,BRAND,status_lpn,auditqty from lpn_packed"
                 + " where  BOX_STICKERS=? or lpn=?";
         ResultSet rs=conn.select(requete1, cr,cr);
         Set<Object[]> val=new HashSet<>();
@@ -280,26 +396,28 @@ private JFileChooser file;
     
     try {
         while(rs.next()){
-            Object[] ob=new Object[10];
-            String order=rs.getString("ordnum");
+            Object[] ob=new Object[13];
+            String order=rs.getString("ORDNUM_147");
             String box_stickers=rs.getString("box_stickers");
             String lpn=rs.getString("lpn");
             sku=rs.getString("sku");
             po=rs.getString("ponum");
             qty=rs.getInt("qty");
             status=rs.getString("stats").trim();
-            qtyconfirm=rs.getInt("last_qty");
             
                     ob[0]=qty;
-                    ob[1]=qtyconfirm;
+                    ob[1]=qty;
                     ob[2]=po;
                     ob[3]=sku;
                     ob[4]=status;
                     ob[5]=order;
                     ob[6]=box_stickers;
                     ob[7]=lpn;
-                    ob[8]=rs.getString("status_lpn").trim();
+                    ob[8]=rs.getString("status_lpn");
                     ob[9]=rs.getInt("status");
+                    ob[10]=rs.getString("brand").trim();
+                    ob[11]=rs.getString("style").trim();
+                    ob[12]=rs.getInt("auditqty");
                     val.add(ob);
             }
     } catch (SQLException ex) {
@@ -307,7 +425,7 @@ private JFileChooser file;
     }
        return val; 
     }
-    private boolean canSave(Set<Object[]> val){
+    private synchronized boolean canSave(Set<Object[]> val){
         Erreur="";
         if(val.isEmpty()){
             //JOptionPane.showMessageDialog(this, "this sticker is invalid", "Bad error", JOptionPane.ERROR_MESSAGE);
@@ -316,9 +434,16 @@ private JFileChooser file;
         }
         
         for(Object[] ob:val){
-            if(!ob[8].toString().equalsIgnoreCase("pass")){
-                Erreur+="the lpn is not pass yet";
-                return false;
+            if(!exc.contains(ob[11].toString().trim())){
+                try{
+                if(!ob[8].toString().trim().equalsIgnoreCase("pass")){
+                    Erreur+="the lpn is not pass yet";
+                    return false;
+                }
+                }catch(NullPointerException e){
+                    Erreur+="the lpn is not pass yet";
+                    return false;
+                }
             }
             if(Integer.parseInt(ob[9].toString())==4){
                 Erreur+="the lpn is already in the warehouse";
@@ -335,6 +460,7 @@ private JFileChooser file;
            return false;
       }
     
+      addBox();
         return true;
     }
 
@@ -351,12 +477,17 @@ private JFileChooser file;
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable Log;
+    private javax.swing.JLabel box_pass;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel passed;
     // End of variables declaration//GEN-END:variables
 class T implements Runnable{
 
@@ -376,9 +507,18 @@ class T implements Runnable{
             if(exists(lpn)){
            if(!alreadyscan(lpn)){
             if(canSave(ready(lpn))){
-                conn.savecst("{call proc_ready(?,?,?)}",lpn,stickers,Principal.user_id);
+                //conn.savecst("{call proc_ready(?,?,?)}",lpn,stickers,Principal.user_id);
+                if(conn.Update("insert into ready_to_ship(stickers,lpn,qty,confirm_qty,[user_id],order_num) "
+                        + "select box_stickers,lpn,qty,auditqty,?,ORDNUM_147 from lpn_PACKED where BOX_STICKERS=? or lpn=?",1,Principal.user_id,stickers,lpn)){
+                    
+                
                 tbm1.setValueAt("Success", lineSelected, 2);
                 tbm1.setValueAt("Ok", lineSelected, 1);
+                }else{
+                    tbm1.setValueAt(conn.getErreur(), lineSelected, 2);
+               tbm1.setValueAt("Fail", lineSelected, 1);
+                }
+                
             }else{
                 tbm1.setValueAt(Erreur, lineSelected, 2);
                tbm1.setValueAt("Fail", lineSelected, 1);
@@ -398,5 +538,65 @@ class T implements Runnable{
         
     
 }
+
+private void load(){
+        File selectedFile = null;
+        int result1 = fileChooser.showOpenDialog(this);
+        int type=0;
+        if (result1 == JFileChooser.APPROVE_OPTION) {
+            selectedFile = fileChooser.getSelectedFile();
+            System.out.println("Selected file: " + selectedFile.getName());
+    
+            String ext="";
+            ext =selectedFile.getName().substring(selectedFile.getName().lastIndexOf(".")+1);
+            System.out.println("Selected file ext: " + ext);
+            
+            if(ext.equals("xlsx"))
+                type=1;
+            if(ext.equals("xls"))
+                type=2;
+            if(type!=0){                
+                try {
+                    read(type,selectedFile.getAbsolutePath());
+                } catch (IOException ex) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+                }   
+            }else{
+                JOptionPane.showMessageDialog(this, "This file can't be open\nplease verify", "Error", JOptionPane.ERROR_MESSAGE);
+            }      
+        }     
+    }
+    
+    public void read(int type,String inputFile) throws IOException  {
+        FileInputStream fis = new FileInputStream(inputFile);
+        Sheet sheet=null;
+        Workbook book1=null;
+        if(type==1)
+            book1 = new XSSFWorkbook(fis);
+        if(type==2)
+            book1 = new HSSFWorkbook(fis);
+        
+        sheet = book1.getSheetAt(0);
+        Map<Integer,String> obj=new HashMap<>();
+        Iterator<Row> itr = sheet.iterator();
+        List<Object> titre=new ArrayList<>();
+            Row tit=sheet.getRow(0);
+            Cell ce=tit.getCell(0);
+            if(formatdata.formatCellValue(ce).trim().toLowerCase().contains("lpn")){
+                itr.next();
+                while (itr.hasNext()) {
+                    tit=itr.next();
+                    ce=tit.getCell(0);
+                    String val=formatdata.formatCellValue(ce).trim();
+                    if(val.trim().isEmpty())
+                        return;
+                    jTextField1.setText(val);
+                    act();
+                    
+                }
+            }else
+                return;
+             
+    }
 }
 

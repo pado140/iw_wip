@@ -246,7 +246,7 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
                             
                         lpnval=lpn;
                         int index=lpnno(ord)+1;
-                            String stickers=ord+qty+index;
+                            String stickers=ord+"0000".substring(String.valueOf(index).length())+index;
                             
                         if(idlpn==0){
                         //if(0==0){
@@ -324,17 +324,24 @@ public class load_gbg_lpn_file extends javax.swing.JInternalFrame {
     }
     
     private int lpnno(String order){
-        String req="select count(*) n from box_detail where ordnum=?";
-        ResultSet rs=conn.select(req,order);
-        int no=0;
+        String requete="select count(*) nb from box_detail where ordnum =? ";
+        ResultSet rs=conn.select(requete, order);
+        
         try {
-            while(rs.next()){
-                no=rs.getInt("n");
+            while(rs.next())
+            {
+                
+                try{
+                    return rs.getInt("nb");
+                }catch(NumberFormatException |NullPointerException e){
+                    return 0;
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(load_gbg_lpn_file.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
-        return no;
+        return 0;
     }
     
     private int mix_exist(String mix){
